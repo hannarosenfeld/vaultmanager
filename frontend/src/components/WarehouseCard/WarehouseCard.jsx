@@ -11,8 +11,6 @@ function WarehouseCard({ openDeleteModal, warehouse }) {
   const onlyCustomerVaults = allVaultsPresentInWarehouse.filter(vault => vault.customer_name !== "EMPTY");
   const percentage = Math.round((onlyCustomerVaults.length / warehouseCapacity) * 100);
 
-  console.log("🍇 percentage: ", percentage);
-
   // Determine the color based on the percentage
   let percentageColor;
   if (percentage >= 75) {

@@ -32,11 +32,9 @@ const printSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchAllVaults.pending, (state) => {
-        console.log("🍇 in reducer")
         state.status = 'loading';
       })
       .addCase(fetchAllVaults.fulfilled, (state, action) => {
-        console.log("🍊 success", action)
         state.status = 'succeeded';
         state.vaults = action.payload;
       })

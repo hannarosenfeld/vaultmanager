@@ -68,12 +68,7 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
         submissionData.append("attachment", formData.file);
       }
   
-      // Log each part of the FormData object
-      for (let [key, value] of submissionData.entries()) {
-        console.log(`${key}:`, value);
-      }
-  
-      await dispatch(addVaultThunk(submissionData));
+      dispatch(addVaultThunk(submissionData));
       onClose();
     } catch (error) {
       console.error("Error submitting form: ", error);
