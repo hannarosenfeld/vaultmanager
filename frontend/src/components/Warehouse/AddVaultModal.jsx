@@ -108,164 +108,165 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
         className="fixed inset-0 bg-gray-500/75 transition-opacity"
       />
       <div className="fixed inset-0 z-10 flex items-center justify-center overflow-y-auto p-4 sm:p-6 lg:p-8">
+
         <DialogPanel
           transition
           className="relative w-full max-w-lg transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all"
         >
-          <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            
-            {/* Close Button */}
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
-              aria-label="Close"
-            >
-              ✕
-            </button>
+          {isLoading ? (
+            // Loading Modal (No close button)
+            <div className="flex flex-col items-center justify-center min-h-[300px]">
+              <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+              <p className="mt-4 text-gray-700 animate-pulse text-lg">
+                Adding Vault...
+              </p>
+            </div>
+          ) : (
+            // Form Modal (With close button)
+            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+              
+              {/* Close Button */}
+              <button
+                onClick={onClose}
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+                aria-label="Close"
+              >
+                ✕
+              </button>
 
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center min-h-[300px]">
-                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="mt-4 text-gray-700 animate-pulse text-lg">
-                  Adding Vault...
-                </p>
-              </div>
-            ) : (
-              <div>
-                <DialogTitle
-                  as="h3"
-                  className="text-lg font-semibold text-gray-900 mb-5"
-                >
-                  New Vault Info
-                </DialogTitle>
-                <form onSubmit={handleSubmit}>
-                  
-                  {/* Toggle Switch */}
-                  <label className="mb-5 inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      className="sr-only peer"
-                      onChange={handleToggle}
-                      checked={isEmpty}
-                    />
-                    <div className="relative w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition">
-                      <div
-                        className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                          isEmpty ? "translate-x-full" : ""
-                        }`}
-                      ></div>
-                    </div>
-                    <span className="ms-3 text-sm font-medium text-gray-900">
-                      {isEmpty ? "Empty Mode" : "Regular Mode"}
-                    </span>
+              <DialogTitle
+                as="h3"
+                className="text-lg font-semibold text-gray-900 mb-5"
+              >
+                New Vault Info
+              </DialogTitle>
+
+              <form onSubmit={handleSubmit}>
+                
+                {/* Toggle Switch */}
+                <label className="mb-5 inline-flex items-center cursor-pointer">
+                  <input
+                    type="checkbox"
+                    className="sr-only peer"
+                    onChange={handleToggle}
+                    checked={isEmpty}
+                  />
+                  <div className="relative w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition">
+                    <div
+                      className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                        isEmpty ? "translate-x-full" : ""
+                      }`}
+                    ></div>
+                  </div>
+                  <span className="ms-3 text-sm font-medium text-gray-900">
+                    {isEmpty ? "Empty Mode" : "Regular Mode"}
+                  </span>
+                </label>
+
+                <div className="mb-5">
+                  <label
+                    htmlFor="customer"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Customer Name
                   </label>
+                  <input
+                    type="text"
+                    id="customer"
+                    value={formData.customer.toUpperCase()}
+                    onChange={handleChange}
+                    disabled={isEmpty}
+                    className={`border border-gray-300 text-sm rounded-lg w-full p-2.5 ${
+                      isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
+                    }`}
+                    placeholder="CUSTOMER NAME"
+                    required
+                  />
+                </div>
 
-                  <div className="mb-5">
+                <div className="flex gap-4">
+                  <div className="mb-5 w-1/2">
                     <label
-                      htmlFor="customer"
+                      htmlFor="vault_id"
                       className="block mb-2 text-sm font-medium text-gray-900"
                     >
-                      Customer Name
+                      Vault Number
                     </label>
                     <input
                       type="text"
-                      id="customer"
-                      value={formData.customer.toUpperCase()}
+                      id="vault_id"
+                      value={formData.vault_id}
+                      onChange={handleChange}
+                      className="border border-gray-300 text-sm rounded-lg w-full p-2.5"
+                      placeholder="Vault Number"
+                      required
+                    />
+                  </div>
+                  <div className="mb-5 w-1/2">
+                    <label
+                      htmlFor="orderNumber"
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                    >
+                      Order Number
+                    </label>
+                    <input
+                      type="text"
+                      id="orderNumber"
+                      value={formData.orderNumber}
                       onChange={handleChange}
                       disabled={isEmpty}
                       className={`border border-gray-300 text-sm rounded-lg w-full p-2.5 ${
                         isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
                       }`}
-                      placeholder="CUSTOMER NAME"
+                      placeholder="Order Number"
                       required
                     />
                   </div>
+                </div>
 
-                  <div className="flex gap-4">
-                    <div className="mb-5 w-1/2">
-                      <label
-                        htmlFor="vault_id"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Vault Number
-                      </label>
-                      <input
-                        type="text"
-                        id="vault_id"
-                        value={formData.vault_id}
-                        onChange={handleChange}
-                        className="border border-gray-300 text-sm rounded-lg w-full p-2.5"
-                        placeholder="Vault Number"
-                        required
-                      />
-                    </div>
-                    <div className="mb-5 w-1/2">
-                      <label
-                        htmlFor="orderNumber"
-                        className="block mb-2 text-sm font-medium text-gray-900"
-                      >
-                        Order Number
-                      </label>
-                      <input
-                        type="text"
-                        id="orderNumber"
-                        value={formData.orderNumber}
-                        onChange={handleChange}
-                        disabled={isEmpty}
-                        className={`border border-gray-300 text-sm rounded-lg w-full p-2.5 ${
-                          isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
-                        }`}
-                        placeholder="Order Number"
-                        required
-                      />
-                    </div>
-                  </div>
+                <div className="mb-5">
+                  <label
+                    htmlFor="file"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Upload File
+                  </label>
+                  <input
+                    type="file"
+                    id="file"
+                    onChange={handleChange}
+                    className="border border-gray-300 rounded-lg w-full p-2.5"
+                  />
+                </div>
 
-                  <div className="mb-5">
-                    <label
-                      htmlFor="file"
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                    >
-                      Upload File
-                    </label>
-                    <input
-                      type="file"
-                      id="file"
-                      onChange={handleChange}
-                      className="border border-gray-300 rounded-lg w-full p-2.5"
-                    />
-                  </div>
+                <div className="mb-5">
+                  <label
+                    htmlFor="note"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Add Note
+                  </label>
+                  <textarea
+                    id="note"
+                    value={formData.note}
+                    onChange={handleChange}
+                    rows="4"
+                    className="w-full border border-gray-300 rounded-lg p-2.5"
+                    placeholder="Add a note..."
+                  ></textarea>
+                </div>
 
-                  {/* Note Field */}
-                  <div className="mb-5">
-                    <label
-                      htmlFor="note"
-                      className="block mb-2 text-sm font-medium text-gray-900"
-                    >
-                      Add Note
-                    </label>
-                    <textarea
-                      id="note"
-                      value={formData.note}
-                      onChange={handleChange}
-                      rows="4"
-                      className="w-full border border-gray-300 rounded-lg p-2.5"
-                      placeholder="Add a note..."
-                    ></textarea>
-                  </div>
-
-                  <div className="flex justify-end">
-                    <button
-                      type="submit"
-                      className="bg-blue-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600 transition"
-                    >
-                      Add Vault
-                    </button>
-                  </div>
-                </form>
-              </div>
-            )}
-          </div>
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    className="bg-blue-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600 transition"
+                  >
+                    Add Vault
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
         </DialogPanel>
       </div>
     </Dialog>
