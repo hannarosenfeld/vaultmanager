@@ -87,10 +87,7 @@ def get_all_vaults():
 
 
 @vault_routes.route('/upload', methods=['POST'])
-def upload_file():
-    attachment = request.files['attachment']
-    vault_id = request.form['vault_id']
-
+def upload_file(attachment, vault_id):
     if attachment:
         try:
             print("Starting file upload to Google Drive...")
@@ -101,7 +98,7 @@ def upload_file():
 
             file_metadata = {
                 'name': attachment.filename,
-                'parents': [FOLDER_ID]
+                'parents': [os.getenv("GOOGLE_DRIVE_FOLDER_ID")]
             }
             media = MediaFileUpload(file_path, mimetype=attachment.content_type)
             file = drive_service.files().create(
@@ -123,13 +120,12 @@ def upload_file():
             os.remove(file_path)
             print(f"File removed from local path: {file_path}")
             db.session.commit()
-            return jsonify({'message': 'File uploaded successfully', 'attachment': new_attachment.to_dict()})
+            return jsonify({'message': 'File uploaded successfully', 'attachment': new_attachment.to_dict()}), 200
         except Exception as e:
             print(f"Error uploading file to Google Drive: {e}")
             return jsonify({'error': f"Error uploading file to Google Drive: {e}"}), 500
 
     return jsonify({'error': 'No file provided'}), 400
-
 
 @vault_routes.route('/staged')
 # @login_required
@@ -170,7 +166,6 @@ def add_vault():
             db.session.commit()
 
             if not existent_customer:
-                print("🍄 creating new customer")
                 if customer_name:
                     new_customer = Customer(name=customer_name)
                     db.session.add(new_customer) 
@@ -179,7 +174,6 @@ def add_vault():
                     db.session.commit()
 
             if not existent_order:
-                print("🍄 creating new order")
                 if order_name:
                     new_order = Order(name=order_name)
                     db.session.add(new_order)
@@ -194,12 +188,12 @@ def add_vault():
                 field.full = True
 
             # Handle file upload
-            attachment = form.data['attachment']
+            attachment = request.files.get('attachment')
 
             if attachment:
-                response = upload_file()
-                if response.status_code != 200:
-                    return response
+                response, status_code = upload_file(attachment, new_vault.id)
+                if status_code != 200:
+                    return response, status_code
 
             # Retrieve the customer name for the response
             customer_name = Customer.query.get(new_vault.customer_id).name if new_vault.customer_id else None
@@ -213,6 +207,7 @@ def add_vault():
         return jsonify({'error': str(e)}), 500
 
     return jsonify({'errors': validation_errors_to_error_messages(form.errors)}), 400
+
 
 
 @vault_routes.route('/<int:id>', methods=['GET', 'PUT'])

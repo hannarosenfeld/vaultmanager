@@ -10,6 +10,7 @@ import { addVaultThunk } from "../../store/warehouse";
 
 export default function AddVaultModal({ onClose, fieldId, type, position }) {
   const dispatch = useDispatch();
+  const [isLoading, setIsLoading] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
   const [formData, setFormData] = useState({
     customer: "",
@@ -47,8 +48,6 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
     });
   };
 
-  const [isLoading, setIsLoading] = useState(false);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -68,7 +67,13 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
         submissionData.append("attachment", formData.file);
       }
   
-      dispatch(addVaultThunk(submissionData));
+      dispatch(addVaultThunk(submissionData))
+        .then(() => {
+          console.log("Vault added successfully");
+        })
+        .catch((error) => {
+          console.error("Error adding vault:", error);
+        });
       onClose();
     } catch (error) {
       console.error("Error submitting form: ", error);
