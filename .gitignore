@@ -1,0 +1,10 @@
+.env
+__pycache__/
+*.py[cod]
+.venv
+.DS_Store
+.vscode/
+render_debug.md
+instance/dev.db
+dev.db
+node_modules
