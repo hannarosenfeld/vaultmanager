@@ -10,8 +10,9 @@ import { addVaultThunk } from "../../store/warehouse";
 
 export default function AddVaultModal({ onClose, fieldId, type, position }) {
   const dispatch = useDispatch();
-  const [isLoading, setIsLoading] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     customer: "",
     vault_id: "",
@@ -37,7 +38,6 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
     if (id === "file" && files) {
       const selectedFile = files[0];
       if (selectedFile.size > 5 * 1024 * 1024) {
-        // Limit to 5MB
         alert("File size should not exceed 5MB");
         return;
       }
@@ -51,29 +51,48 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+
     try {
-      const submissionData = new FormData();
-      submissionData.append("vault_id", formData.vault_id);
-      submissionData.append(
+      let fileUrl = "";
+      if (formData.file) {
+        const fileData = new FormData();
+        fileData.append("attachment", formData.file);
+        fileData.append("vault_id", formData.vault_id);
+
+        const uploadResponse = await fetch(
+          "http://localhost:5173/api/vaults/upload",
+          {
+            method: "POST",
+            body: fileData,
+          }
+        );
+
+        if (!uploadResponse.ok) {
+          throw new Error("File upload failed");
+        }
+
+        const uploadResult = await uploadResponse.json();
+        fileUrl = uploadResult.attachment.file_url;
+      }
+
+      const vaultData = new FormData();
+      vaultData.append("vault_id", formData.vault_id);
+      vaultData.append(
         "customer_name",
         isEmpty ? "EMPTY" : formData.customer.toUpperCase()
       );
-      submissionData.append("order_number", formData.orderNumber);
-      submissionData.append("type", formData.type === "vault" ? "vault" : "couchbox");
-      submissionData.append("note", formData.note);
-      submissionData.append("field_id", formData.field_id);
-      submissionData.append("position", formData.position);
-      if (formData.file) {
-        submissionData.append("attachment", formData.file);
+      vaultData.append("order_number", formData.orderNumber);
+      vaultData.append("type", formData.type === "vault" ? "vault" : "couchbox");
+      vaultData.append("note", formData.note);
+      vaultData.append("field_id", formData.field_id);
+      vaultData.append("position", formData.position);
+      if (fileUrl) {
+        vaultData.append("file_url", fileUrl);
       }
-  
-      dispatch(addVaultThunk(submissionData))
-        .then(() => {
-          console.log("Vault added successfully");
-        })
-        .catch((error) => {
-          console.error("Error adding vault:", error);
-        });
+
+      await dispatch(addVaultThunk(vaultData));
+
+      console.log("Vault added successfully");
       onClose();
     } catch (error) {
       console.error("Error submitting form: ", error);
@@ -86,154 +105,166 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
     <Dialog open={true} onClose={onClose} className="relative z-10">
       <DialogBackdrop
         transition
-        className="fixed inset-0 bg-gray-500/75 transition-opacity data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+        className="fixed inset-0 bg-gray-500/75 transition-opacity"
       />
       <div className="fixed inset-0 z-10 flex items-center justify-center overflow-y-auto p-4 sm:p-6 lg:p-8">
         <DialogPanel
           transition
-          className="relative w-full max-w-lg transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all data-closed:translate-y-4 data-closed:opacity-0 data-enter:duration-300 data-enter:ease-out data-leave:duration-200 data-leave:ease-in"
+          className="relative w-full max-w-lg transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all"
         >
           <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div className="sm:flex sm:items-start">
-              <div className="mt-1 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600"
+              aria-label="Close"
+            >
+              ✕
+            </button>
+
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center min-h-[300px]">
+                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="mt-4 text-gray-700 animate-pulse text-lg">
+                  Adding Vault...
+                </p>
+              </div>
+            ) : (
+              <div>
                 <DialogTitle
                   as="h3"
                   className="text-lg font-semibold text-gray-900 mb-5"
                 >
                   New Vault Info
                 </DialogTitle>
-                <div className="mt-2 w-full">
-                  <form onSubmit={handleSubmit}>
-                    <label className="mb-5 inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        value=""
-                        className="sr-only peer"
-                        onChange={handleToggle}
-                      />
-                      <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                      <span className="ms-3 text-sm font-medium text-gray-900">
-                        Set empty
-                      </span>
-                    </label>
+                <form onSubmit={handleSubmit}>
+                  
+                  {/* Toggle Switch */}
+                  <label className="mb-5 inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="sr-only peer"
+                      onChange={handleToggle}
+                      checked={isEmpty}
+                    />
+                    <div className="relative w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition">
+                      <div
+                        className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                          isEmpty ? "translate-x-full" : ""
+                        }`}
+                      ></div>
+                    </div>
+                    <span className="ms-3 text-sm font-medium text-gray-900">
+                      {isEmpty ? "Empty Mode" : "Regular Mode"}
+                    </span>
+                  </label>
 
-                    <div className="mb-5">
+                  <div className="mb-5">
+                    <label
+                      htmlFor="customer"
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                    >
+                      Customer Name
+                    </label>
+                    <input
+                      type="text"
+                      id="customer"
+                      value={formData.customer.toUpperCase()}
+                      onChange={handleChange}
+                      disabled={isEmpty}
+                      className={`border border-gray-300 text-sm rounded-lg w-full p-2.5 ${
+                        isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
+                      }`}
+                      placeholder="CUSTOMER NAME"
+                      required
+                    />
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="mb-5 w-1/2">
                       <label
-                        htmlFor="customer"
+                        htmlFor="vault_id"
                         className="block mb-2 text-sm font-medium text-gray-900"
                       >
-                        Customer Name
+                        Vault Number
                       </label>
                       <input
                         type="text"
-                        id="customer"
-                        value={formData.customer.toUpperCase()}
+                        id="vault_id"
+                        value={formData.vault_id}
                         onChange={handleChange}
-                        disabled={isEmpty}
-                        className={`${
-                          isEmpty ? "bg-gray-200 text-gray-500" : "bg-gray-50"
-                        } border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-                        placeholder="CUSTOMER NAME"
+                        className="border border-gray-300 text-sm rounded-lg w-full p-2.5"
+                        placeholder="Vault Number"
                         required
                       />
                     </div>
-                    <div className="flex gap-2">
-                      <div className="mb-5 w-1/2">
-                        <label
-                          htmlFor="vault_id"
-                          className="block mb-2 text-sm font-medium text-gray-900"
-                        >
-                          Vault Number
-                        </label>
-                        <input
-                          type="text"
-                          id="vault_id"
-                          value={formData.vault_id}
-                          onChange={handleChange}
-                          className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                          placeholder="Vault Number"
-                          required
-                        />
-                      </div>
-                      <div className="mb-5 w-1/2">
-                        <label
-                          htmlFor="orderNumber"
-                          className="block mb-2 text-sm font-medium text-gray-900"
-                        >
-                          Order Number
-                        </label>
-                        <input
-                          type="text"
-                          id="orderNumber"
-                          value={formData.orderNumber}
-                          onChange={handleChange}
-                          disabled={isEmpty}
-                          className={`${
-                            isEmpty ? "bg-gray-200 text-gray-500" : "bg-gray-50"
-                          } border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5`}
-                          placeholder="Order Number"
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex gap-5 mb-5 justify-between">
-                      <div className="w-full">
-                        <label
-                          htmlFor="file"
-                          className="block mb-2 text-sm font-medium text-gray-900"
-                        >
-                          Upload File
-                        </label>
-                        <input
-                          type="file"
-                          id="file"
-                          onChange={handleChange}
-                          className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="mb-5">
+                    <div className="mb-5 w-1/2">
                       <label
-                        htmlFor="note"
+                        htmlFor="orderNumber"
                         className="block mb-2 text-sm font-medium text-gray-900"
                       >
-                        Add note
+                        Order Number
                       </label>
-                      <textarea
-                        id="note"
-                        value={formData.note}
+                      <input
+                        type="text"
+                        id="orderNumber"
+                        value={formData.orderNumber}
                         onChange={handleChange}
-                        rows="4"
-                        className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Add a note..."
-                      ></textarea>
-                    </div>
-                    <div className="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                      <button
-                        type="submit"
-                        disabled={isLoading}
-                        className={`inline-flex w-full justify-center rounded-md bg-blue-500 px-3 py-2 text-sm text-white shadow-xs hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:ml-3 sm:w-auto ${
-                          isLoading ? "opacity-50 cursor-not-allowed" : ""
+                        disabled={isEmpty}
+                        className={`border border-gray-300 text-sm rounded-lg w-full p-2.5 ${
+                          isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
                         }`}
-                      >
-                        {isLoading ? "Submitting..." : "Add Vault"}
-                      </button>
-
-                      <button
-                        type="button"
-                        data-autofocus
-                        onClick={() => onClose()}
-                        className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-xs ring-1 ring-gray-300 ring-inset hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 sm:mt-0 sm:w-auto"
-                      >
-                        Cancel
-                      </button>
+                        placeholder="Order Number"
+                        required
+                      />
                     </div>
-                  </form>
-                </div>
+                  </div>
+
+                  <div className="mb-5">
+                    <label
+                      htmlFor="file"
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                    >
+                      Upload File
+                    </label>
+                    <input
+                      type="file"
+                      id="file"
+                      onChange={handleChange}
+                      className="border border-gray-300 rounded-lg w-full p-2.5"
+                    />
+                  </div>
+
+                  {/* Note Field */}
+                  <div className="mb-5">
+                    <label
+                      htmlFor="note"
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                    >
+                      Add Note
+                    </label>
+                    <textarea
+                      id="note"
+                      value={formData.note}
+                      onChange={handleChange}
+                      rows="4"
+                      className="w-full border border-gray-300 rounded-lg p-2.5"
+                      placeholder="Add a note..."
+                    ></textarea>
+                  </div>
+
+                  <div className="flex justify-end">
+                    <button
+                      type="submit"
+                      className="bg-blue-500 text-white rounded-lg px-4 py-2 hover:bg-blue-600 transition"
+                    >
+                      Add Vault
+                    </button>
+                  </div>
+                </form>
               </div>
-            </div>
+            )}
           </div>
         </DialogPanel>
       </div>

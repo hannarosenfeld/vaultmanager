@@ -41,101 +41,71 @@ SERVICE_ACCOUNT_INFO = {
 credentials = service_account.Credentials.from_service_account_info(SERVICE_ACCOUNT_INFO, scopes=SCOPES)
 drive_service = build('drive', 'v3', credentials=credentials)
 
-@vault_routes.route('/move', methods=['PUT'])
-# @login_required
-def move_vault():
-    data = request.get_json()
-    vault_id = data.get('vaultId')
-    field_id = data.get('fieldId')
-    position = data.get('position')
-
-    vault = Vault.query.get(vault_id)
-    
-    if vault:
-        vault.field_id = field_id
-        vault.position = position
-        db.session.commit()
-        return jsonify({
-            "vaultId": vault_id,
-            "fieldId": field_id,
-            "position": position,
-            "vault": vault.to_dict()
-        })
-    else:
-        return jsonify({"message": "Vault not found"}), 404
-    
-    
-@vault_routes.route('/all', methods=['GET'])
-# @login_required
-def get_all_vaults():
-    """
-    Query for all vaults and return them in a list of vault dictionaries
-    """
-    vaults = Vault.query.all()
-    vaults_with_warehouse = []
-    for vault in vaults:
-        field = Field.query.get(vault.field_id)
-        warehouse_id = field.warehouse_id if field else None
-        warehouse = Warehouse.query.get(warehouse_id) if warehouse_id else None
-        vault_dict = vault.to_dict()
-        vault_dict['warehouse_name'] = warehouse.name if warehouse else None
-        vault_dict['field_id'] = "staged" if vault.field_id is None else vault.field_id
-        vault_dict['field_name'] = field.name if field else "staged"
-        vaults_with_warehouse.append(vault_dict)
-        
-    return jsonify(vaults_with_warehouse)
 
 
 @vault_routes.route('/upload', methods=['POST'])
-def upload_file(attachment, vault_id):
-    if attachment:
-        try:
-            print("Starting file upload to Google Drive...")
-            # Google Drive upload code
-            file_path = os.path.join('/tmp', secure_filename(attachment.filename))
-            attachment.save(file_path)
-            print(f"File saved to {file_path}")
+def upload_file():
+    """Handles file uploads and sends to Google Drive"""
+    try:
+        attachment = request.files.get('attachment')
+        vault_id = request.form.get('vault_id')
 
-            file_metadata = {
-                'name': attachment.filename,
-                'parents': [os.getenv("GOOGLE_DRIVE_FOLDER_ID")]
-            }
-            media = MediaFileUpload(file_path, mimetype=attachment.content_type)
-            file = drive_service.files().create(
-                body=file_metadata,
-                media_body=media,
-                fields='id'
-            ).execute()
-            print(f"File uploaded to Google Drive with ID: {file.get('id')}")
+        if not attachment or not vault_id:
+            return jsonify({'error': 'Missing file or vault ID'}), 400
 
-            file_url = f'https://drive.google.com/file/d/{file.get("id")}/view'
+        print("Starting file upload to Google Drive...")
 
-            new_attachment = Attachment(
-                vault_id=vault_id,
-                file_name=attachment.filename,
-                unique_name=attachment.filename,
-                file_url=file_url,
-            )
-            db.session.add(new_attachment)
-            os.remove(file_path)
-            print(f"File removed from local path: {file_path}")
-            db.session.commit()
-            return jsonify({'message': 'File uploaded successfully', 'attachment': new_attachment.to_dict()}), 200
-        except Exception as e:
-            print(f"Error uploading file to Google Drive: {e}")
-            return jsonify({'error': f"Error uploading file to Google Drive: {e}"}), 500
+        # Save the file temporarily
+        file_path = os.path.join('/tmp', secure_filename(attachment.filename))
+        attachment.save(file_path)
+        print(f"File saved to {file_path}")
 
-    return jsonify({'error': 'No file provided'}), 400
+        # Google Drive Upload
+        file_metadata = {
+            'name': attachment.filename,
+            'parents': [os.getenv("GOOGLE_DRIVE_FOLDER_ID")]
+        }
+        media = MediaFileUpload(file_path, mimetype=attachment.content_type)
 
-@vault_routes.route('/staged')
-# @login_required
-def all_vaults_staged():
-    """
-    Query for all vaults and returns them in a list of vault dictionaries
-    """
-    vaults = Vault.query.filter_by(field_id=None)
-    return { vault.id : vault.to_dict() for vault in vaults }
+        # Handle broken pipe by retrying
+        retry_attempts = 3
+        for attempt in range(retry_attempts):
+            try:
+                file = drive_service.files().create(
+                    body=file_metadata,
+                    media_body=media,
+                    fields='id'
+                ).execute()
 
+                file_id = file.get('id')
+                print(f"File uploaded successfully: {file_id}")
+                break
+            except Exception as e:
+                print(f"Upload attempt {attempt + 1} failed: {e}")
+                if attempt == retry_attempts - 1:
+                    raise e
+
+        # Clean up
+        os.remove(file_path)
+        print(f"File removed from local storage: {file_path}")
+
+        # Store attachment in DB
+        file_url = f'https://drive.google.com/file/d/{file_id}/view'
+        new_attachment = Attachment(
+            vault_id=vault_id,
+            file_name=attachment.filename,
+            unique_name=attachment.filename,
+            file_url=file_url,
+        )
+
+        db.session.add(new_attachment)
+        db.session.commit()
+
+        return jsonify({'message': 'File uploaded successfully', 'attachment': new_attachment.to_dict()}), 200
+
+    except Exception as e:
+        print(f"Error uploading file: {e}")
+        return jsonify({'error': f"Error uploading file: {e}"}), 500
 
 @vault_routes.route('/', methods=['POST'])
 # @login_required
@@ -208,6 +178,59 @@ def add_vault():
 
     return jsonify({'errors': validation_errors_to_error_messages(form.errors)}), 400
 
+
+@vault_routes.route('/move', methods=['PUT'])
+# @login_required
+def move_vault():
+    data = request.get_json()
+    vault_id = data.get('vaultId')
+    field_id = data.get('fieldId')
+    position = data.get('position')
+
+    vault = Vault.query.get(vault_id)
+    
+    if vault:
+        vault.field_id = field_id
+        vault.position = position
+        db.session.commit()
+        return jsonify({
+            "vaultId": vault_id,
+            "fieldId": field_id,
+            "position": position,
+            "vault": vault.to_dict()
+        })
+    else:
+        return jsonify({"message": "Vault not found"}), 404
+    
+    
+@vault_routes.route('/all', methods=['GET'])
+# @login_required
+def get_all_vaults():
+    """
+    Query for all vaults and return them in a list of vault dictionaries
+    """
+    vaults = Vault.query.all()
+    vaults_with_warehouse = []
+    for vault in vaults:
+        field = Field.query.get(vault.field_id)
+        warehouse_id = field.warehouse_id if field else None
+        warehouse = Warehouse.query.get(warehouse_id) if warehouse_id else None
+        vault_dict = vault.to_dict()
+        vault_dict['warehouse_name'] = warehouse.name if warehouse else None
+        vault_dict['field_id'] = "staged" if vault.field_id is None else vault.field_id
+        vault_dict['field_name'] = field.name if field else "staged"
+        vaults_with_warehouse.append(vault_dict)
+        
+    return jsonify(vaults_with_warehouse)
+
+@vault_routes.route('/staged')
+# @login_required
+def all_vaults_staged():
+    """
+    Query for all vaults and returns them in a list of vault dictionaries
+    """
+    vaults = Vault.query.filter_by(field_id=None)
+    return { vault.id : vault.to_dict() for vault in vaults }
 
 
 @vault_routes.route('/<int:id>', methods=['GET', 'PUT'])
