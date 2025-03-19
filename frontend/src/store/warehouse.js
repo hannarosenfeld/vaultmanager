@@ -383,6 +383,7 @@ export const deleteWarehouseThunk = (warehouseId) => async (dispatch) => {
 };
 
 export const updateVaultThunk = (vaultData) => async (dispatch) => {
+  console.log("💖 ", vaultData)
   try {
     const res = await fetch(`/api/vaults/${vaultData.id}`, {
       method: "PUT",
