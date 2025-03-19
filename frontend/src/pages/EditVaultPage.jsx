@@ -122,7 +122,7 @@ export default function EditVaultPage() {
                     {editFields.vault_id ? (
                         <input
                             type="text"
-                            name="vault_id"
+                            name="name"
                             value={editableVault.name}
                             onChange={handleChange}
                             className="ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
