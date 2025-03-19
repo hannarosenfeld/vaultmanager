@@ -36,7 +36,7 @@ export default function EditVaultPage() {
     const { name, value, files } = e.target;
     setEditableVault((prevVault) => ({
       ...prevVault,
-      [name]: files ? files[0] : value,
+      [name]: files ? files[0] : name === "customer_name" ? value.toUpperCase() : value,
     }));
   };
 
@@ -101,7 +101,7 @@ export default function EditVaultPage() {
             <input
               type="text"
               name="customer_name"
-              value={editableVault.customer_name.toUpperCase() || ""}
+              value={editableVault.customer_name || ""}
               onChange={handleChange}
               className="ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />

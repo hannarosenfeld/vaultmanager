@@ -117,7 +117,7 @@ def add_vault():
     try:
         if form.validate_on_submit():
             print("Form data:", form.data)
-            customer_name = form.data['customer_name']
+            customer_name = form.data['customer_name'].upper()  # Ensure customer name is uppercase
             order_name = form.data['order_name']
 
             existent_customer = Customer.query.filter_by(name=customer_name).first() if customer_name else None
