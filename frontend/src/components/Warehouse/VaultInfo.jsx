@@ -1,17 +1,21 @@
 import { useState } from 'react';
-import ViewAndEditVaultModal from './ViewAndEditVaultModal';
+import { useDispatch } from 'react-redux';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { setCurrentVault } from '../../store/warehouse';
 import ConfirmStagingModal from './ConfirmStagingModal';
 
 export default function VaultInfo({ vault, isStage, isTopmost }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [isConfirmStagingModalOpen, setIsConfirmStagingModalOpen] = useState(false);
-
-  const toggleModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
 
   const toggleConfirmStagingModal = () => {
     setIsConfirmStagingModalOpen(!isConfirmStagingModalOpen);
+  };
+
+  const handleEditClick = () => {
+    dispatch(setCurrentVault(vault));
+    navigate(`/edit/vault/${vault.name}`);
   };
 
   return (
@@ -25,7 +29,7 @@ export default function VaultInfo({ vault, isStage, isTopmost }) {
         </div>
         {!isStage && (
         <div className="flex text-md gap-2 items-center justify-center">
-          <div className="flex items-center" onClick={toggleModal}>
+          <div className="flex items-center" onClick={handleEditClick}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -53,9 +57,6 @@ export default function VaultInfo({ vault, isStage, isTopmost }) {
         )}
       </div>
 
-      {isModalOpen && (
-        <ViewAndEditVaultModal toggleModal={toggleModal} vault={vault} />
-      )}
       {isConfirmStagingModalOpen && (
         <ConfirmStagingModal onClose={toggleConfirmStagingModal} vault={vault} />
       )}

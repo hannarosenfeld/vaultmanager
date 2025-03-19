@@ -14,7 +14,7 @@ import AddWarehouse from "./pages/AddWarehouseModal";
 import EditWarehousePage from "./pages/EditWarehousePage";
 import PrintStudio from "./pages/PrintStudio";
 import StatisticsPage from "./pages/StatisticsPage";
-
+import EditVaultPage from "./pages/EditVaultPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -48,6 +48,7 @@ function App() {
               <Route path="/warehouse/:warehouseName" element={sessionUser ? <WarehousePage warehouses={warehouses} /> : <Navigate to="/login" />} />
               <Route path="/add-warehouse" element={sessionUser ? <AddWarehouse /> : <Navigate to="/login" />} />
               <Route path="/edit/:warehouseName" element={sessionUser ? <EditWarehousePage /> : <Navigate to="/login" />} />
+              <Route path="/edit/vault/:vaultName" element={sessionUser ? <EditVaultPage /> : <Navigate to="/login" />} />
               <Route path="/statistics" element={sessionUser ? <StatisticsPage /> : <Navigate to="/login" />} />
               <Route path="/print-studio" element={sessionUser ? <PrintStudio /> : <Navigate to="/login" />} />
               <Route path="*" element={<Navigate to={sessionUser ? "/" : "/login"} />} />              

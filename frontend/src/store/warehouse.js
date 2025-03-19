@@ -16,6 +16,7 @@ const DELETE_FIELDS = "warehouse/DELETE_FIELDS";
 const DELETE_WAREHOUSE = "warehouse/DELETE_WAREHOUSE";
 const SEARCH_WAREHOUSE = "warehouse/SEARCH_WAREHOUSE";
 const CLEAR_SEARCH = "warehouse/CLEAR_SEARCH";
+const SET_CURRENT_VAULT = "warehouse/SET_CURRENT_VAULT";
 
 export const addWarehouse = (warehouse) => ({
   type: ADD_WAREHOUSE,
@@ -108,6 +109,11 @@ export const searchWarehouse = (searchTerm, searchType) => ({
 
 export const clearSearch = () => ({
   type: CLEAR_SEARCH,
+});
+
+export const setCurrentVault = (vault) => ({
+  type: SET_CURRENT_VAULT,
+  vault,
 });
 
 export const getAllWarehousesThunk = () => async (dispatch) => {
@@ -376,10 +382,36 @@ export const deleteWarehouseThunk = (warehouseId) => async (dispatch) => {
   }
 };
 
+export const updateVaultThunk = (vaultData) => async (dispatch) => {
+  try {
+    const res = await fetch(`/api/vaults/${vaultData.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(vaultData),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      dispatch(setCurrentVault(data));
+      return data;
+    } else {
+      const err = await res.json();
+      console.error("Error updating vault:", err);
+      return err;
+    }
+  } catch (error) {
+    console.error("Error updating vault:", error);
+    return error;
+  }
+};
+
 const initialState = {
   warehouses: {},
   currentWarehouse: null,
   currentField: null,
+  currentVault: null,
   search: null,
 };
 
@@ -807,7 +839,7 @@ const warehouseReducer = (state = initialState, action) => {
           : type == "customer"
           ? vaults.filter((vault) => vault.customer_name === searchTerm)
           : [];
-      const vaultIds = vaultsContainingSearchTerm.map((vault) => vault.id);
+
       const fieldIds = vaultsContainingSearchTerm.map(
         (vault) => vault.field_id
       );
@@ -822,7 +854,13 @@ const warehouseReducer = (state = initialState, action) => {
         ...state,
         search: null,
       };
-      
+
+    case SET_CURRENT_VAULT:
+      return {
+        ...state,
+        currentVault: action.vault,
+      };
+
     default:
       return state;
   }
