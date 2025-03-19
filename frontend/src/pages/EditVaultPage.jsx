@@ -90,7 +90,7 @@ export default function EditVaultPage() {
   }
 
   return (
-    <div className="flex flex-col items-center h-[90vh] px-4">
+    <div className="flex flex-col items-center h-[90vh] px-4 justify-between">
       <h2 className="mb-4 text-xl font-semibold">Edit Vault {vault.name}</h2>
       <form onSubmit={handleSave} className="w-full max-w-lg">
         <div className="mb-6 flex items-center border-b border-gray-200 pb-4">
