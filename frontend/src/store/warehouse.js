@@ -383,7 +383,6 @@ export const deleteWarehouseThunk = (warehouseId) => async (dispatch) => {
 };
 
 export const updateVaultThunk = (vaultData) => async (dispatch) => {
-  console.log("💖 ", vaultData)
   try {
     const res = await fetch(`/api/vaults/${vaultData.id}`, {
       method: "PUT",
@@ -857,9 +856,15 @@ const warehouseReducer = (state = initialState, action) => {
       };
 
     case SET_CURRENT_VAULT:
+      if (!state.currentWarehouse) {
+        return state;
+      }
       return {
         ...state,
-        currentVault: action.vault,
+        currentVault: {
+          ...action.vault,
+          warehouse_name: state.currentWarehouse.name.split(" ").join("-").toLowerCase(),
+        },
       };
 
     default:

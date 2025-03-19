@@ -8,6 +8,7 @@ import {
 } from "../store/warehouse";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ConfirmDeleteVaultModal from "../components/Warehouse/ConfirmDeleteVaultModal";
+import { setCurrentVault } from '../store/warehouse';
 
 export default function EditVaultPage() {
   const dispatch = useDispatch();
@@ -51,6 +52,7 @@ export default function EditVaultPage() {
       console.error("Error updating vault: ", error);
     } finally {
       setLoading(false);
+      navigate(`/warehouse/${vault.warehouse_name}`);
     }
   };
 
