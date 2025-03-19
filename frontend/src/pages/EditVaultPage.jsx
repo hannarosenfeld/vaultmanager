@@ -101,7 +101,7 @@ export default function EditVaultPage() {
             <input
               type="text"
               name="customer_name"
-              value={editableVault.customer_name || ""}
+              value={editableVault.customer_name.toUpperCase() || ""}
               onChange={handleChange}
               className="ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
