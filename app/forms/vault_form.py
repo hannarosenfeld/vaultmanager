@@ -8,7 +8,7 @@ class VaultForm(FlaskForm):
     field_id = IntegerField('field_id', validators=[DataRequired()])
     position = StringField('position', validators=[DataRequired()])
     vault_id = StringField('vault_id', validators=[DataRequired()])
-    order_number = StringField('order_number')
+    order_name= StringField('order_name')
     attachment = FileField('attachment')
     note = TextAreaField('note')
     empty = BooleanField('empty')

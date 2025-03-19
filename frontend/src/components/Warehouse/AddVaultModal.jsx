@@ -59,7 +59,7 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
         "customer_name",
         isEmpty ? "EMPTY" : formData.customer.toUpperCase()
       );
-      vaultData.append("order_number", formData.orderNumber);
+      vaultData.append("order_name", formData.orderNumber);
       vaultData.append("type", formData.type === "vault" ? "vault" : "couchbox");
       vaultData.append("note", formData.note);
       vaultData.append("field_id", formData.field_id);

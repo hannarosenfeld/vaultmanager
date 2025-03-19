@@ -118,7 +118,7 @@ def add_vault():
         if form.validate_on_submit():
             print("Form data:", form.data)
             customer_name = form.data['customer_name']
-            order_name = form.data['order_number']
+            order_name = form.data['order_name']
 
             existent_customer = Customer.query.filter_by(name=customer_name).first() if customer_name else None
             existent_order = Order.query.filter_by(name=order_name).first() if order_name else None
@@ -162,13 +162,9 @@ def add_vault():
             # Handle file upload
             attachment = request.files.get('attachment')
             
-            print("❤️‍🔥 in route!")
             print("Attachment:", attachment)
 
             if attachment:
-                print("🎀 there is an attachment")
-                print("🏵️", attachment)
-                
                 # Generate a unique file name
                 unique_filename = str(uuid.uuid4()) + secure_filename(attachment.filename)
                 file_path = os.path.join('/tmp', unique_filename)
@@ -300,6 +296,8 @@ def manage_vault(id):
     if request.method == 'PUT':
         form = EditVaultForm()
         form['csrf_token'].data = request.cookies['csrf_token']
+        
+        print("🍊 IN ROUTE")
 
         if form.validate_on_submit():
             if form.data['staging']:
@@ -326,7 +324,7 @@ def manage_vault(id):
                 vault.customer_id = existent_customer.id
 
             # Update order
-            order_name = form.data['order_number']
+            order_name = form.data['order_name']
             existent_order = Order.query.filter_by(name=order_name).first()
             if not existent_order:
                 new_order = Order(name=order_name)

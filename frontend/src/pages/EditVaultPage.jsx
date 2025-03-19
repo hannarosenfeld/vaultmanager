@@ -101,7 +101,7 @@ export default function EditVaultPage() {
             <input
               type="text"
               name="customer_name"
-              value={editableVault.customer_name}
+              value={editableVault.customer_name || ""}
               onChange={handleChange}
               className="ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
@@ -133,7 +133,7 @@ export default function EditVaultPage() {
             <input
               type="text"
               name="name"
-              value={editableVault.name}
+              value={editableVault.name || ""}
               onChange={handleChange}
               className="ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
@@ -165,7 +165,7 @@ export default function EditVaultPage() {
             <input
               type="text"
               name="order_name"
-              value={editableVault.order_name}
+              value={editableVault.order_name || ""}
               onChange={handleChange}
               className="ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
@@ -218,7 +218,7 @@ export default function EditVaultPage() {
           <textarea
             name="note"
             id="note"
-            value={editableVault.note}
+            value={editableVault.note || ""}
             onChange={handleChange}
             rows="4"
             className="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
@@ -287,7 +287,7 @@ export default function EditVaultPage() {
           </button>
           <button
             type="submit"
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-6 py-2.5 flex items-center justify-center h-10 w-24 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-6 py-2.5 flex items-center justify-center h-10 w-32 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
           >
             Save
           </button>
