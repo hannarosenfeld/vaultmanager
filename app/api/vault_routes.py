@@ -106,6 +106,7 @@ def upload_file():
     except Exception as e:
         print(f"Error uploading file: {e}")
         return jsonify({'error': f"Error uploading file: {e}"}), 500
+    
 
 @vault_routes.route('/', methods=['POST'])
 # @login_required
@@ -115,6 +116,7 @@ def add_vault():
     
     try:
         if form.validate_on_submit():
+            print("Form data:", form.data)
             customer_name = form.data['customer_name']
             order_name = form.data['order_number']
 
@@ -159,11 +161,59 @@ def add_vault():
 
             # Handle file upload
             attachment = request.files.get('attachment')
+            
+            print("❤️‍🔥 in route!")
+            print("Attachment:", attachment)
 
             if attachment:
-                response, status_code = upload_file(attachment, new_vault.id)
-                if status_code != 200:
-                    return response, status_code
+                print("🎀 there is an attachment")
+                print("🏵️", attachment)
+                
+                # Generate a unique file name
+                unique_filename = str(uuid.uuid4()) + secure_filename(attachment.filename)
+                file_path = os.path.join('/tmp', unique_filename)
+                attachment.save(file_path)
+                print(f"File saved to {file_path}")
+
+                # Google Drive Upload
+                file_metadata = {
+                    'name': unique_filename,
+                    'parents': [os.getenv("GOOGLE_DRIVE_FOLDER_ID")]
+                }
+                media = MediaFileUpload(file_path, mimetype=attachment.content_type)
+
+                # Handle broken pipe by retrying
+                retry_attempts = 3
+                for attempt in range(retry_attempts):
+                    try:
+                        file = drive_service.files().create(
+                            body=file_metadata,
+                            media_body=media,
+                            fields='id'
+                        ).execute()
+
+                        file_id = file.get('id')
+                        print(f"File uploaded successfully: {file_id}")
+                        break
+                    except Exception as e:
+                        print(f"Upload attempt {attempt + 1} failed: {e}")
+                        if attempt == retry_attempts - 1:
+                            raise e
+
+                # Clean up
+                os.remove(file_path)
+                print(f"File removed from local storage: {file_path}")
+
+                # Store attachment in DB
+                file_url = f'https://drive.google.com/file/d/{file_id}/view'
+                new_attachment = Attachment(
+                    vault_id=new_vault.id,
+                    file_name=attachment.filename,
+                    unique_name=unique_filename,
+                    file_url=file_url,
+                )
+                db.session.add(new_attachment)
+                db.session.commit()
 
             # Retrieve the customer name for the response
             customer_name = Customer.query.get(new_vault.customer_id).name if new_vault.customer_id else None

@@ -7,6 +7,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import ActionButton from "../components/EditWarehouse/ActionButton";
 import EditWarehouseModal from "../components/EditWarehouse/EditWarehouseModal";
 
+
 export default function EditWarehousePage() {
   const dispatch = useDispatch();
   const { warehouseName } = useParams();

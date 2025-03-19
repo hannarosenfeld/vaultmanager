@@ -53,28 +53,6 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
     setIsLoading(true);
 
     try {
-      let fileUrl = "";
-      if (formData.file) {
-        const fileData = new FormData();
-        fileData.append("attachment", formData.file);
-        fileData.append("vault_id", formData.vault_id);
-
-        const uploadResponse = await fetch(
-          "http://localhost:5173/api/vaults/upload",
-          {
-            method: "POST",
-            body: fileData,
-          }
-        );
-
-        if (!uploadResponse.ok) {
-          throw new Error("File upload failed");
-        }
-
-        const uploadResult = await uploadResponse.json();
-        fileUrl = uploadResult.attachment.file_url;
-      }
-
       const vaultData = new FormData();
       vaultData.append("vault_id", formData.vault_id);
       vaultData.append(
@@ -86,8 +64,8 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
       vaultData.append("note", formData.note);
       vaultData.append("field_id", formData.field_id);
       vaultData.append("position", formData.position);
-      if (fileUrl) {
-        vaultData.append("file_url", fileUrl);
+      if (formData.file) {
+        vaultData.append("attachment", formData.file);
       }
 
       await dispatch(addVaultThunk(vaultData));
