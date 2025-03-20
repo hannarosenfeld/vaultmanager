@@ -359,6 +359,11 @@ def delete_vault(id):
     """
     vault = Vault.query.get(id)
     
+    print("🍊 vault", vault.to_dict())
+    
+    if not vault:
+        return {'errors': 'Vault not found'}, 404
+    
     if vault.field_id == None:
         return jsonify({'vaultId': id, "deleteFrom": "stage"})                               
     
@@ -368,25 +373,25 @@ def delete_vault(id):
         field.full = False
         db.session.commit()
         
-    if not vault:
-        return {'errors': 'Vault not found'}, 404
+    print("🍊 vault.customer_id", vault.customer_id)
+    customer = Customer.query.get(vault.customer_id)
+    print("🍊 customer", customer.to_dict())
+    order = Order.query.get(vault.order_id)   
+    print("🍊 order", order.to_dict())              
 
     try:
         # Delete all attachments
         attachments = Attachment.query.filter_by(vault_id=id).all()
         for attachment in attachments:
-            db.session.delete(attachment)
-
-        customer = Customer.query.get(vault.customer_id)
-        order = Order.query.get(vault.order_id)       
+            db.session.delete(attachment) 
                 
         # Check if the customer has any other vaults
-        if customer and len(customer.vaults) == 0:
+        if customer and len(customer.vaults) == 1:
             db.session.delete(customer)
             db.session.commit()
 
         # Check if the order has any other vaults
-        if order and len(order.order_vaults) == 0:
+        if order and len(order.order_vaults) == 1:
             db.session.delete(order)
             db.session.commit()
                         
