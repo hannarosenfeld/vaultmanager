@@ -372,9 +372,6 @@ def delete_vault(id):
         field.full = False
         db.session.commit()
         
-    warehouse = Warehouse.query.get(field.warehouse_id)
-    print("🍊 WAREHOUSE:", warehouse.to_dict())
-        
     if not vault:
         return {'errors': 'Vault not found'}, 404
 
@@ -385,9 +382,7 @@ def delete_vault(id):
             db.session.delete(attachment)
 
         customer = Customer.query.get(vault.customer_id)
-        order = Order.query.get(vault.order_id)
-
-        db.session.delete(vault)
+        order = Order.query.get(vault.order_id)       
                 
         # Check if the customer has any other vaults
         if customer and len(customer.vaults) == 0:
@@ -398,8 +393,13 @@ def delete_vault(id):
         if order and len(order.order_vaults) == 0:
             db.session.delete(order)
             db.session.commit()
+                        
+        db.session.delete(vault)            
+        db.session.commit()
+        warehouse = Warehouse.query.get(field.warehouse_id)
         
-
+        print("🍊 WAREHOUSE:", warehouse.to_dict())
+    
         return jsonify({'warehouse': warehouse.to_dict(), 'field': field.to_dict(), 'vault': vault.to_dict()})
     except Exception as e:
         print(f"Error deleting vault: {e}")
