@@ -17,6 +17,13 @@ const DELETE_WAREHOUSE = "warehouse/DELETE_WAREHOUSE";
 const SEARCH_WAREHOUSE = "warehouse/SEARCH_WAREHOUSE";
 const CLEAR_SEARCH = "warehouse/CLEAR_SEARCH";
 const SET_CURRENT_VAULT = "warehouse/SET_CURRENT_VAULT";
+const UPDATE_VAULT = "warehouse/UPDATE_VAULT";
+
+export const updateVault = (payload) => ({
+  type: UPDATE_VAULT,
+  payload,
+});
+
 
 export const addWarehouse = (warehouse) => ({
   type: ADD_WAREHOUSE,
@@ -398,6 +405,7 @@ export const updateVaultThunk = (vaultData) => async (dispatch) => {
     if (res.ok) {
       const data = await res.json();
       dispatch(setCurrentVault(data));
+      dispatch(updateVault(data));
       return data;
     } else {
       const err = await res.json();
@@ -840,6 +848,25 @@ const warehouseReducer = (state = initialState, action) => {
         },
       };
 
+    case UPDATE_VAULT:
+      console.log("🍏 IN REDUCER!", action)
+      const editedVault = action.payload;
+
+      return {
+        ...state,
+        currentVault: {
+          ...state.currentVault,
+          ...editedVault,
+        },
+        currentField: { 
+          ...state.currentField,
+          vaults: {
+            ...state.currentField.vaults,
+            [editedVault.id]: editedVault,
+          } 
+      }
+    };
+    
     default:
       return state;
   }
