@@ -359,15 +359,11 @@ def delete_vault(id):
     """
     vault = Vault.query.get(id)
     
-    print("🍊 IN DELETE ROUTE")
-    print("🍊 VAULT:", vault.to_dict())
-    
     if vault.field_id == None:
         return jsonify({'vaultId': id, "deleteFrom": "stage"})                               
     
     field = Field.query.get(vault.field_id)
-    print("🍊 FIELD:", field.to_dict())    
-    
+
     if field:
         field.full = False
         db.session.commit()
@@ -398,8 +394,6 @@ def delete_vault(id):
         db.session.commit()
         warehouse = Warehouse.query.get(field.warehouse_id)
         
-        print("🍊 WAREHOUSE:", warehouse.to_dict())
-    
         return jsonify({'warehouse': warehouse.to_dict(), 'field': field.to_dict(), 'vault': vault.to_dict()})
     except Exception as e:
         print(f"Error deleting vault: {e}")
