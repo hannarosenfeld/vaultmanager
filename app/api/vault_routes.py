@@ -359,8 +359,6 @@ def delete_vault(id):
     """
     vault = Vault.query.get(id)
     
-    print("🍊 vault", vault.to_dict())
-    
     if not vault:
         return {'errors': 'Vault not found'}, 404
     
@@ -373,11 +371,8 @@ def delete_vault(id):
         field.full = False
         db.session.commit()
         
-    print("🍊 vault.customer_id", vault.customer_id)
     customer = Customer.query.get(vault.customer_id)
-    print("🍊 customer", customer.to_dict())
     order = Order.query.get(vault.order_id)   
-    print("🍊 order", order.to_dict())              
 
     try:
         # Delete all attachments

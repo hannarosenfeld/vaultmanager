@@ -692,8 +692,6 @@ const warehouseReducer = (state = initialState, action) => {
       };
 
     case DELETE_VAULT:
-      console.log("🍋 action.payload", action.payload)  
-
       const deleteFrom = action.payload.deleteFrom;
 
       if (deleteFrom === "stage") return state;

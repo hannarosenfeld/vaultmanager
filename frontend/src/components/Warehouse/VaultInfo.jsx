@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { setCurrentVault } from '../../store/warehouse';
 import ConfirmStagingModal from './ConfirmStagingModal';
+
+
 
 export default function VaultInfo({ vault, isStage, isTopmost }) {
   const dispatch = useDispatch();
@@ -16,6 +18,7 @@ export default function VaultInfo({ vault, isStage, isTopmost }) {
   const handleEditClick = () => {
     dispatch(setCurrentVault(vault));
     navigate(`/edit/vault/${vault.name}`);
+
   };
 
   return (

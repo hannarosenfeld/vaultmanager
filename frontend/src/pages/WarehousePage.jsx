@@ -20,10 +20,6 @@ function WarehousePage() {
     if (field.id) dispatch(getCurrentFieldThunk(field));
   }
 
-  useEffect(() => {
-    dispatch(setCurrentField(null));
-  }, []);
-
   useEffect(() => {    
     const foundWarehouse = Object.values(warehouses).find(
       (w) => w.name.toLowerCase().split(" ").join("-") === warehouseName
