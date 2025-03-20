@@ -23,6 +23,7 @@ export default function EditVaultPage() {
   });
   const [newAttachments, setNewAttachments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] =
     useState(false);
 
@@ -66,7 +67,7 @@ export default function EditVaultPage() {
   const handleFileUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setLoading(true);
+      setIsUploading(true);
       const response = await dispatch(
         uploadAttachmentThunk(file, editableVault.id)
       );
@@ -76,7 +77,7 @@ export default function EditVaultPage() {
           response.attachment,
         ]);
       }
-      setLoading(false);
+      setIsUploading(false);
     }
   };
 
@@ -205,9 +206,6 @@ export default function EditVaultPage() {
             onChange={handleFileUpload}
             className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
           />
-          {loading && (
-            <p className="mt-1 text-sm text-gray-500">Uploading...</p>
-          )}
         </div>
 
         <div className="mb-6 border-b border-gray-200 pb-4">
@@ -249,6 +247,9 @@ export default function EditVaultPage() {
           ) : (
             <p className="text-sm text-gray-500">No attachments</p>
           )}
+          {isUploading && (
+            <p className="text-sm text-gray-500">File is being uploaded<span className="animate-pulse">...</span></p>
+          )}
           {newAttachments.length > 0 && (
             <ul className="list-disc pl-5 mt-2">
               {newAttachments.map((attachment, index) => (
@@ -269,8 +270,9 @@ export default function EditVaultPage() {
         <div className="flex justify-end mb-4">
           <button
             type="button"
-            className="bg-red-500 text-white rounded-lg px-4 py-2 hover:bg-red-600 transition mr-2 flex items-center justify-center h-10"
+            className={`bg-red-500 text-white rounded-lg px-4 py-2 hover:bg-red-600 transition mr-2 flex items-center justify-center h-10 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
             onClick={() => setIsConfirmDeleteModalOpen(true)}
+            disabled={isUploading}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -289,7 +291,8 @@ export default function EditVaultPage() {
           </button>
           <button
             type="submit"
-            className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-6 py-2.5 flex items-center justify-center h-10 w-32 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+            className={`text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-6 py-2.5 flex items-center justify-center h-10 w-32 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={isUploading}
           >
             Save
           </button>
