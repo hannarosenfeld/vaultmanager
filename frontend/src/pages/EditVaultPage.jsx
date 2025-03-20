@@ -84,7 +84,7 @@ export default function EditVaultPage() {
     setLoading(true);
     await dispatch(deleteVaultThunk(editableVault.id));
     setLoading(false);
-    navigate("/");
+    navigate(`/warehouse/${vault.warehouse_name}`);
   };
 
   if (loading) {

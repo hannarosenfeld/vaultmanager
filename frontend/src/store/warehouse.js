@@ -186,6 +186,8 @@ export const updateFieldTypeThunk =
   };
 
 export const deleteVaultThunk = (vaultId) => async (dispatch) => {
+  console.log("🍏 IN THUNK!")
+  console.log("🍏 vaultId", vaultId)
   try {
     const res = await fetch(`/api/vaults/${vaultId}`, {
       method: "DELETE",
@@ -193,7 +195,8 @@ export const deleteVaultThunk = (vaultId) => async (dispatch) => {
 
     if (res.ok) {
       const data = await res.json();
-      dispatch(deleteVault({ vaultId, deleteFrom: data.deleteFrom }));
+      console.log("🍏 data", data)
+      dispatch(deleteVault(data));
       if (data.deleteFrom === "stage") {
         dispatch(removeVaultFromStage(vaultId));
       }
@@ -689,48 +692,20 @@ const warehouseReducer = (state = initialState, action) => {
       };
 
     case DELETE_VAULT:
-      const deletedVaultId = action.payload.vaultId;
+      console.log("🍋 action.payload", action.payload)  
+
       const deleteFrom = action.payload.deleteFrom;
 
       if (deleteFrom === "stage") return state;
 
-      // Remove the vault from the current field
-      const updatedCurrentFieldAfterVaultDeletion = {
-        ...state.currentField,
-        vaults: Object.keys(state.currentField.vaults)
-          .filter((id) => id !== deletedVaultId.toString())
-          .reduce((acc, id) => {
-            acc[id] = state.currentField.vaults[id];
-            return acc;
-          }, {}),
-      };
-
-      // Remove the vault from the current warehouse
-      const updatedCurrentWarehouseAfterVaultDeletion = {
-        ...state.currentWarehouse,
-        fields: {
-          ...state.currentWarehouse.fields,
-          [state.currentField.id]: updatedCurrentFieldAfterVaultDeletion,
-        },
-      };
-
-      // Remove the vault from the warehouses
-      const updatedWarehouses = {
-        ...state.warehouses,
-        [state.currentWarehouse.id]: {
-          ...state.warehouses[state.currentWarehouse.id],
-          fields: {
-            ...state.warehouses[state.currentWarehouse.id].fields,
-            [state.currentField.id]: updatedCurrentFieldAfterVaultDeletion,
-          },
-        },
-      };
-
       return {
         ...state,
-        currentField: updatedCurrentFieldAfterVaultDeletion,
-        currentWarehouse: updatedCurrentWarehouseAfterVaultDeletion,
-        warehouses: updatedWarehouses,
+        currentField: action.payload.field,
+        currentWarehouse: action.payload.warehouse,
+        warehouses: {
+          ...state.warehouses,
+          [action.payload.warehouse.id]: action.payload.warehouse,
+        }
       };
 
     case UPDATE_FIELD_TYPE:

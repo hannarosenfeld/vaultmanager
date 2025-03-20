@@ -361,7 +361,20 @@ def delete_vault(id):
     
     print("🍊 IN DELETE ROUTE")
     print("🍊 VAULT:", vault.to_dict())
-
+    
+    if vault.field_id == None:
+        return jsonify({'vaultId': id, "deleteFrom": "stage"})                               
+    
+    field = Field.query.get(vault.field_id)
+    print("🍊 FIELD:", field.to_dict())    
+    
+    if field:
+        field.full = False
+        db.session.commit()
+        
+    warehouse = Warehouse.query.get(field.warehouse_id)
+    print("🍊 WAREHOUSE:", warehouse.to_dict())
+        
     if not vault:
         return {'errors': 'Vault not found'}, 404
 
@@ -386,15 +399,8 @@ def delete_vault(id):
             db.session.delete(order)
             db.session.commit()
         
-        if vault.field_id == None:
-            return jsonify({'vaultId': id, "deleteFrom": "stage"})                       
 
-        field = Field.query.get(vault.field_id)
-        if field:
-            field.full = False
-        db.session.commit()
-
-        return jsonify({'hallo'})
+        return jsonify({'warehouse': warehouse.to_dict(), 'field': field.to_dict(), 'vault': vault.to_dict()})
     except Exception as e:
         print(f"Error deleting vault: {e}")
         return jsonify({'error': str(e)}), 500
