@@ -3,11 +3,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { setCurrentField } from "../../store/warehouse";
 import { sortWarehouseFields } from "../../utils/sortWarehouseFields";
 
-export default function FieldGrid({ warehouse, handleFieldClick }) {
+export default function FieldGrid({ warehouse, handleFieldClick, currentField }) {
   const dispatch = useDispatch();
   const searchIds = useSelector((state) => state.warehouse.search);
   const [sortedFields, setSortedFields] = useState([]);
-  const [selectedField, setSelectedField] = useState(null);
+  const [selectedField, setSelectedField] = useState(currentField);
+
+  console.log("😂 selected field: ", selectedField)
 
   useEffect(() => {
     if (warehouse.fields) {

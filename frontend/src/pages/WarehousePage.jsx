@@ -47,7 +47,7 @@ function WarehousePage() {
     <div className="flex flex-col max-w-[100vw] p-4">
       <h1 className="text-xl font-bold mb-2 text-center">{warehouse.name}</h1>
       <div className="h-[25vh]">
-        {selectedField ? (
+        { selectedField ? (
           <FieldInfo field={selectedField} />
         ) : (
           "Select a field to view its info"
@@ -59,6 +59,7 @@ function WarehousePage() {
             warehouse={warehouse}
             handleFieldClick={handleFieldClick}
             style={{ maxWidth: "65vw", margin: "0 auto" }}
+            currentField={selectedField.id}
           />
         ) : (
           "This warehouse does not have any fields"
