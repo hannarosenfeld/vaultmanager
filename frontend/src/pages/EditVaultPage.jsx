@@ -94,6 +94,23 @@ export default function EditVaultPage() {
 
   return (
     <div className="flex flex-col items-center h-[90vh] px-4 justify-between">
+      <div className="w-full max-w-lg flex justify-start mb-1">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="w-6 h-6 cursor-pointer text-blue-500"
+          onClick={() => navigate(`/warehouse/${vault.warehouse_name}`)}
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"
+          />
+        </svg>
+      </div>
       <h2 className="mb-4 text-xl font-semibold">Edit Vault {vault.name}</h2>
       <form onSubmit={handleSave} className="w-full max-w-lg">
         <div className="mb-6 flex items-center border-b border-gray-200 pb-4">
