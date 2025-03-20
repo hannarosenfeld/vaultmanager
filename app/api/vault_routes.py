@@ -358,6 +358,9 @@ def delete_vault(id):
     Delete a vault by id and all its attachments
     """
     vault = Vault.query.get(id)
+    
+    print("🍊 IN DELETE ROUTE")
+    print("🍊 VAULT:", vault.to_dict())
 
     if not vault:
         return {'errors': 'Vault not found'}, 404
@@ -370,20 +373,16 @@ def delete_vault(id):
 
         customer = Customer.query.get(vault.customer_id)
         order = Order.query.get(vault.order_id)
-        customer_to_delete = None
-        order_to_delete = None
 
         db.session.delete(vault)
                 
         # Check if the customer has any other vaults
         if customer and len(customer.vaults) == 0:
-            customer_to_delete = customer.id
             db.session.delete(customer)
             db.session.commit()
 
         # Check if the order has any other vaults
         if order and len(order.order_vaults) == 0:
-            order_to_delete = order.id
             db.session.delete(order)
             db.session.commit()
         
@@ -395,7 +394,7 @@ def delete_vault(id):
             field.full = False
         db.session.commit()
 
-        return jsonify({'vaultId': id, "deleteFrom": "field", "fieldId": field.id})
+        return jsonify({'hallo'})
     except Exception as e:
         print(f"Error deleting vault: {e}")
         return jsonify({'error': str(e)}), 500
