@@ -9,8 +9,6 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
   const [sortedFields, setSortedFields] = useState([]);
   const [selectedField, setSelectedField] = useState(currentField);
 
-  console.log("😂 selected field: ", selectedField)
-
   useEffect(() => {
     if (warehouse.fields) {
       setSortedFields(sortWarehouseFields(warehouse.fields));
@@ -18,10 +16,9 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
   }, [warehouse]);
 
   useEffect(() => {
-    return () => {
-      setSelectedField(null);
-    };
-  }, []);
+    setSelectedField(null);
+    dispatch(setCurrentField(null));
+  }, [warehouse.id, dispatch]);
 
   const handleFieldSelect = (field) => {
     setSelectedField(field.id);
