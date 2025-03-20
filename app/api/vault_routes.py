@@ -363,13 +363,24 @@ def delete_vault(id):
         return {'errors': 'Vault not found'}, 404
     
     if vault.field_id == None:
-        return jsonify({'vaultId': id, "deleteFrom": "stage"})                               
+        try:
+            # Delete all attachments
+            attachments = Attachment.query.filter_by(vault_id=id).all()
+            for attachment in attachments:
+                db.session.delete(attachment)
+            
+            db.session.delete(vault)
+            db.session.commit()
+            print(f"Vault {id} deleted successfully from stage")
+            return jsonify({'vaultId': id, "deleteFrom": "stage"})
+        except Exception as e:
+            print(f"Error deleting vault from stage: {e}")
+            return jsonify({'error': str(e)}), 500
     
     field = Field.query.get(vault.field_id)
 
     if field:
         field.full = False
-        db.session.commit()
         
     customer = Customer.query.get(vault.customer_id)
     order = Order.query.get(vault.order_id)   
@@ -383,18 +394,18 @@ def delete_vault(id):
         # Check if the customer has any other vaults
         if customer and len(customer.vaults) == 1:
             db.session.delete(customer)
-            db.session.commit()
 
         # Check if the order has any other vaults
         if order and len(order.order_vaults) == 1:
             db.session.delete(order)
-            db.session.commit()
                         
-        db.session.delete(vault)            
+        db.session.delete(vault)
         db.session.commit()
+        
         warehouse = Warehouse.query.get(field.warehouse_id)
         
-        return jsonify({'warehouse': warehouse.to_dict(), 'field': field.to_dict(), 'vault': vault.to_dict()})
+        print(f"Vault {id} deleted successfully")
+        return jsonify({'warehouse': warehouse.to_dict(), 'field': field.to_dict(), 'vaultId': id})
     except Exception as e:
         print(f"Error deleting vault: {e}")
         return jsonify({'error': str(e)}), 500
