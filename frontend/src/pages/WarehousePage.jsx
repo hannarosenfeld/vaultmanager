@@ -59,7 +59,7 @@ function WarehousePage() {
             warehouse={warehouse}
             handleFieldClick={handleFieldClick}
             style={{ maxWidth: "65vw", margin: "0 auto" }}
-            currentField={selectedField.id}
+            currentField={selectedField?.id ? selectedField.id : null}
           />
         ) : (
           "This warehouse does not have any fields"
