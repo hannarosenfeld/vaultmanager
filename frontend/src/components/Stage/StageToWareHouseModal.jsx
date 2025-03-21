@@ -1,20 +1,25 @@
-import { useState, useEffect, use } from "react";
+import { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
-import { useSelector } from "react-redux";
+import { setCurrentWarehouse } from "../../store/warehouse";
 import FieldGrid from "../Warehouse/FieldGrid";
 import FieldInfo from "../Warehouse/FieldInfo";
+import LoadingSpinner from "../LoadingSpinner";
 
 export default function StageToWareHouseModal({ isOpen, onClose, vault }) {
+  const dispatch = useDispatch();
   const warehouses = useSelector((state) => state.warehouse.warehouses);
   const warehouseArr = Object.values(warehouses);
+  const currentWarehouse = useSelector((state) => state.warehouse.currentWarehouse);
   const [selectedField, setSelectedField] = useState(null);
-  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
+  useEffect(() => {
+    console.log("💖 selected warehouse: ", currentWarehouse);
+  }, [currentWarehouse]);
+
   useEffect(() => { 
-    if (warehouseArr.length) {
-      setSelectedWarehouse(warehouseArr[0]);
-    }
+    dispatch(setCurrentWarehouse(warehouseArr[0]));
   }, []);
 
   const handleFieldClick = (field) => {
@@ -37,6 +42,8 @@ export default function StageToWareHouseModal({ isOpen, onClose, vault }) {
 
   if (!vault) return null;
 
+  if (!currentWarehouse?.name) return <LoadingSpinner />;
+
   return (
     <>
       <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50 overflow-y-auto">
@@ -53,7 +60,7 @@ export default function StageToWareHouseModal({ isOpen, onClose, vault }) {
               </svg>
             </button>
             <DialogTitle className="text-lg font-bold">
-              Move Vault {vault.name} into {selectedWarehouse?.name}
+              Move Vault {vault.name} into {currentWarehouse?.name}
             </DialogTitle>
             <div className="flex flex-wrap gap-2 mt-4">
               {warehouseArr.length ? (
@@ -62,9 +69,9 @@ export default function StageToWareHouseModal({ isOpen, onClose, vault }) {
                     key={warehouse.id}
                     type="button"
                     className={`text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 ${
-                      selectedWarehouse?.id === warehouse.id ? "bg-blue-500 text-white" : ""
+                      currentWarehouse?.id === warehouse.id ? "bg-blue-500 text-white" : ""
                     }`}
-                    onClick={() => setSelectedWarehouse(warehouse)}
+                    onClick={() => dispatch(setCurrentWarehouse(warehouse))}
                   >
                     {warehouse.name}
                   </button>
@@ -73,7 +80,7 @@ export default function StageToWareHouseModal({ isOpen, onClose, vault }) {
                 <div>No warehouses found!</div>
               )}
             </div>
-            {selectedWarehouse && (
+            {currentWarehouse && (
               <>
                 <div className="h-[20vh] mt-4">
                   {selectedField?.id ? (
@@ -83,7 +90,7 @@ export default function StageToWareHouseModal({ isOpen, onClose, vault }) {
                   )}
                 </div>
                 <FieldGrid
-                  warehouse={selectedWarehouse}
+                  warehouse={currentWarehouse}
                   handleFieldClick={handleFieldClick}
                 />
               </>
@@ -101,7 +108,7 @@ export default function StageToWareHouseModal({ isOpen, onClose, vault }) {
               <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
               </svg>
-              <p className="text-green-500 font-bold mt-2">Vault {vault.name} moved to {selectedWarehouse.name} </p>
+              <p className="text-green-500 font-bold mt-2">Vault {vault.name} moved to {currentWarehouse.name} </p>
             </div>
           </DialogPanel>
         </div>

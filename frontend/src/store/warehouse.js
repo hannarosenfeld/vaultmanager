@@ -695,8 +695,11 @@ const warehouseReducer = (state = initialState, action) => {
             fields: updatedTargetFields,
           },
         },
-        currentWarehouse: null,
         currentField: null,
+        currentWarehouse: {
+          ...state.currentWarehouse,
+          fields: updatedTargetFields,
+        },
       };
 
     case DELETE_VAULT:
