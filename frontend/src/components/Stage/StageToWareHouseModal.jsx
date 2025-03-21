@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useSelector } from "react-redux";
 import FieldGrid from "../Warehouse/FieldGrid";
@@ -8,7 +8,14 @@ export default function StageToWareHouseModal({ isOpen, onClose, vault }) {
   const warehouses = useSelector((state) => state.warehouse.warehouses);
   const warehouseArr = Object.values(warehouses);
   const [selectedField, setSelectedField] = useState(null);
+  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+
+  useEffect(() => { 
+    if (warehouseArr.length) {
+      setSelectedWarehouse(warehouseArr[0]);
+    }
+  }, []);
 
   const handleFieldClick = (field) => {
     setSelectedField(field);
@@ -46,28 +53,40 @@ export default function StageToWareHouseModal({ isOpen, onClose, vault }) {
               </svg>
             </button>
             <DialogTitle className="text-lg font-bold">
-              Move Vault {vault.name} into Warehouse
+              Move Vault {vault.name} into {selectedWarehouse?.name}
             </DialogTitle>
-            {warehouseArr.length ? (
-              warehouseArr.map((warehouse) => (
-                <div key={warehouse.id}>
-                  <div className="flex flex-col mt-4">
-                    <button
-                      type="button"
-                      className="text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 dark:border-blue-500 dark:text-blue-500 dark:hover:text-white dark:hover:bg-blue-500 dark:focus:ring-blue-800"
-                    >
-                      {warehouse.name}
-                    </button>
-                  </div>
-                  <div className="h-[20vh]">{selectedField?.id ? <FieldInfo vaultId={vault.id} field={selectedField} isStage={true} onMove={onMove}/> : <div>Select a field to view details</div>}</div>
-                  <FieldGrid
-                    warehouse={warehouse}
-                    handleFieldClick={handleFieldClick}
-                  />
+            <div className="flex flex-wrap gap-2 mt-4">
+              {warehouseArr.length ? (
+                warehouseArr.map((warehouse) => (
+                  <button
+                    key={warehouse.id}
+                    type="button"
+                    className={`text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 ${
+                      selectedWarehouse?.id === warehouse.id ? "bg-blue-500 text-white" : ""
+                    }`}
+                    onClick={() => setSelectedWarehouse(warehouse)}
+                  >
+                    {warehouse.name}
+                  </button>
+                ))
+              ) : (
+                <div>No warehouses found!</div>
+              )}
+            </div>
+            {selectedWarehouse && (
+              <>
+                <div className="h-[20vh] mt-4">
+                  {selectedField?.id ? (
+                    <FieldInfo vaultId={vault.id} field={selectedField} isStage={true} onMove={onMove} />
+                  ) : (
+                    <div>Select a field to view details</div>
+                  )}
                 </div>
-              ))
-            ) : (
-              <div>No warehouses found!</div>
+                <FieldGrid
+                  warehouse={selectedWarehouse}
+                  handleFieldClick={handleFieldClick}
+                />
+              </>
             )}
           </DialogPanel>
         </div>
