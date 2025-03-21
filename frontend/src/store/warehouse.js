@@ -193,8 +193,6 @@ export const updateFieldTypeThunk =
   };
 
 export const deleteVaultThunk = (vaultId) => async (dispatch) => {
-  console.log("🍏 IN THUNK!")
-  console.log("🍏 vaultId", vaultId)
   try {
     const res = await fetch(`/api/vaults/${vaultId}`, {
       method: "DELETE",
@@ -202,7 +200,6 @@ export const deleteVaultThunk = (vaultId) => async (dispatch) => {
 
     if (res.ok) {
       const data = await res.json();
-      console.log("🍏 data", data)
       dispatch(deleteVault(data));
       if (data.deleteFrom === "stage") {
         dispatch(removeVaultFromStage(vaultId));
@@ -852,7 +849,6 @@ const warehouseReducer = (state = initialState, action) => {
       };
 
     case UPDATE_VAULT:
-      console.log("🍏 IN REDUCER!", action)
       const editedVault = action.payload;
 
       return {

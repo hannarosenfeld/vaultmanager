@@ -9,11 +9,6 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
   const [sortedFields, setSortedFields] = useState([]);
   const [selectedField, setSelectedField] = useState(currentField);
 
-  useEffect(() => {   
-    console.log("🍋 selected warehouse: ", warehouse.name)
-  }
-  , [warehouse]);
-
   useEffect(() => {
     if (warehouse.fields) {
       setSortedFields(sortWarehouseFields(warehouse.fields));
