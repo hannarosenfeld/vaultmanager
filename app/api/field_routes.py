@@ -99,6 +99,21 @@ def update_field_type(field_id):
     return jsonify({"field1": field.to_dict(), "field2": bottom_field.to_dict()})
 
 
+@field_routes.route('/<int:field_id>/full', methods=['PATCH'])
+def set_field_full(field_id):
+    data = request.get_json()
+    is_full = data.get('full')
+
+    field = Field.query.get(field_id)
+    if not field:
+        return jsonify({"error": "Field not found"}), 404
+
+    field.full = is_full
+    db.session.commit()
+
+    return jsonify(field.to_dict())
+
+
 @field_routes.route('/', methods=['POST'])
 def add_field():
     form = PostFieldForm()

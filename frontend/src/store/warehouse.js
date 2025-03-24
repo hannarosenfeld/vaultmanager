@@ -18,6 +18,8 @@ const SEARCH_WAREHOUSE = "warehouse/SEARCH_WAREHOUSE";
 const CLEAR_SEARCH = "warehouse/CLEAR_SEARCH";
 const SET_CURRENT_VAULT = "warehouse/SET_CURRENT_VAULT";
 const UPDATE_VAULT = "warehouse/UPDATE_VAULT";
+const SET_FIELD_FULL = "warehouse/SET_FIELD_FULL";
+
 
 export const updateVault = (payload) => ({
   type: UPDATE_VAULT,
@@ -121,6 +123,11 @@ export const clearSearch = () => ({
 export const setCurrentVault = (vault) => ({
   type: SET_CURRENT_VAULT,
   vault,
+});
+
+export const setFieldFull = (fieldId, isFull) => ({
+  type: SET_FIELD_FULL,
+  payload: { fieldId, isFull },
 });
 
 export const getAllWarehousesThunk = () => async (dispatch) => {
@@ -411,6 +418,31 @@ export const updateVaultThunk = (vaultData) => async (dispatch) => {
     }
   } catch (error) {
     console.error("Error updating vault:", error);
+    return error;
+  }
+};
+
+export const setFieldFullThunk = (fieldId, isFull) => async (dispatch) => {
+  try {
+    const response = await fetch(`/api/fields/${fieldId}/full`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ full: isFull }),
+    });
+
+    if (response.ok) {
+      const updatedField = await response.json();
+      dispatch(setFieldFull(fieldId, isFull));
+      return updatedField;
+    } else {
+      const error = await response.json();
+      console.error("Error setting field full:", error);
+      return error;
+    }
+  } catch (error) {
+    console.error("Error setting field full:", error);
     return error;
   }
 };
@@ -865,6 +897,31 @@ const warehouseReducer = (state = initialState, action) => {
           } 
       }
     };
+
+    case SET_FIELD_FULL:
+      const { fieldId, isFull } = action.payload;
+      const updatedField = {
+        ...state.warehouses[state.currentWarehouse.id].fields[fieldId],
+        full: isFull,
+      };
+
+      return {
+        ...state,
+        warehouses: {
+          ...state.warehouses,
+          [state.currentWarehouse.id]: {
+            ...state.warehouses[state.currentWarehouse.id],
+            fields: {
+              ...state.warehouses[state.currentWarehouse.id].fields,
+              [fieldId]: updatedField,
+            },
+          },
+        },
+        currentField: {
+          ...state.currentField,
+          full: isFull,
+        },
+      };    
     
     default:
       return state;
