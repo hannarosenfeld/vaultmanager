@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.models import Vault, db
+from app.models import Vault, Field, db
 
 stage_routes = Blueprint('stage', __name__)
 
@@ -10,7 +10,11 @@ def stage_vault(vault_id):
         
         if not vault:
             return jsonify({"error": "Vault not found"}), 404
-
+        
+        field = Field.query.get(vault.field_id)
+        field.full = False
+        db.session.commit()
+        
         old_field_id = vault.field_id  # Capture the old field ID
         vault.field_id = None
         vault.position = None
