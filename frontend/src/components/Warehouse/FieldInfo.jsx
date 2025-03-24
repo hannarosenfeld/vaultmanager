@@ -118,7 +118,7 @@ export default function FieldInfo({ field, isStage, vaultId, onMove }) {
               {vaultMap[pos] ? (
                 <VaultInfo vault={vaultMap[pos]} isStage={isStage} isTopmost={pos === topmostVaultPosition} />
               ) : (
-                pos === lastEmptyPosition && (
+                pos === lastEmptyPosition && !field.full && (
                   <AddVaultButton
                     type={fieldType}
                     onClick={() => handleOpenModal(pos)}
