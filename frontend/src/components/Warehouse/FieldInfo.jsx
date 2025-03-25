@@ -4,7 +4,7 @@ import AddVaultModal from "./AddVaultModal";
 import ConfirmAddVaultModal from "../Stage/ConfirmationAddVaultModal";
 import { useState, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
-import { moveVaultToWarehouseThunk, updateFieldTypeThunk } from "../../store/warehouse";
+import { moveVaultToWarehouseThunk, updateFieldTypeThunk, setFieldFullThunk } from "../../store/warehouse";
 
 export default function FieldInfo({ field, isStage, vaultId, onMove }) {
   const dispatch = useDispatch();
@@ -13,6 +13,7 @@ export default function FieldInfo({ field, isStage, vaultId, onMove }) {
   const [selectedPosition, setSelectedPosition] = useState(null);
   const [vaults, setVaults] = useState(field.vaults);
   const [fieldType, setFieldType] = useState(field.type || "vault");
+  const [isFieldFull, setIsFieldFull] = useState(field.full);
 
   const rowCount = fieldType === "couchbox" ? 4 : 3;
 
@@ -27,7 +28,8 @@ export default function FieldInfo({ field, isStage, vaultId, onMove }) {
     } else {
       setFieldType(field.type || "vault");
     }
-  }, [field.vaults, field.type, field]);
+    setIsFieldFull(field.full);
+  }, [field.vaults, field.type, field.full]);
 
   const sortedVaults = useMemo(() => {
     return vaults
@@ -90,6 +92,13 @@ export default function FieldInfo({ field, isStage, vaultId, onMove }) {
     const field2 = letterPart + (numberPart + 1);
     await dispatch(updateFieldTypeThunk(field.id, newFieldType, field2, field.warehouse_id));
   };
+
+  const handleFieldFullToggle = async () => {
+    const newFieldFullStatus = !isFieldFull;
+    setIsFieldFull(newFieldFullStatus);
+    await dispatch(setFieldFullThunk(field.id, newFieldFullStatus));
+  };
+
   const hasVaults = vaults && Object.keys(vaults).length > 0;
 
   return (
@@ -122,7 +131,7 @@ export default function FieldInfo({ field, isStage, vaultId, onMove }) {
         ))}
       </div>
       <div className="flex flex-col items-center justify-center p-2">
-        <div className="font-semibold text-3xl mb-4">{field.name}</div>
+        <div className="font-semibold text-2xl mb-4">{field.name}</div>
         <div className="mb-4">
           <div className="flex items-center">
             <span className="material-symbols-outlined mr-2">
@@ -139,6 +148,20 @@ export default function FieldInfo({ field, isStage, vaultId, onMove }) {
               <div className={`w-11 h-6 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:bg-gray-700 peer-checked:bg-blue-600 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:after:left-[calc(100%-2px)] peer-checked:after:translate-x-[-100%] ${hasVaults ? 'bg-gray-300 cursor-not-allowed' : 'bg-gray-200'}`}></div>
             </label>
           </div>
+        </div>
+        <div className="mb-4 flex items-center">
+          <button
+            className={`px-2 py-1 text-xs ${isFieldFull ? 'text-red-600' : 'text-gray-900'}`}
+            onClick={handleFieldFullToggle}
+          >
+            {isFieldFull ? "Field is Full" : "Field is Not Full"}
+          </button>
+          <input
+            type="checkbox"
+            className="ml-2"
+            checked={isFieldFull}
+            onChange={handleFieldFullToggle}
+          />
         </div>
       </div>
       {isModalOpen && (
