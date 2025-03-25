@@ -26,11 +26,20 @@ export default function EditVaultPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [isConfirmDeleteModalOpen, setIsConfirmDeleteModalOpen] =
     useState(false);
+  const [isEmpty, setIsEmpty] = useState(false);
+  const [selectedType, setSelectedType] = useState("vault");
 
   useEffect(() => {
     if (vault) {
       setEditableVault(vault);
       setLoading(false);
+      if (vault.customer_name?.toUpperCase().includes("EMPTY")) {
+        setIsEmpty(true);
+        const typeMatch = vault.customer_name.split(" ")[1]?.toLowerCase();
+        if (["vault", "liftvan", "t2"].includes(typeMatch)) {
+          setSelectedType(typeMatch);
+        }
+      }
     }
   }, [vault]);
 
@@ -88,6 +97,15 @@ export default function EditVaultPage() {
     navigate(`/warehouse/${vault.warehouse_name}`);
   };
 
+  const handleToggle = () => {
+    setIsEmpty(!isEmpty);
+    setEditableVault((prevVault) => ({
+      ...prevVault,
+      customer_name: !isEmpty ? `EMPTY ${selectedType.toUpperCase()}` : "",
+      order_name: "",
+    }));
+  };
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -112,37 +130,70 @@ export default function EditVaultPage() {
         </svg>
       </div>
       <h2 className="mb-4 text-xl font-semibold">Edit Vault {vault.name}</h2>
+
+      {/* Toggle Switch */}
+      <label className="mb-4 inline-flex items-center cursor-pointer">
+        <input
+          type="checkbox"
+          className="sr-only peer"
+          onChange={handleToggle}
+          checked={isEmpty}
+        />
+        <div className="relative w-11 h-6 bg-gray-200 rounded-full peer-checked:bg-blue-600 transition">
+          <div
+            className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
+              isEmpty ? "translate-x-full" : ""
+            }`}
+          ></div>
+        </div>
+        <span className="ms-3 text-sm font-medium text-gray-900">
+          {isEmpty ? "Empty Mode" : "Regular Mode"}
+        </span>
+      </label>
+
       <form onSubmit={handleSave} className="w-full max-w-lg">
-        <div className="mb-6 flex items-center border-b border-gray-200 pb-4">
-          <label className="block text-sm font-medium text-gray-700 w-1/3">
-            Customer Name
-          </label>
-          {editFields.customer_name ? (
+        <div className="mb-6 flex items-center border-b border-gray-200 pb-4 gap-4">
+          <div className={`w-full ${isEmpty ? "w-1/2" : ""}`}>
+            <label className="block text-sm font-medium text-gray-700">
+              Customer Name
+            </label>
             <input
               type="text"
               name="customer_name"
-              value={editableVault.customer_name || ""}
+              value={editableVault.customer_name.includes("EMPTY") ? "EMPTY" : editableVault.customer_name || ""}
               onChange={handleChange}
-              className="ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              disabled={isEmpty}
+              className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm ${
+                isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
+              }`}
             />
-          ) : (
-            <span className="ml-2 w-2/3">{editableVault.customer_name}</span>
+          </div>
+          {isEmpty && (
+            <div className="w-1/2">
+              <label
+                htmlFor="typeSelect"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Type
+              </label>
+              <select
+                id="typeSelect"
+                value={selectedType}
+                onChange={(e) => {
+                  setSelectedType(e.target.value);
+                  setEditableVault((prevVault) => ({
+                    ...prevVault,
+                    customer_name: `EMPTY ${e.target.value.toUpperCase()}`,
+                  }));
+                }}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white"
+              >
+                <option value="vault">Vault</option>
+                <option value="liftvan">Liftvan</option>
+                <option value="t2">T2</option>
+              </select>
+            </div>
           )}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-5 h-5 cursor-pointer ml-2 text-blue-500"
-            onClick={() => toggleEditField("customer_name")}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-            />
-          </svg>
         </div>
 
         <div className="mb-6 flex items-center border-b border-gray-200 pb-4">
@@ -187,7 +238,10 @@ export default function EditVaultPage() {
               name="order_name"
               value={editableVault.order_name || ""}
               onChange={handleChange}
-              className="ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              disabled={isEmpty}
+              className={`ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm ${
+                isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
+              }`}
             />
           ) : (
             <span className="ml-2 w-2/3">{editableVault.order_name}</span>
@@ -198,6 +252,7 @@ export default function EditVaultPage() {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
+            style={{ display: isEmpty ? "none" : "block" }}
             className="w-5 h-5 cursor-pointer ml-2 text-blue-500"
             onClick={() => toggleEditField("order_name")}
           >
