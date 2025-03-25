@@ -12,6 +12,7 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
   const dispatch = useDispatch();
   const [isEmpty, setIsEmpty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedType, setSelectedType] = useState("vault");
 
   const [formData, setFormData] = useState({
     customer: "",
@@ -57,7 +58,9 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
       vaultData.append("vault_id", formData.vault_id);
       vaultData.append(
         "customer_name",
-        isEmpty ? "EMPTY" : formData.customer.toUpperCase()
+        isEmpty
+          ? `EMPTY ${selectedType.toUpperCase()}`
+          : formData.customer.toUpperCase()
       );
       vaultData.append("order_name", formData.orderNumber);
       vaultData.append("type", formData.type === "vault" ? "vault" : "couchbox");
@@ -141,25 +144,47 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
                   </span>
                 </label>
 
-                <div className="mb-5">
-                  <label
-                    htmlFor="customer"
-                    className="block mb-2 text-sm font-medium text-gray-900"
-                  >
-                    Customer Name
-                  </label>
-                  <input
-                    type="text"
-                    id="customer"
-                    value={formData.customer.toUpperCase()}
-                    onChange={handleChange}
-                    disabled={isEmpty}
-                    className={`border border-gray-300 text-sm rounded-lg w-full p-2.5 ${
-                      isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
-                    }`}
-                    placeholder="CUSTOMER NAME"
-                    required
-                  />
+                <div className="mb-5 flex gap-4">
+                  <div className={`w-full ${isEmpty ? "w-1/2" : ""}`}>
+                    <label
+                      htmlFor="customer"
+                      className="block mb-2 text-sm font-medium text-gray-900"
+                    >
+                      Customer Name
+                    </label>
+                    <input
+                      type="text"
+                      id="customer"
+                      value={formData.customer.toUpperCase()}
+                      onChange={handleChange}
+                      disabled={isEmpty}
+                      className={`border border-gray-300 text-sm rounded-lg w-full p-2.5 ${
+                        isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
+                      }`}
+                      placeholder="CUSTOMER NAME"
+                      required
+                    />
+                  </div>
+                  {isEmpty && (
+                    <div className="w-1/2">
+                      <label
+                        htmlFor="typeSelect"
+                        className="block mb-2 text-sm font-medium text-gray-900"
+                      >
+                        Type
+                      </label>
+                      <select
+                        id="typeSelect"
+                        value={selectedType}
+                        onChange={(e) => setSelectedType(e.target.value)}
+                        className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
+                      >
+                        <option value="vault">Vault</option>
+                        <option value="liftvan">Liftvan</option>
+                        <option value="t2">T2</option>
+                      </select>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-4">
