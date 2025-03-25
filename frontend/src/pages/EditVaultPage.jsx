@@ -200,68 +200,29 @@ export default function EditVaultPage() {
           <label className="block text-sm font-medium text-gray-700 w-1/3">
             Vault#
           </label>
-          {editFields.vault_id ? (
-            <input
-              type="text"
-              name="name"
-              value={editableVault.name || ""}
-              onChange={handleChange}
-              className="ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          ) : (
-            <span className="ml-2 w-2/3">{editableVault.name}</span>
-          )}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="w-5 h-5 cursor-pointer ml-2 text-blue-500"
-            onClick={() => toggleEditField("vault_id")}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-            />
-          </svg>
+          <input
+            type="text"
+            name="name"
+            value={editableVault.name || ""}
+            onChange={handleChange}
+            className="ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white"
+          />
         </div>
 
         <div className="mb-6 flex items-center border-b border-gray-200 pb-4">
           <label className="block text-sm font-medium text-gray-700 w-1/3">
             Order#
           </label>
-          {editFields.order_name ? (
-            <input
-              type="text"
-              name="order_name"
-              value={editableVault.order_name || ""}
-              onChange={handleChange}
-              disabled={isEmpty}
-              className={`ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm ${
-                isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
-              }`}
-            />
-          ) : (
-            <span className="ml-2 w-2/3">{editableVault.order_name}</span>
-          )}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            style={{ display: isEmpty ? "none" : "block" }}
-            className="w-5 h-5 cursor-pointer ml-2 text-blue-500"
-            onClick={() => toggleEditField("order_name")}
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
-            />
-          </svg>
+          <input
+            type="text"
+            name="order_name"
+            value={editableVault.order_name || ""}
+            onChange={handleChange}
+            disabled={isEmpty}
+            className={`ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm ${
+              isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
+            }`}
+          />
         </div>
 
         <div className="mb-6 border-b border-gray-200 pb-4">
