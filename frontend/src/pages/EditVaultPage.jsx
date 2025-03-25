@@ -8,7 +8,7 @@ import {
 } from "../store/warehouse";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ConfirmDeleteVaultModal from "../components/Warehouse/ConfirmDeleteVaultModal";
-import { setCurrentVault } from '../store/warehouse';
+
 
 export default function EditVaultPage() {
   const dispatch = useDispatch();
@@ -62,7 +62,7 @@ export default function EditVaultPage() {
       console.error("Error updating vault: ", error);
     } finally {
       setLoading(false);
-      navigate(`/warehouse/${vault.warehouse_name}`);
+      navigate(`/warehouse/${vault.warehouse_name}`);      
     }
   };
 
@@ -111,8 +111,8 @@ export default function EditVaultPage() {
   }
 
   return (
-    <div className="flex flex-col items-center h-[90vh] px-4 justify-between">
-      <div className="w-full max-w-lg flex justify-start mb-1">
+    <div className="flex flex-col items-center h-[90vh] px-4 ">
+      <div className="w-full max-w-lg flex justify-start mb-3 mt-3">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -129,10 +129,10 @@ export default function EditVaultPage() {
           />
         </svg>
       </div>
-      <h2 className="mb-4 text-xl font-semibold">Edit Vault {vault.name}</h2>
+      <h2 className="mb-10 text-xl font-semibold">Edit Vault {vault.name}</h2>
 
       {/* Toggle Switch */}
-      <label className="mb-4 inline-flex items-center cursor-pointer">
+      <label className="mb-5 inline-flex items-center cursor-pointer">
         <input
           type="checkbox"
           className="sr-only peer"
@@ -300,7 +300,7 @@ export default function EditVaultPage() {
           )}
         </div>
 
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 mt-10">
           <button
             type="button"
             className={`bg-red-500 text-white rounded-lg px-4 py-2 hover:bg-red-600 transition mr-2 flex items-center justify-center h-10 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
