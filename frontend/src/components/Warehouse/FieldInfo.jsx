@@ -130,28 +130,35 @@ export default function FieldInfo({ field, isStage, vaultId, onMove }) {
           </div>
         ))}
       </div>
-      <div className="flex flex-col items-center justify-center p-2">
-        <div className="font-semibold text-2xl mb-4">{field.name}</div>
-        <div className="mb-4">
-          <div className="flex items-center">
-            <span className="material-symbols-outlined mr-2">
-              {fieldType === "vault" ? "package_2" : "weekend"}
-            </span>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                className="sr-only peer"
-                checked={fieldType === "couchbox" }
-                onChange={handleFieldTypeToggle}
-                disabled={hasVaults}
-              />
-              <div className={`w-11 h-6 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:bg-gray-700 peer-checked:bg-blue-600 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:after:left-[calc(100%-2px)] peer-checked:after:translate-x-[-100%] ${hasVaults ? 'bg-gray-300 cursor-not-allowed' : 'bg-gray-200'}`}></div>
-            </label>
-          </div>
+      {/* field info */}
+      <div className="flex flex-col items-center justify-evenly p-2">
+        <div className="font-semibold text-2xl md:text-3xl text-center">
+          {field.name}
         </div>
-        <div className="mb-4 flex items-center">
+        <div className="flex items-center gap-2">
+          <span className="material-symbols-outlined text-4xl">
+            {fieldType === "vault" ? "package_2" : "weekend"}
+          </span>
+          <label className="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="sr-only peer"
+              checked={fieldType === "couchbox"}
+              onChange={handleFieldTypeToggle}
+              disabled={hasVaults}
+            />
+            <div
+              className={`w-11 h-6 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:bg-gray-700 peer-checked:bg-blue-600 peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:after:left-[calc(100%-2px)] peer-checked:after:translate-x-[-100%] ${
+                hasVaults ? "bg-gray-300 cursor-not-allowed" : "bg-gray-200"
+              }`}
+            ></div>
+          </label>
+        </div>
+        <div className="flex items-center">
           <button
-            className={`px-2 py-1 text-xs ${isFieldFull ? 'text-red-600' : 'text-gray-900'}`}
+            className={`px-2 py-1 text-xs md:text-sm ${
+              isFieldFull ? "text-red-600" : "text-gray-900"
+            }`}
             onClick={handleFieldFullToggle}
           >
             {isFieldFull ? "Field is Full" : "Field is Not Full"}
