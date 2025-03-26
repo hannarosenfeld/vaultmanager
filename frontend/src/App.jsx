@@ -38,7 +38,7 @@ function App() {
       {loading ? (
         <LoadingSpinner />
       ) : (
-        <div className="flex flex-col w-full sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-[800px] mx-auto">
+        <div className="flex flex-col w-full sm:w-3/4 md:w-full lg:w-1/2 xl:w-[800px] mx-auto">
           {sessionUser && <NavBar />}
           <div className="flex-grow">
             <Routes>
