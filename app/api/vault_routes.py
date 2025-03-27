@@ -117,14 +117,14 @@ def add_vault():
     try:
         if form.validate_on_submit():
             print("Form data:", form.data)
-            customer_name = form.data['customer_name'].upper()  # Ensure customer name is uppercase
+            customer_name = form.data['customer_name'].upper()
             order_name = form.data['order_name']
 
             existent_customer = Customer.query.filter_by(name=customer_name).first() if customer_name else None
             existent_order = Order.query.filter_by(name=order_name).first() if order_name else None
 
             new_vault = Vault(
-                name=form.data['vault_id'],
+                name=None if customer_name in ("EMPTY T2", "EMPTY LIFTVAN") else form.data['vault_id'],
                 customer_id=existent_customer.id if existent_customer else None,
                 field_id=form.data['field_id'],
                 order_id=existent_order.id if existent_order else None,
@@ -309,7 +309,7 @@ def manage_vault(id):
                 db.session.commit()
                 return {'vault': vault.to_dict(), 'field': field.to_dict()}
 
-            vault.name = form.data['name']
+            vault.name = form.data['name'] if form.data['type'] == 'vault' else None  # Clear vault_id for non-vault types
             vault.note = form.data['note']
 
             # Check if customer exists, if not, create a new customer
@@ -324,15 +324,18 @@ def manage_vault(id):
                 vault.customer_id = existent_customer.id
 
             # Update order
-            order_name = form.data['order_name']
-            existent_order = Order.query.filter_by(name=order_name).first()
-            if not existent_order:
-                new_order = Order(name=order_name)
-                db.session.add(new_order)
-                db.session.commit()
-                vault.order_id = new_order.id
+            if "EMPTY" in customer_name.upper():
+                vault.order_id = None  # Clear order_id when empty
             else:
-                vault.order_id = existent_order.id
+                order_name = form.data['order_name']
+                existent_order = Order.query.filter_by(name=order_name).first()
+                if not existent_order:
+                    new_order = Order(name=order_name)
+                    db.session.add(new_order)
+                    db.session.commit()
+                    vault.order_id = new_order.id
+                else:
+                    vault.order_id = existent_order.id
 
             db.session.commit()
 
