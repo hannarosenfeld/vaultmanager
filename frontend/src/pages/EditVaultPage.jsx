@@ -196,33 +196,45 @@ export default function EditVaultPage() {
           )}
         </div>
 
-        <div className="mb-6 flex items-center border-b border-gray-200 pb-4">
-          <label className="block text-sm font-medium text-gray-700 w-1/3">
-            Vault#
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={editableVault.name || ""}
-            onChange={handleChange}
-            className="ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white"
-          />
-        </div>
-
-        <div className="mb-6 flex items-center border-b border-gray-200 pb-4">
-          <label className="block text-sm font-medium text-gray-700 w-1/3">
-            Order#
-          </label>
-          <input
-            type="text"
-            name="order_name"
-            value={editableVault.order_name || ""}
-            onChange={handleChange}
-            disabled={isEmpty}
-            className={`ml-2 mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm ${
-              isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
-            }`}
-          />
+        <div className="mb-6 flex gap-4 items-center border-b border-gray-200 pb-4">
+          <div className="w-1/2">
+            <label className="block text-sm font-medium text-gray-700">
+              Vault Number
+            </label>
+            <input
+              type="text"
+              name="name"
+              disabled={isEmpty && (selectedType === "t2" || selectedType === "liftvan")}
+              className={`mt-1 border border-gray-300 text-sm rounded-lg w-full p-2.5 ${
+                isEmpty && (selectedType === "t2" || selectedType === "liftvan")
+                  ? "bg-gray-200 text-gray-500"
+                  : "bg-white"
+              }`}
+              value={
+                selectedType === "t2" || selectedType === "liftvan"
+                  ? ""
+                  : editableVault.name.includes("EMPTY")
+                  ? "EMPTY"
+                  : editableVault.name || ""
+              }
+              onChange={handleChange}
+            />
+          </div>
+          <div className="w-1/2">
+            <label className="block text-sm font-medium text-gray-700">
+              Order Number
+            </label>
+            <input
+              type="text"
+              name="order_name"
+              value={editableVault.order_name || ""}
+              onChange={handleChange}
+              disabled={isEmpty}
+              className={`mt-1 border border-gray-300 text-sm rounded-lg w-full p-2.5 ${
+                isEmpty ? "bg-gray-200 text-gray-500" : "bg-white"
+              }`}
+            />
+          </div>
         </div>
 
         <div className="mb-6 border-b border-gray-200 pb-4">
