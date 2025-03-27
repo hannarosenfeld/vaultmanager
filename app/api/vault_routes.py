@@ -285,6 +285,7 @@ def manage_vault(id):
     """
     Query for a vault by id and manage it (GET, PUT)
     """
+    print("🍊 IN ROUTE")
     vault = Vault.query.get(id)
 
     if not vault:
@@ -296,8 +297,7 @@ def manage_vault(id):
     if request.method == 'PUT':
         form = EditVaultForm()
         form['csrf_token'].data = request.cookies['csrf_token']
-        
-        print("🍊 IN ROUTE")
+            
 
         if form.validate_on_submit():
             if form.data['staging']:
@@ -309,7 +309,10 @@ def manage_vault(id):
                 db.session.commit()
                 return {'vault': vault.to_dict(), 'field': field.to_dict()}
 
-            vault.name = form.data['name'] if form.data['type'] == 'vault' else None  # Clear vault_id for non-vault types
+            if form.data['name']:
+                vault.name = form.data['name']
+            else: vault.name = None
+                
             vault.note = form.data['note']
 
             # Check if customer exists, if not, create a new customer
