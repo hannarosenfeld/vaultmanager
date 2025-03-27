@@ -59,16 +59,10 @@ export default function EditWarehousePage() {
   };
 
   return (
-    <div className="flex flex-col items-center h-full mt-6">
-      <h2 className="mb-1 text-xl font-semibold">{warehouse.name}</h2>
-      <div className="mb-5 w-1/2 flex items-center">
+    <div className="flex flex-col items-center h-full mt-3">
+      <h2 className="mb-4 text-xl font-semibold">{warehouse.name}</h2>
+      <div className="mb-5 w-65 flex">
         <div className="flex-grow">
-          <label
-            htmlFor="field_capacity"
-            className="block mb-2 text-sm font-medium text-gray-900"
-          >
-            Field Capacity
-          </label>
           <input
             type="number"
             id="field_capacity"
@@ -79,7 +73,7 @@ export default function EditWarehousePage() {
         </div>
         <button
           onClick={handleSubmit}
-          className="ml-4 mt-6 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600"
+          className="ml-1 px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-lg hover:bg-blue-600"
         >
           Submit
         </button>
