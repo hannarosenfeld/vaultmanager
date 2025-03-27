@@ -12,6 +12,7 @@ class Warehouse(db.Model):
     name = db.Column(db.String, unique=True)
     rows = db.Column(db.Integer)
     cols = db.Column(db.Integer)
+    field_capacity = db.Column(db.Integer)
     address = db.Column(db.String)
     company_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('companies.id')))
     company = db.relationship('Company', back_populates='company_warehouses')
@@ -23,6 +24,7 @@ class Warehouse(db.Model):
             'name': self.name,
             'rows': self.rows,
             'cols': self.cols,
+            'fieldCapacity': self.field_capacity,
             'fields': [field.to_dict() for field in self.warehouse_fields],
             'companyId': self.company_id,
             'companyName': self.company.name
