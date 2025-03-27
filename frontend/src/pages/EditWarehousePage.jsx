@@ -7,7 +7,6 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import ActionButton from "../components/EditWarehouse/ActionButton";
 import EditWarehouseModal from "../components/EditWarehouse/EditWarehouseModal";
 
-
 export default function EditWarehousePage() {
   const dispatch = useDispatch();
   const { warehouseName } = useParams();
@@ -43,7 +42,22 @@ export default function EditWarehousePage() {
   return (
     <div className="flex flex-col items-center h-full mt-6">
       <h2 className="mb-1 text-xl font-semibold">{warehouse.name}</h2>
-
+      <div className="mb-5 w-1/2 align-">
+        <label
+          htmlFor="field_capacity"
+          className="block mb-2 text-sm font-medium text-gray-900"
+        >
+          Field Capacity
+        </label>
+        <input
+          type="number"
+          id="field_capacity"
+          // value={formData.vault_id}
+          // onChange={handleChange}
+          className="border border-gray-300 text-sm rounded-lg w-full p-2.5"
+          placeholder="Field Capacity"
+        />
+      </div>
       <div className="flex w-full mt-4 justify-center">
         <div className="flex flex-col items-center mx-1 justify-center">
           <ActionButton onClick={() => openModal("left", "plus")} icon="add" />
