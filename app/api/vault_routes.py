@@ -308,10 +308,12 @@ def manage_vault(id):
 
                 db.session.commit()
                 return {'vault': vault.to_dict(), 'field': field.to_dict()}
+            
+            
+            if form.data['customer_name'] == "EMPTY LIFTVAN" or form.data['customer_name'] == "EMPTY T2":
+                vault.name = None
 
-            if form.data['name']:
-                vault.name = form.data['name']
-            else: vault.name = None
+            else: vault.name = form.data['name']
                 
             vault.note = form.data['note']
 
