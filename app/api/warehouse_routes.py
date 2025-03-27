@@ -125,3 +125,29 @@ def add_warehouse():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+
+@warehouse_routes.route('/<int:warehouse_id>/edit-field-capacity', methods=['PATCH'])
+@login_required
+def edit_field_capacity(warehouse_id):
+    """
+    Edit the field capacity of a warehouse.
+    """
+    data = request.get_json()
+    new_field_capacity = data.get('field_capacity')
+
+    if new_field_capacity is None:
+        return jsonify({'error': 'Field capacity is required'}), 400
+
+    warehouse = Warehouse.query.get(warehouse_id)
+
+    if not warehouse:
+        return jsonify({'error': 'Warehouse not found'}), 404
+
+    try:
+        warehouse.field_capacity = new_field_capacity
+        db.session.commit()
+        return jsonify({'message': 'Field capacity updated successfully', 'warehouse': warehouse.to_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500

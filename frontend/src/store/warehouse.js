@@ -19,13 +19,12 @@ const CLEAR_SEARCH = "warehouse/CLEAR_SEARCH";
 const SET_CURRENT_VAULT = "warehouse/SET_CURRENT_VAULT";
 const UPDATE_VAULT = "warehouse/UPDATE_VAULT";
 const SET_FIELD_FULL = "warehouse/SET_FIELD_FULL";
-
+const EDIT_FIELD_CAPACITY = "warehouse/EDIT_FIELD_CAPACITY";
 
 export const updateVault = (payload) => ({
   type: UPDATE_VAULT,
   payload,
 });
-
 
 export const addWarehouse = (warehouse) => ({
   type: ADD_WAREHOUSE,
@@ -128,6 +127,11 @@ export const setCurrentVault = (vault) => ({
 export const setFieldFull = (fieldId, isFull) => ({
   type: SET_FIELD_FULL,
   payload: { fieldId, isFull },
+});
+
+export const editFieldCapacity = (warehouse) => ({
+  type: EDIT_FIELD_CAPACITY,
+  warehouse,
 });
 
 export const getAllWarehousesThunk = () => async (dispatch) => {
@@ -443,6 +447,31 @@ export const setFieldFullThunk = (fieldId, isFull) => async (dispatch) => {
     }
   } catch (error) {
     console.error("Error setting field full:", error);
+    return error;
+  }
+};
+
+export const editFieldCapacityThunk = (warehouseId, fieldCapacity) => async (dispatch) => {
+  try {
+    const res = await fetch(`/api/warehouse/${warehouseId}/edit-field-capacity`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ field_capacity: fieldCapacity }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      dispatch(editFieldCapacity(data.warehouse));
+      return data;
+    } else {
+      const err = await res.json();
+      console.error("Error editing field capacity:", err);
+      return err;
+    }
+  } catch (error) {
+    console.error("Error editing field capacity:", error);
     return error;
   }
 };
@@ -923,6 +952,19 @@ const warehouseReducer = (state = initialState, action) => {
         },
       };    
     
+    case EDIT_FIELD_CAPACITY:
+      return {
+        ...state,
+        warehouses: {
+          ...state.warehouses,
+          [action.warehouse.id]: action.warehouse,
+        },
+        currentWarehouse:
+          state.currentWarehouse?.id === action.warehouse.id
+            ? action.warehouse
+            : state.currentWarehouse,
+      };
+
     default:
       return state;
   }

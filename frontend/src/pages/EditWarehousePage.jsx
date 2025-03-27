@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import EditWarehouseFieldGrid from "../components/EditWarehouse/EditWarehouseFieldGrid";
-import { setCurrentWarehouse } from "../store/warehouse";
+import { setCurrentWarehouse, editFieldCapacityThunk } from "../store/warehouse";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ActionButton from "../components/EditWarehouse/ActionButton";
 import EditWarehouseModal from "../components/EditWarehouse/EditWarehouseModal";
@@ -40,8 +40,22 @@ export default function EditWarehousePage() {
   };
 
   const handleSubmit = () => {
-    console.log("Field capacity submitted");
-    // Add your submit logic here
+    const fieldCapacity = document.getElementById("field_capacity").value;
+    if (fieldCapacity > 10) {
+      alert("Field capacity cannot exceed 10.");
+      return;
+    }
+    dispatch(editFieldCapacityThunk(warehouse.id, fieldCapacity))
+      .then((response) => {
+        if (response.error) {
+          alert("Error updating field capacity: " + response.error);
+        } else {
+          alert("Field capacity updated successfully!");
+        }
+      })
+      .catch((error) => {
+        console.error("Error updating field capacity:", error);
+      });
   };
 
   return (
@@ -58,8 +72,7 @@ export default function EditWarehousePage() {
           <input
             type="number"
             id="field_capacity"
-            // value={formData.vault_id}
-            // onChange={handleChange}
+            max="10"
             className="border border-gray-300 text-sm rounded-lg w-full p-2.5"
             placeholder="Field Capacity"
           />
