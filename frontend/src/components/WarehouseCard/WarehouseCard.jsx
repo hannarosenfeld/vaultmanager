@@ -8,15 +8,24 @@ function WarehouseCard({ openDeleteModal, warehouse }) {
   const allVaultsPresentInWarehouse = filledFields.flatMap((field) =>
     Object.values(field.vaults)
   );
+  
+  // Count total vaults
   const totalVaults = allVaultsPresentInWarehouse.length;
+  
+  // Count empty vaults
   const emptyVaults = allVaultsPresentInWarehouse.filter(
     (vault) => vault.customer_name && vault.customer_name.includes("EMPTY")
   ).length;
-  const warehouseCapacity = warehouse.warehouseCapacity - emptyVaults;
+  
+  // Count non-empty vaults (vaults that take up space)
+  const nonEmptyVaults = totalVaults - emptyVaults;
+  
+  // Use only non-empty vaults for capacity calculation
+  const warehouseCapacity = warehouse.warehouseCapacity;
   const percentage = Math.round(
-    ((totalVaults - emptyVaults) / warehouseCapacity) * 100
+    (nonEmptyVaults / warehouseCapacity) * 100
   );
-
+  
   let percentageColor;
   if (percentage >= 75) {
     percentageColor = "text-red-500";
