@@ -2,16 +2,21 @@ import { Link } from "react-router-dom";
 
 function WarehouseCard({ openDeleteModal, warehouse }) {
   const fieldsArr = Object.values(warehouse.fields);
-  const vaultFields = fieldsArr.filter(field => field.type === "vault").length;
-  const couchboxFields = fieldsArr.filter(field => field.type === "couchbox-T").length;
-  const warehouseCapacity = (vaultFields * 3) + (couchboxFields * 4);
-  const filledFields = fieldsArr.filter(field => Object.values(field.vaults).length);
-  const allVaultsPresentInWarehouse = filledFields.flatMap(field => Object.values(field.vaults));
+  const filledFields = fieldsArr.filter(
+    (field) => Object.values(field.vaults).length
+  );
+  const allVaultsPresentInWarehouse = filledFields.flatMap((field) =>
+    Object.values(field.vaults)
+  );
   const totalVaults = allVaultsPresentInWarehouse.length;
-  const onlyCustomerVaults = allVaultsPresentInWarehouse.filter(vault => vault.customer_name !== "EMPTY");
-  const percentage = Math.round((onlyCustomerVaults.length / warehouseCapacity) * 100);
+  const emptyVaults = allVaultsPresentInWarehouse.filter(
+    (vault) => vault.customer_name && vault.customer_name.includes("EMPTY")
+  ).length;
+  const warehouseCapacity = warehouse.warehouseCapacity - emptyVaults;
+  const percentage = Math.round(
+    ((totalVaults - emptyVaults) / warehouseCapacity) * 100
+  );
 
-  // Determine the color based on the percentage
   let percentageColor;
   if (percentage >= 75) {
     percentageColor = "text-red-500";

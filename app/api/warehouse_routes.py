@@ -91,13 +91,20 @@ def add_warehouse():
     name = data.get('name')
     rows = data.get('rows')
     cols = data.get('cols')
+    field_capacity = data.get('field_capacity')
 
-    if not name or rows is None or cols is None:
-        return jsonify({'error': 'Name, number of rows, and number of columns are required'}), 400
+    if not name or rows is None or cols is None or field_capacity is None:
+        return jsonify({'error': 'Name, number of rows, number of columns, and field capacity are required'}), 400
 
     try:
         # Create warehouse
-        warehouse = Warehouse(name=name, rows=rows, cols=cols, company_id=company_id)
+        warehouse = Warehouse(
+            name=name, 
+            rows=rows, 
+            cols=cols, 
+            field_capacity=field_capacity, 
+            company_id=company_id
+        )
         db.session.add(warehouse)
         db.session.commit()
 

@@ -9,6 +9,7 @@ export default function AddWarehouse() {
   const [name, setName] = useState("");
   const [rows, setRows] = useState("");
   const [cols, setCols] = useState("");
+  const [capacity, setCapacity] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -18,6 +19,7 @@ export default function AddWarehouse() {
       name,
       rows: parseInt(rows, 10),
       cols: parseInt(cols, 10),
+      field_capacity: parseInt(capacity, 10),
     };
     const result = await dispatch(addWarehouseThunk(warehouseData));
     setIsLoading(false);
@@ -69,6 +71,20 @@ export default function AddWarehouse() {
             onChange={(e) => setCols(e.target.value)}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  "
             placeholder="Number of Cols"
+            required
+          />
+        </div>
+        <div className="mb-5">
+          <label htmlFor="capacity" className="block mb-2 text-sm font-medium text-gray-900 ">
+            Field Capacity
+          </label>
+          <input
+            type="number"
+            id="capacity"
+            value={capacity}
+            onChange={(e) => setCapacity(e.target.value)}
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Field Capacity"
             required
           />
         </div>

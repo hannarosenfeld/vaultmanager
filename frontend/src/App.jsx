@@ -10,7 +10,7 @@ import { authenticate } from "./store/session";
 import LoadingSpinner from "../src/components/LoadingSpinner";
 import Stage from "./pages/Stage";
 import LoginPage from "./pages/LoginPage";
-import AddWarehouse from "./pages/AddWarehouseModal";
+import AddWarehouse from "./pages/AddWarehousePage";
 import EditWarehousePage from "./pages/EditWarehousePage";
 import PrintStudio from "./pages/PrintStudio";
 import StatisticsPage from "./pages/StatisticsPage";
