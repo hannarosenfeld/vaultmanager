@@ -136,7 +136,7 @@ export default function Stage() {
                 onClick={() => handleVaultClick(vault)}
               >
                 <h2 className="text-xs text-blue-500 font-semibold">
-                  #{vault.id}
+                  #{vault.name}
                 </h2>
                 <p className="text-xs font-semibold text-gray-700 text-center">
                   {vault.customer_name}
