@@ -7,12 +7,13 @@ def seed_warehouse(users, fields, orders):
     order_instances = Order.query.all()
     
     warehouse = Warehouse()
-    warehouse.name = "Warehouse 3"
+    warehouse.name = "Warehouse 4"
     warehouse.cols = 9
     warehouse.rows = 12
     warehouse.warehouse_fields = allFields
     warehouse.users = user_instances
     warehouse.orders = order_instances
+    warehouse.field_capacity = 2
 
     db.session.add(warehouse)
     db.session.commit()

@@ -1,18 +1,14 @@
 function WarehouseStats({ warehouse }) {
   const warehouseName = warehouse.name;
   const fieldsArr = Object.values(warehouse.fields);
-  const vaultFields = fieldsArr.filter(field => field.type === "vault").length;
-  const couchboxFields = fieldsArr.filter(field => field.type === "couchbox-T").length;
-  const warehouseCapacity = (vaultFields * 3) + (couchboxFields * 4);
   const filledFields = fieldsArr.filter(field => Object.values(field.vaults).length);
   const allVaultsPresentInWarehouse = filledFields.flatMap(field => Object.values(field.vaults));
-  const numberOfAllVaults = allVaultsPresentInWarehouse.length;
   const numberOfEmptyVaults = allVaultsPresentInWarehouse.filter(vault => vault.customer_name.includes("EMPTY") && vault.type === "vault").length;   
   const numberOfEmptyCouchboxes = allVaultsPresentInWarehouse.filter(vault => vault.customer_name.includes("EMPTY") && vault.type === "couchbox").length;   
+  const warehouseCapacity = warehouse.warehouseCapacity;
+  const potentialSpaces = warehouseCapacity - allVaultsPresentInWarehouse.length;
 
-  const onlyCustomerVaults = allVaultsPresentInWarehouse.filter(vault => !vault.customer_name.includes("EMPTY"));
-  
-  const percentage = Math.round((onlyCustomerVaults.length / warehouseCapacity) * 100);
+  console.log("🍊 warehouseCap: ", warehouseCapacity)
 
   return (
     <div className="relative overflow-x-auto mb-5">
@@ -27,7 +23,7 @@ function WarehouseStats({ warehouse }) {
         <tbody>
           <tr className="bg-white border-b ">
             <td className="px-3 py-4 font-medium text-gray-900 whitespace-nowrap">Number of Potential Spaces</td>
-            <td className="px-6 py-4">{warehouseCapacity}</td>
+            <td className="px-6 py-4">{potentialSpaces}</td>
           </tr>
           {/* <tr className="bg-white border-b ">
             <td className="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">Number of All Vaults</td>

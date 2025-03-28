@@ -25,7 +25,7 @@ class Warehouse(db.Model):
             'rows': self.rows,
             'cols': self.cols,
             'fieldCapacity': self.field_capacity,
-            'warehouseCapacity': (self.rows * self.cols * self.field_capacity) if self.field_capacity is not None else None,
+            'warehouseCapacity': self.rows * self.cols * self.field_capacity,
             'fields': [field.to_dict() for field in self.warehouse_fields],
             'companyId': self.company_id,
             'companyName': self.company.name
