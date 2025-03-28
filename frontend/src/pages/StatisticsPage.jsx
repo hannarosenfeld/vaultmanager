@@ -1,5 +1,5 @@
 import { useSelector } from "react-redux";
-import WarehouseStatsPage from "../components/Statistics/WarehouseStatsTable";
+import WarehouseStats from "../components/Statistics/WarehouseStatsTable";
 
 function StatisticsPage() {
   const warehouses = useSelector((state) => state.warehouse.warehouses);
@@ -10,7 +10,7 @@ function StatisticsPage() {
       {/* <h1 className="text-xl mb-4">Statistics</h1> */}
       {warehouseArr.map((warehouse) => (
         <div key={warehouse.id}>
-          <WarehouseStatsPage warehouse={warehouse} />  
+          <WarehouseStats warehouse={warehouse} />  
         </div>
       ))}
     </div>

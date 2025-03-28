@@ -1,4 +1,4 @@
-function WarehouseStatsPage({ warehouse }) {
+function WarehouseStats({ warehouse }) {
   const warehouseName = warehouse.name;
   const fieldsArr = Object.values(warehouse.fields);
   const vaultFields = fieldsArr.filter(field => field.type === "vault").length;
@@ -47,4 +47,4 @@ function WarehouseStatsPage({ warehouse }) {
   );
 }
 
-export default WarehouseStatsPage;
+export default WarehouseStats;
