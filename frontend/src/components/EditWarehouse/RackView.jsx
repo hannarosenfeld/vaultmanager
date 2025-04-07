@@ -18,11 +18,21 @@ export default function RackView({ warehouse }) {
     setRacks((prev) => ({ ...prev, [field]: Math.max(0, prev[field] - 1) }));
   };
 
-  const renderRacks = (count, orientation) => {
+  const renderRacks = (count, orientation, alignRight = false, alignBottom = false) => {
     return (
-      <div className={`flex ${orientation === "horizontal" ? "flex-row" : "flex-col"} gap-1`}>
+      <div
+        className={`flex ${
+          orientation === "horizontal"
+            ? alignRight
+              ? "justify-end"
+              : "justify-start"
+            : alignBottom
+            ? "items-end"
+            : "items-start"
+        } ${orientation === "horizontal" ? "flex-row" : "flex-col"} gap-2`}
+      >
         {Array.from({ length: count }).map((_, index) => (
-          <div key={index} className="w-4 h-4 bg-gray-500"></div>
+          <div key={index} className="w-6 h-6 bg-gray-500"></div>
         ))}
       </div>
     );
@@ -43,10 +53,11 @@ export default function RackView({ warehouse }) {
         }}
         className="border-1"
       >
-        <div>top left horizontal racks: {racks.topLeft}</div>
         {renderRacks(racks.topLeft, "horizontal")}
-        <button onClick={() => handleAddRack("topLeft")}>+</button>
-        <button onClick={() => handleRemoveRack("topLeft")}>-</button>
+        <div className="flex gap-1">
+          <button onClick={() => handleAddRack("topLeft")}>+</button>
+          <button onClick={() => handleRemoveRack("topLeft")}>-</button>
+        </div>
       </div>
       <div
         style={{
@@ -55,10 +66,11 @@ export default function RackView({ warehouse }) {
         }}
         className="border-1"
       >
-        <div>left vertical racks: {racks.leftVertical}</div>
         {renderRacks(racks.leftVertical, "vertical")}
-        <button onClick={() => handleAddRack("leftVertical")}>+</button>
-        <button onClick={() => handleRemoveRack("leftVertical")}>-</button>
+        <div className="flex gap-1">
+          <button onClick={() => handleAddRack("leftVertical")}>+</button>
+          <button onClick={() => handleRemoveRack("leftVertical")}>-</button>
+        </div>
       </div>
       <div
         style={{
@@ -72,13 +84,15 @@ export default function RackView({ warehouse }) {
         style={{
           gridColumn: "3 / 4",
           gridRow: "1 / 2",
+          position: "relative",
         }}
         className="border-1"
       >
-        <div>top right horizontal racks: {racks.topRight}</div>
-        {renderRacks(racks.topRight, "horizontal")}
-        <button onClick={() => handleAddRack("topRight")}>+</button>
-        <button onClick={() => handleRemoveRack("topRight")}>-</button>
+        {renderRacks(racks.topRight, "horizontal", true)}
+        <div className="absolute bottom-1 right-1 flex gap-1">
+          <button onClick={() => handleAddRack("topRight")}>+</button>
+          <button onClick={() => handleRemoveRack("topRight")}>-</button>
+        </div>
       </div>
       <div
         style={{
@@ -87,10 +101,11 @@ export default function RackView({ warehouse }) {
         }}
         className="border-1"
       >
-        <div>right vertical racks: {racks.rightVertical}</div>
-        {renderRacks(racks.rightVertical, "vertical")}
-        <button onClick={() => handleAddRack("rightVertical")}>+</button>
-        <button onClick={() => handleRemoveRack("rightVertical")}>-</button>
+        {renderRacks(racks.rightVertical, "vertical", false, true)}
+        <div className="flex gap-1">
+          <button onClick={() => handleAddRack("rightVertical")}>+</button>
+          <button onClick={() => handleRemoveRack("rightVertical")}>-</button>
+        </div>
       </div>
       <div
         style={{
@@ -99,10 +114,11 @@ export default function RackView({ warehouse }) {
         }}
         className="border-1"
       >
-        <div>bottom racks: {racks.bottom}</div>
         {renderRacks(racks.bottom, "horizontal")}
-        <button onClick={() => handleAddRack("bottom")}>+</button>
-        <button onClick={() => handleRemoveRack("bottom")}>-</button>
+        <div className="flex gap-1">
+          <button onClick={() => handleAddRack("bottom")}>+</button>
+          <button onClick={() => handleRemoveRack("bottom")}>-</button>
+        </div>
       </div>
     </div>
   );
