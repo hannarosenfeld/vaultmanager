@@ -17,7 +17,6 @@ class Warehouse(db.Model):
     company_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('companies.id')))
     company = db.relationship('Company', back_populates='company_warehouses')
     warehouse_fields = db.relationship('Field', back_populates='warehouse', foreign_keys='Field.warehouse_id')
-    racks = db.relationship('Rack', back_populates='warehouse', cascade='all, delete-orphan')  # Add relationship with Rack
 
     def to_dict(self):
         return {
@@ -28,20 +27,6 @@ class Warehouse(db.Model):
             'fieldCapacity': self.field_capacity,
             'warehouseCapacity': self.rows * self.cols * self.field_capacity,
             'fields': [field.to_dict() for field in self.warehouse_fields],
-            'racks': [
-                {
-                    'name': rack.name,
-                    'location': rack.location,
-                    'shelves': [
-                        {
-                            'name': shelf.name,
-                            'pallets': [pallet.name for pallet in shelf.pallets]  # Include pallets on shelves
-                        }
-                        for shelf in rack.shelves
-                    ]
-                }
-                for rack in self.racks
-            ],
             'companyId': self.company_id,
             'companyName': self.company.name
         }
