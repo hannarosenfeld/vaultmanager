@@ -6,6 +6,7 @@ import { setCurrentWarehouse, editFieldCapacityThunk } from "../store/warehouse"
 import LoadingSpinner from "../components/LoadingSpinner";
 import ActionButton from "../components/EditWarehouse/ActionButton";
 import EditWarehouseModal from "../components/EditWarehouse/EditWarehouseModal";
+import ToggleBox from "../components/EditWarehouse/ToggleBox";
 
 export default function EditWarehousePage() {
   const dispatch = useDispatch();
@@ -15,7 +16,7 @@ export default function EditWarehousePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalProps, setModalProps] = useState({});
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState("Warehouse"); // New state for toggle
+  const [viewMode, setViewMode] = useState("Warehouse");
 
   useEffect(() => {
     const foundWarehouse = Object.values(warehouses).find(
@@ -40,12 +41,7 @@ export default function EditWarehousePage() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = () => {
-    const fieldCapacity = document.getElementById("field_capacity").value;
-    if (fieldCapacity > 10) {
-      alert("Field capacity cannot exceed 10.");
-      return;
-    }
+  const handleSubmit = (fieldCapacity) => {
     dispatch(editFieldCapacityThunk(warehouse.id, fieldCapacity))
       .then((response) => {
         if (response.error) {
@@ -61,47 +57,12 @@ export default function EditWarehousePage() {
 
   return (
     <div className="flex flex-col items-center h-full mt-3">
-      <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2> {/* Move warehouse name above */}
-      <div className="mb-6 w-full max-w-md p-4 border border-gray-300 rounded-lg flex flex-col items-center"> {/* Add border */}
-        <div className="flex items-center gap-4">
-          <label className="flex items-center">
-            <span className="mr-2">Warehouse</span>
-            <div
-              className={`relative inline-block w-12 h-6 ${
-                viewMode === "Rack" ? "bg-blue-600" : "bg-gray-300"
-              } rounded-full cursor-pointer`}
-              onClick={() =>
-                setViewMode(viewMode === "Warehouse" ? "Rack" : "Warehouse")
-              }
-            >
-              <div
-                className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                  viewMode === "Rack" ? "transform translate-x-6" : ""
-                }`}
-              ></div>
-            </div>
-            <span className="ml-2">Rack</span>
-          </label>
-        </div>
-        <div className="mt-4 w-full flex">
-          <div className="flex-grow">
-            <input
-              type="number"
-              id="field_capacity"
-              max="10"
-              className="border border-gray-300 text-sm rounded-lg w-full p-2.5"
-              placeholder="Field Capacity"
-            />
-          </div>
-          <button
-            onClick={handleSubmit}
-            className="ml-2 text-blue-700 hover:text-white border border-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-          >
-            Submit
-          </button>
-        </div>
-      </div>
-
+      <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2>
+      <ToggleBox
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        onSubmit={handleSubmit}
+      />
       {viewMode === "Warehouse" ? (
         <>
           <div className="flex w-full mt-4 justify-center">
@@ -143,7 +104,6 @@ export default function EditWarehousePage() {
       ) : (
         <div className="mt-6 text-lg font-semibold">Rack View</div>
       )}
-
       {isModalOpen && (
         <EditWarehouseModal
           {...modalProps}
