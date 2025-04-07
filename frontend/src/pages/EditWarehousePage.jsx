@@ -66,7 +66,7 @@ export default function EditWarehousePage() {
           handleSubmit={handleSubmit}
         />
       ) : (
-        <RackView />
+        <RackView warehouse={warehouse} />
       )}
       {isModalOpen && (
         <EditWarehouseModal

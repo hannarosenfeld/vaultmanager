@@ -27,11 +27,11 @@ export default function EditWarehouseFieldGrid({ warehouse }) {
         >
           {sortedFields.map((field) => (
             <div
-              className='bg-gray-200'
+              className="bg-gray-200"
               key={field.id}
               style={{
                 display: field.type === "couchbox-B" ? "none" : "flex",
-                height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "5vh", // Double the height for couchbox-T
+                height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "5vh",
                 backgroundColor: `${
                   (Object.keys(field.vaults).length === 3 && field.type === "vault") ||
                   field.full ||
@@ -55,7 +55,7 @@ export default function EditWarehouseFieldGrid({ warehouse }) {
               }}
             >
               {field.type !== "couchbox-B" && (
-                <div className="md:text-md text-center" style={{fontSize: "0.5rem"}}>
+                <div className="md:text-md text-center" style={{ fontSize: "0.5rem" }}>
                   {field.name}
                 </div>
               )}
