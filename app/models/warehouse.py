@@ -28,7 +28,20 @@ class Warehouse(db.Model):
             'fieldCapacity': self.field_capacity,
             'warehouseCapacity': self.rows * self.cols * self.field_capacity,
             'fields': [field.to_dict() for field in self.warehouse_fields],
-            'racks': [{'name': rack.name, 'location': rack.location} for rack in self.racks],  # Include rack locations
+            'racks': [
+                {
+                    'name': rack.name,
+                    'location': rack.location,
+                    'shelves': [
+                        {
+                            'name': shelf.name,
+                            'pallets': [pallet.name for pallet in shelf.pallets]  # Include pallets on shelves
+                        }
+                        for shelf in rack.shelves
+                    ]
+                }
+                for rack in self.racks
+            ],
             'companyId': self.company_id,
             'companyName': self.company.name
         }

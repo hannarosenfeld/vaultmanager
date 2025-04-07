@@ -6,6 +6,8 @@ from .fields import seed_fields, undo_fields
 from .companies import seed_companies, undo_companies
 from .warehouse import seed_warehouse, undo_warehouse
 from .orders import seed_orders, undo_orders
+from .racks import seed_racks, undo_racks  # Import rack seeders
+from .pallets import seed_pallets, undo_pallets  # Import pallet seeders
 from app.models import Field, Warehouse, Customer, Company, User, Order, Vault
 
 from app.models.db import db, environment, SCHEMA
@@ -35,7 +37,10 @@ def seed():
         if not Field.query.all(): 
             fields = seed_fields(orders)
         if not Warehouse.query.all(): 
-            warehouses = seed_warehouse(users, fields, orders)             
+            warehouses = seed_warehouse(users, fields, orders)
+            for warehouse in warehouses:
+                racks = seed_racks(warehouse)
+                seed_pallets(racks)  # Seed pallets after racks
         if not Vault.query.all(): 
             seed_vaults(customers)
         if not Company.query.all(): 
@@ -43,6 +48,8 @@ def seed():
 
 @seed_commands.command('undo')
 def undo():
+    undo_pallets()  # Undo pallets first
+    undo_racks()  # Undo racks next
     undo_companies()
     undo_vaults()
     undo_fields()
