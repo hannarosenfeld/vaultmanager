@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import EditWarehouseModal from "../components/EditWarehouse/EditWarehouseModal";
 import ToggleBox from "../components/EditWarehouse/ToggleBox";
 import WarehouseView from "../components/EditWarehouse/WarehouseView";
+import RackView from "../components/EditWarehouse/RackView";
 import { setCurrentWarehouse, editFieldCapacityThunk } from "../store/warehouse";
 import LoadingSpinner from "../components/LoadingSpinner";
 
@@ -65,7 +66,7 @@ export default function EditWarehousePage() {
           handleSubmit={handleSubmit}
         />
       ) : (
-        <div className="mt-6 text-lg font-semibold">Rack View</div>
+        <RackView />
       )}
       {isModalOpen && (
         <EditWarehouseModal
