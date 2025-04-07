@@ -7,3 +7,5 @@ from .field import Field
 from .warehouse import Warehouse
 from .attachment import Attachment
 from .company import Company
+from .rack import Rack
+from .pallet import Pallet

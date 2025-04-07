@@ -1,21 +1,23 @@
 import EditWarehouseFieldGrid from "../EditWarehouse/EditWarehouseFieldGrid";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function RackView({ warehouse }) {
-  const [racks, setRacks] = useState({
-    topLeft: 0,
-    leftVertical: 0,
-    topRight: 0,
-    rightVertical: 0,
-    bottom: 0,
-  });
+  const [racks, setRacks] = useState({});
+
+  useEffect(() => {
+    const initialRacks = {};
+    warehouse.racks.forEach((rack) => {
+      initialRacks[rack.location] = (initialRacks[rack.location] || 0) + 1;
+    });
+    setRacks(initialRacks);
+  }, [warehouse]);
 
   const handleAddRack = (field) => {
-    setRacks((prev) => ({ ...prev, [field]: prev[field] + 1 }));
+    setRacks((prev) => ({ ...prev, [field]: (prev[field] || 0) + 1 }));
   };
 
   const handleRemoveRack = (field) => {
-    setRacks((prev) => ({ ...prev, [field]: Math.max(0, prev[field] - 1) }));
+    setRacks((prev) => ({ ...prev, [field]: Math.max(0, (prev[field] || 0) - 1) }));
   };
 
   const renderRacks = (count, orientation, alignRight = false, alignBottom = false) => {
@@ -31,7 +33,7 @@ export default function RackView({ warehouse }) {
             : "items-start"
         } ${orientation === "horizontal" ? "flex-row" : "flex-col"} gap-2`}
       >
-        {Array.from({ length: count }).map((_, index) => (
+        {Array.from({ length: count || 0 }).map((_, index) => (
           <div key={index} className="w-6 h-6 bg-gray-500"></div>
         ))}
       </div>

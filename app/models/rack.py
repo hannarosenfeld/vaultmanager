@@ -7,6 +7,7 @@ class Rack(db.Model):
     name = db.Column(db.String(100), nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
     warehouse_id = db.Column(db.Integer, db.ForeignKey('warehouses.id'), nullable=False)
+    location = db.Column(db.String(50), nullable=False)  # Add location attribute
 
     # Relationship with Pallet
     pallets = db.relationship('Pallet', back_populates='rack', cascade='all, delete-orphan')
