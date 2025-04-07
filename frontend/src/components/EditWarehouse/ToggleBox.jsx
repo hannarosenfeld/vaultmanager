@@ -7,6 +7,10 @@ export default function ToggleBox({ viewMode, setViewMode, onSubmit }) {
       alert("Field capacity cannot exceed 10.");
       return;
     }
+    if (fieldCapacity < 0) {
+      alert("Field capacity cannot be less than 0.");
+      return;
+    }
     onSubmit(fieldCapacity);
   };
 
@@ -38,6 +42,7 @@ export default function ToggleBox({ viewMode, setViewMode, onSubmit }) {
             type="number"
             id="field_capacity"
             max="10"
+            min="0"
             className="border border-gray-300 text-sm rounded-lg w-full p-2.5"
             placeholder="Field Capacity"
           />
