@@ -18,6 +18,9 @@ class Warehouse(db.Model):
     company = db.relationship('Company', back_populates='company_warehouses')
     warehouse_fields = db.relationship('Field', back_populates='warehouse', foreign_keys='Field.warehouse_id')
 
+    # Use a string reference for the Rack class
+    racks = db.relationship('Rack', back_populates='warehouse', cascade='all, delete-orphan')
+
     def to_dict(self):
         return {
             'id': self.id,
@@ -28,5 +31,6 @@ class Warehouse(db.Model):
             'warehouseCapacity': self.rows * self.cols * self.field_capacity,
             'fields': [field.to_dict() for field in self.warehouse_fields],
             'companyId': self.company_id,
-            'companyName': self.company.name
+            'companyName': self.company.name,
+            'racks': [rack.to_dict() for rack in self.racks]  # Include racks in the dictionary
         }
