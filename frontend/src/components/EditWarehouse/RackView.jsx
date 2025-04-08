@@ -1,26 +1,48 @@
 import EditWarehouseFieldGrid from "../EditWarehouse/EditWarehouseFieldGrid";
 import { useState, useEffect } from "react";
+import axios from "axios";
 
 export default function RackView({ warehouse }) {
   const [racks, setRacks] = useState({});
 
   useEffect(() => {
-    const initialRacks = {};
-    warehouse.racks.forEach((rack) => {
-      initialRacks[rack.location] = (initialRacks[rack.location] || 0) + 1;
-    });
-    setRacks(initialRacks);
-  }, [warehouse]);
+    const fetchRacks = async () => {
+      try {
+        const response = await axios.get(`/api/racks/warehouse/${warehouse.id}`);
+        const fetchedRacks = response.data;
 
-  const handleAddRack = (field) => {
-    setRacks((prev) => ({ ...prev, [field]: (prev[field] || 0) + 1 }));
-  };
+        console.log("Fetched Racks:", fetchedRacks);
 
-  const handleRemoveRack = (field) => {
-    setRacks((prev) => ({ ...prev, [field]: Math.max(0, (prev[field] || 0) - 1) }));
-  };
+        // Map fetched locations to expected keys
+        const locationMapping = {
+          topLeft: "topLeft",
+          topRight: "topRight",
+          bottomLeft: "bottom",
+          bottomRight: "bottom",
+          center: "bottom", // Adjust this if "center" should map elsewhere
+        };
 
-  const renderRacks = (count, orientation, alignRight = false, alignBottom = false) => {
+        // Map racks to their locations
+        const initialRacks = {};
+        fetchedRacks.forEach((rack) => {
+          const mappedLocation = locationMapping[rack.location];
+          if (mappedLocation) {
+            if (!initialRacks[mappedLocation]) {
+              initialRacks[mappedLocation] = [];
+            }
+            initialRacks[mappedLocation].push(rack);
+          }
+        });
+        setRacks(initialRacks);
+      } catch (error) {
+        console.error("Error fetching racks:", error);
+      }
+    };
+
+    fetchRacks();
+  }, [warehouse.id]);
+
+  const renderRacks = (rackList = [], orientation, alignRight = false, alignBottom = false) => {
     return (
       <div
         className={`flex ${
@@ -31,10 +53,15 @@ export default function RackView({ warehouse }) {
             : alignBottom
             ? "items-end"
             : "items-start"
-        } ${orientation === "horizontal" ? "flex-row" : "flex-col"} gap-2`}
+        } ${orientation === "horizontal" ? "flex-row" : "flex-col"} gap-4`}
       >
-        {Array.from({ length: count || 0 }).map((_, index) => (
-          <div key={index} className="w-6 h-6 bg-gray-500"></div>
+        {rackList.map((rack) => (
+          <div
+            key={rack.id}
+            className="flex flex-col items-center justify-center w-16 h-16 bg-gray-500 text-white text-sm font-bold rounded"
+          >
+            {rack.name}
+          </div>
         ))}
       </div>
     );
@@ -57,8 +84,8 @@ export default function RackView({ warehouse }) {
       >
         {renderRacks(racks.topLeft, "horizontal")}
         <div className="flex gap-1">
-          <button onClick={() => handleAddRack("topLeft")}>+</button>
-          <button onClick={() => handleRemoveRack("topLeft")}>-</button>
+          <button onClick={() => console.log("Add rack to topLeft")}>+</button>
+          <button onClick={() => console.log("Remove rack from topLeft")}>-</button>
         </div>
       </div>
       <div
@@ -70,8 +97,8 @@ export default function RackView({ warehouse }) {
       >
         {renderRacks(racks.leftVertical, "vertical")}
         <div className="flex gap-1">
-          <button onClick={() => handleAddRack("leftVertical")}>+</button>
-          <button onClick={() => handleRemoveRack("leftVertical")}>-</button>
+          <button onClick={() => console.log("Add rack to leftVertical")}>+</button>
+          <button onClick={() => console.log("Remove rack from leftVertical")}>-</button>
         </div>
       </div>
       <div
@@ -92,8 +119,8 @@ export default function RackView({ warehouse }) {
       >
         {renderRacks(racks.topRight, "horizontal", true)}
         <div className="absolute bottom-1 right-1 flex gap-1">
-          <button onClick={() => handleAddRack("topRight")}>+</button>
-          <button onClick={() => handleRemoveRack("topRight")}>-</button>
+          <button onClick={() => console.log("Add rack to topRight")}>+</button>
+          <button onClick={() => console.log("Remove rack from topRight")}>-</button>
         </div>
       </div>
       <div
@@ -105,8 +132,8 @@ export default function RackView({ warehouse }) {
       >
         {renderRacks(racks.rightVertical, "vertical", false, true)}
         <div className="flex gap-1">
-          <button onClick={() => handleAddRack("rightVertical")}>+</button>
-          <button onClick={() => handleRemoveRack("rightVertical")}>-</button>
+          <button onClick={() => console.log("Add rack to rightVertical")}>+</button>
+          <button onClick={() => console.log("Remove rack from rightVertical")}>-</button>
         </div>
       </div>
       <div
@@ -118,8 +145,8 @@ export default function RackView({ warehouse }) {
       >
         {renderRacks(racks.bottom, "horizontal")}
         <div className="flex gap-1">
-          <button onClick={() => handleAddRack("bottom")}>+</button>
-          <button onClick={() => handleRemoveRack("bottom")}>-</button>
+          <button onClick={() => console.log("Add rack to bottom")}>+</button>
+          <button onClick={() => console.log("Remove rack from bottom")}>-</button>
         </div>
       </div>
     </div>

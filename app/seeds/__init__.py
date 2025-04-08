@@ -38,12 +38,12 @@ def seed():
         seed_vaults(customers)
     if not Company.query.all(): 
         companies = seed_companies()
-    if not Rack.query.all():  # Seed racks only if they don't exist
+    if not Rack.query.all():
         seed_racks()
 
 @seed_commands.command('undo')
 def undo():
-    undo_racks()  # Undo racks first to avoid foreign key conflicts
+    undo_racks()
     undo_companies()
     undo_vaults()
     undo_fields()

@@ -10,13 +10,13 @@ def seed_racks():
 
     racks = []
     for warehouse in warehouses:
-        # Define rack locations for each warehouse
-        rack_locations = ["topLeft", "topRight", "bottomLeft", "bottomRight", "center"]
+        # Define rack locations in the order used by the RackView component
+        rack_locations = ["topLeft", "leftVertical", "bottom", "topRight", "rightVertical"]
 
         for i, location in enumerate(rack_locations):
             # Create a rack
             rack = Rack(
-                name=f"Rack {i + 1} in {warehouse.name}",
+                name=f"Rack {i + 1}",
                 capacity=100,
                 warehouse_id=warehouse.id,
                 location=location
