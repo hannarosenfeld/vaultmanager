@@ -78,23 +78,32 @@ export default function RackView({ warehouse }) {
     }
   };
 
-  const renderRacks = (rackList = [], orientation, alignRight = false, alignBottom = false) => {
+  const renderRacks = (rackList = [], orientation) => {
     return (
       <div
         className={`flex ${
-          orientation === "horizontal"
-            ? alignRight
-              ? "justify-end"
-              : "justify-start"
-            : alignBottom
-            ? "items-end"
-            : "items-start"
-        } ${orientation === "horizontal" ? "flex-row" : "flex-col"} gap-4`}
+          orientation === "horizontal" ? "flex-row" : "flex-col"
+        } flex-wrap gap-2`}
+        style={{
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          overflow: "hidden", // Prevent overflow
+        }}
       >
         {rackList.map((rack) => (
           <div
             key={rack.id}
-            className="flex flex-col items-center justify-center w-16 h-16 bg-gray-500 text-white text-sm font-bold rounded"
+            className="flex flex-col items-center justify-center border border-black text-black text-sm font-bold"
+            style={{
+              flexGrow: 1,
+              flexShrink: 1,
+              flexBasis: "0", // Allow racks to shrink proportionally
+              minWidth: "50px", // Minimum size for racks
+              minHeight: "50px", // Minimum size for racks
+              maxWidth: "100%",
+              maxHeight: "100%",
+            }}
           >
             {rack.name}
           </div>
@@ -116,32 +125,33 @@ export default function RackView({ warehouse }) {
           gridColumn: "1 / 2",
           gridRow: "1 / 2",
         }}
-        className="border-1"
+        className="border border-black relative"
       >
-        {renderRacks(racks.topLeft, "horizontal")}
-        <div className="flex gap-1">
-          <button onClick={() => handleAddRack("topLeft")}>+</button>
-          <button onClick={() => handleRemoveRack("topLeft")}>-</button>
+        <div className="absolute top-0 left-0 flex gap-1 p-2 z-10 bg-white border border-black">
+          <button onClick={() => handleAddRack("topLeft")} className="px-2 py-1 border border-black">+</button>
+          <button onClick={() => handleRemoveRack("topLeft")} className="px-2 py-1 border border-black">-</button>
         </div>
+        {renderRacks(racks.topLeft, "horizontal")}
       </div>
       <div
         style={{
           gridColumn: "1 / 2",
           gridRow: "2 / 3",
         }}
-        className="border-1"
+        className="border border-black relative"
       >
-        {renderRacks(racks.leftVertical, "vertical")}
-        <div className="flex gap-1">
-          <button onClick={() => handleAddRack("leftVertical")}>+</button>
-          <button onClick={() => handleRemoveRack("leftVertical")}>-</button>
+        <div className="absolute top-0 left-0 flex gap-1 p-2 z-10 bg-white border border-black">
+          <button onClick={() => handleAddRack("leftVertical")} className="px-2 py-1 border border-black">+</button>
+          <button onClick={() => handleRemoveRack("leftVertical")} className="px-2 py-1 border border-black">-</button>
         </div>
+        {renderRacks(racks.leftVertical, "vertical")}
       </div>
       <div
         style={{
           gridColumn: "2 / 3",
           gridRow: "1 / 3",
         }}
+        className="border border-black"
       >
         <EditWarehouseFieldGrid warehouse={warehouse} />
       </div>
@@ -149,41 +159,40 @@ export default function RackView({ warehouse }) {
         style={{
           gridColumn: "3 / 4",
           gridRow: "1 / 2",
-          position: "relative",
         }}
-        className="border-1"
+        className="border border-black relative"
       >
-        {renderRacks(racks.topRight, "horizontal", true)}
-        <div className="absolute bottom-1 right-1 flex gap-1">
-          <button onClick={() => handleAddRack("topRight")}>+</button>
-          <button onClick={() => handleRemoveRack("topRight")}>-</button>
+        <div className="absolute top-0 left-0 flex gap-1 p-2 z-10 bg-white border border-black">
+          <button onClick={() => handleAddRack("topRight")} className="px-2 py-1 border border-black">+</button>
+          <button onClick={() => handleRemoveRack("topRight")} className="px-2 py-1 border border-black">-</button>
         </div>
+        {renderRacks(racks.topRight, "horizontal")}
       </div>
       <div
         style={{
           gridColumn: "3 / 4",
           gridRow: "2 / 3",
         }}
-        className="border-1"
+        className="border border-black relative"
       >
-        {renderRacks(racks.rightVertical, "vertical", false, true)}
-        <div className="flex gap-1">
-          <button onClick={() => handleAddRack("rightVertical")}>+</button>
-          <button onClick={() => handleRemoveRack("rightVertical")}>-</button>
+        <div className="absolute top-0 left-0 flex gap-1 p-2 z-10 bg-white border border-black">
+          <button onClick={() => handleAddRack("rightVertical")} className="px-2 py-1 border border-black">+</button>
+          <button onClick={() => handleRemoveRack("rightVertical")} className="px-2 py-1 border border-black">-</button>
         </div>
+        {renderRacks(racks.rightVertical, "vertical")}
       </div>
       <div
         style={{
           gridColumn: "1 / 4",
           gridRow: "3 / 4",
         }}
-        className="border-1"
+        className="border border-black relative"
       >
-        {renderRacks(racks.bottom, "horizontal")}
-        <div className="flex gap-1">
-          <button onClick={() => handleAddRack("bottom")}>+</button>
-          <button onClick={() => handleRemoveRack("bottom")}>-</button>
+        <div className="absolute top-0 left-0 flex gap-1 p-2 z-10 bg-white border border-black">
+          <button onClick={() => handleAddRack("bottom")} className="px-2 py-1 border border-black">+</button>
+          <button onClick={() => handleRemoveRack("bottom")} className="px-2 py-1 border border-black">-</button>
         </div>
+        {renderRacks(racks.bottom, "horizontal")}
       </div>
     </div>
   );
