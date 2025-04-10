@@ -104,11 +104,13 @@ export default function RackView({ warehouse }) {
         {rackList.map((rack) => {
           const isHorizontalRack = rack.location === "topLeft" || rack.location === "topRight" || rack.location === "bottom";
           const isVerticalRack = rack.location === "leftVertical" || rack.location === "rightVertical";
+
+          console.log( rack.location === "topRight")
   
           return (
             <div
               key={rack.id}
-              className="flex flex-col items-center justify-center border border-black text-black text-sm font-bold bg-yellow-200"
+              className="flex items-center justify-center border border-black text-black text-sm font-bold bg-yellow-200"
               style={{
                 flexShrink: 0,
                 flexGrow: 0,
@@ -116,6 +118,8 @@ export default function RackView({ warehouse }) {
                 width: isHorizontalRack ? "6em" : "4em",
                 height: isVerticalRack ? "6em" : "4em",
                 fontSize: "0.5em",
+                alignSelf: rack.location === "topRight" || rack.location === "rightVertical" ? "flex-end" : "",
+                flexDirection: isHorizontalRack ? "row" : "column",
               }}
             >
               {rack.name}
