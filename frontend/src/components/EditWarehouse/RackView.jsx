@@ -98,7 +98,7 @@ export default function RackView({ warehouse }) {
           width: "100%",
           height: "100%",
           display: "flex",
-          overflow: "hidden", // Prevent overflow
+          overflow: "hidden",
         }}
       >
         {rackList.map((rack) => (
@@ -108,9 +108,9 @@ export default function RackView({ warehouse }) {
             style={{
               flexGrow: 1,
               flexShrink: 1,
-              flexBasis: "0", // Allow racks to shrink proportionally
-              minWidth: "50px", // Minimum size for racks
-              minHeight: "50px", // Minimum size for racks
+              flexBasis: "0",
+              minWidth: "50px",
+              minHeight: "50px",
               maxWidth: "100%",
               maxHeight: "100%",
             }}
@@ -142,6 +142,8 @@ export default function RackView({ warehouse }) {
           style={{
             justifyContent: "center", // Center buttons vertically
             alignItems: "center", // Center buttons horizontally
+            height: "100%", // Fill the height of the parent container
+            width: "auto", // Adjust width as needed
           }}
         >
           <button
@@ -166,16 +168,24 @@ export default function RackView({ warehouse }) {
         }}
         className="border border-black relative"
       >
-        <div className="absolute top-0 left-0 flex gap-1 p-2 z-10 bg-white border border-black">
+        <div
+          className="absolute top-0 right-0 flex flex-col gap-1 p-1 z-10 bg-white border border-black"
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            width: "auto",
+          }}
+        >
           <button
             onClick={() => handleAddRack("leftVertical")}
-            className="px-2 py-1 border border-black"
+            className="w-5 h-5 border border-black flex items-center justify-center"
           >
             +
           </button>
           <button
             onClick={() => handleRemoveRack("leftVertical")}
-            className="px-2 py-1 border border-black"
+            className="w-5 h-5 border border-black flex items-center justify-center"
           >
             -
           </button>
@@ -198,16 +208,24 @@ export default function RackView({ warehouse }) {
         }}
         className="border border-black relative"
       >
-        <div className="absolute top-0 left-0 flex gap-1 p-2 z-10 bg-white border border-black">
+        <div
+          className="absolute top-0 left-0 flex flex-col gap-1 p-1 z-10 bg-white border border-black"
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            width: "auto",
+          }}
+        >
           <button
             onClick={() => handleAddRack("topRight")}
-            className="px-2 py-1 border border-black"
+            className="w-5 h-5 border border-black flex items-center justify-center"
           >
             +
           </button>
           <button
             onClick={() => handleRemoveRack("topRight")}
-            className="px-2 py-1 border border-black"
+            className="w-5 h-5 border border-black flex items-center justify-center"
           >
             -
           </button>
@@ -221,16 +239,24 @@ export default function RackView({ warehouse }) {
         }}
         className="border border-black relative"
       >
-        <div className="absolute top-0 left-0 flex gap-1 p-2 z-10 bg-white border border-black">
+        <div
+          className="absolute top-0 left-0 flex flex-col gap-1 p-1 z-10 bg-white border border-black"
+          style={{
+            justifyContent: "center",
+            alignItems: "center",
+            height: "100%",
+            width: "auto",
+          }}
+        >
           <button
             onClick={() => handleAddRack("rightVertical")}
-            className="px-2 py-1 border border-black"
+            className="w-5 h-5 border border-black flex items-center justify-center"
           >
             +
           </button>
           <button
             onClick={() => handleRemoveRack("rightVertical")}
-            className="px-2 py-1 border border-black"
+            className="w-5 h-5 border border-black flex items-center justify-center"
           >
             -
           </button>
@@ -244,19 +270,21 @@ export default function RackView({ warehouse }) {
         }}
         className="border border-black relative"
       >
-        <div className="absolute top-0 left-0 flex gap-1 p-2 z-10 bg-white border border-black">
-          <button
-            onClick={() => handleAddRack("bottom")}
-            className="px-2 py-1 border border-black"
-          >
-            +
-          </button>
-          <button
-            onClick={() => handleRemoveRack("bottom")}
-            className="px-2 py-1 border border-black"
-          >
-            -
-          </button>
+        <div className="absolute w-[100%] flex items-center gap-1 p-1 z-10 bg-white border border-black">
+          <div className="flex gap-1 m-auto">
+            <button
+              onClick={() => handleAddRack("bottom")}
+              className="px-1 py-1 border border-black"
+            >
+              +
+            </button>
+            <button
+              onClick={() => handleRemoveRack("bottom")}
+              className="px-1 py-0 border border-black"
+            >
+              -
+            </button>
+          </div>
         </div>
         {renderRacks(racks.bottom, "horizontal")}
       </div>
