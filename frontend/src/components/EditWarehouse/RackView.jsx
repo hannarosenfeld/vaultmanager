@@ -88,7 +88,7 @@ export default function RackView({ warehouse }) {
     }
   };
 
-  const renderRacks = (rackList = [], orientation) => {
+  const renderRacks = (rackList = [], orientation, location) => {
     return (
       <div
         className={`flex ${
@@ -101,23 +101,27 @@ export default function RackView({ warehouse }) {
           overflow: "hidden",
         }}
       >
-        {rackList.map((rack) => (
-          <div
-            key={rack.id}
-            className="flex flex-col items-center justify-center border border-black text-black text-sm font-bold bg-gray-200"
-            style={{
-              flexGrow: 1,
-              flexShrink: 1,
-              flexBasis: "0",
-              minWidth: "50px",
-              minHeight: "50px",
-              maxWidth: "100%",
-              maxHeight: "100%",
-            }}
-          >
-            {rack.name}
-          </div>
-        ))}
+        {rackList.map((rack) => {
+          // Check if the rack is a horizontal rack
+          const isHorizontalRack = ["topLeft", "topRight", "bottom"].includes(location);
+  
+          return (
+            <div
+              key={rack.id}
+              className="flex flex-col items-center justify-center border border-black text-black text-sm font-bold bg-yellow-200"
+              style={{
+                flexShrink: 1,
+                flexBasis: "0",
+                width: isHorizontalRack ? "2em" : "5em",
+                height: isHorizontalRack ? "3em" : "6em",
+                // maxHeight: isHorizontalRack ? "5em" : "6em",
+                fontSize: "0.5em",  
+              }}
+            >
+              {rack.name}
+            </div>
+          );
+        })}
       </div>
     );
   };
@@ -126,7 +130,7 @@ export default function RackView({ warehouse }) {
     <div
       className="grid h-full w-full"
       style={{
-        gridTemplateColumns: "25% 50% 25%",
+        gridTemplateColumns: "30% 40% 30%",
         gridTemplateRows: "10% 90% 10%",
       }}
     >
@@ -196,6 +200,9 @@ export default function RackView({ warehouse }) {
         style={{
           gridColumn: "2 / 3",
           gridRow: "1 / 3",
+          width: "100%",
+
+          margin: "0 auto",          
         }}
         className="border border-black"
       >
