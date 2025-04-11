@@ -102,9 +102,15 @@ export default function RackView({ warehouse }) {
     const processedRackList = location === "topRight" ? [...rackList].reverse() : rackList;
 
     // Determine the number of potential spots
-    const totalSpots = location === "leftVertical" || location === "rightVertical" ? 10 : 10; // Adjust for vertical walls and bottom
+    const totalSpots = location === "bottom" ? 10 : location === "leftVertical" || location === "rightVertical" ? 10 : 5;
     const filledSpots = processedRackList.length;
     const emptySpots = totalSpots - filledSpots;
+
+    // Define consistent rack dimensions
+    const rackWidth =
+      location === "bottom" ? `${100 / totalSpots}%` : location === "leftVertical" || location === "rightVertical" ? "4em" : "6em";
+    const rackHeight =
+      location === "leftVertical" || location === "rightVertical" ? `${100 / totalSpots}%` : "4em";
 
     return (
       <div
@@ -117,65 +123,49 @@ export default function RackView({ warehouse }) {
           display: "flex",
           overflow: "hidden",
           justifyContent:
-            location === "topRight" ? "flex-end" : "flex-start", // Align topRight to the right
+            location === "rightVertical"
+              ? "flex-end" // Align right racks to the right side
+              : location === "bottom"
+              ? "flex-start" // Align bottom racks to fill the wall
+              : "flex-start", // Default for other locations
           alignItems:
-            location === "rightVertical" ? "flex-end" : "flex-start", // Align rightVertical to the right wall
+            location === "bottom" ? "flex-end" : "flex-start", // Align bottom racks to the bottom wall
           flexWrap: "nowrap", // Prevent wrapping
         }}
       >
-        {processedRackList.map((rack) => {
-          const isHorizontalRack =
-            rack.location === "topLeft" ||
-            rack.location === "topRight" ||
-            rack.location === "bottom";
-          const isVerticalRack =
-            rack.location === "leftVertical" ||
-            rack.location === "rightVertical";
-
-          return (
-            <div
-              key={rack.id}
-              className="flex items-center justify-center border border-black text-black text-sm font-bold bg-yellow-200"
-              style={{
-                flexShrink: 0,
-                flexGrow: 0,
-                flexBasis: "auto",
-                width: isHorizontalRack ? "6em" : "4em",
-                height: isVerticalRack ? "10%" : "4em", // Adjust height for vertical racks
-                fontSize: "0.5em",
-                flexDirection: isHorizontalRack ? "row" : "column",
-              }}
-            >
-              {rack.name}
-            </div>
-          );
-        })}
+        {processedRackList.map((rack) => (
+          <div
+            key={rack.id}
+            className="flex items-center justify-center border border-black text-black text-sm font-bold bg-yellow-200"
+            style={{
+              flexShrink: 0,
+              flexGrow: 0,
+              flexBasis: "auto",
+              width: rackWidth, // Consistent width
+              height: rackHeight, // Consistent height
+              fontSize: "0.5em",
+              flexDirection: "row",
+            }}
+          >
+            {rack.name}
+          </div>
+        ))}
         {/* Render empty spots */}
-        {Array.from({ length: emptySpots }).map((_, index) => {
-          const isHorizontalRack =
-            location === "topLeft" ||
-            location === "topRight" ||
-            location === "bottom";
-          const isVerticalRack =
-            location === "leftVertical" ||
-            location === "rightVertical";
-
-          return (
-            <div
-              key={`empty-${index}`}
-              className="flex items-center justify-center border border-gray-400 bg-gray-200"
-              style={{
-                flexShrink: 0,
-                flexGrow: 0,
-                flexBasis: "auto",
-                width: isHorizontalRack ? "6em" : "4em",
-                height: isVerticalRack ? "10%" : "4em", // Adjust height for vertical racks
-                fontSize: "0.5em",
-                flexDirection: isHorizontalRack ? "row" : "column",
-              }}
-            />
-          );
-        })}
+        {Array.from({ length: emptySpots }).map((_, index) => (
+          <div
+            key={`empty-${index}`}
+            className="flex items-center justify-center border border-gray-400 bg-gray-200"
+            style={{
+              flexShrink: 0,
+              flexGrow: 0,
+              flexBasis: "auto",
+              width: rackWidth, // Consistent width
+              height: rackHeight, // Consistent height
+              fontSize: "0.5em",
+              flexDirection: "row",
+            }}
+          />
+        ))}
       </div>
     );
   };
