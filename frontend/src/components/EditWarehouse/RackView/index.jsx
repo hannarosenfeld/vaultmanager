@@ -98,21 +98,24 @@ export default function RackView({ warehouse }) {
 
   const renderRacks = (rackList = [], orientation, location) => {
     console.log(`Rendering racks for location ${location}:`, rackList); // Debugging
+
+    // Reverse the rack list for topRight location
+    const processedRackList = location === "topRight" ? [...rackList].reverse() : rackList;
+
     return (
       <div
         className={`flex ${
-          orientation === "horizontal" ? "flex-row" : "flex-col"
+          orientation === "horizontal" ? "flex-row-reverse" : "flex-col"
         } flex-wrap gap-2`}
         style={{
           width: "100%",
           height: "100%",
           display: "flex",
           overflow: "hidden",
-          border: location === "bottom" ? "2px solid red" : "", // Force visibility for debugging
-          backgroundColor: location === "bottom" ? "rgba(255, 0, 0, 0.1)" : "", // Highlight for debugging
+          justifyContent: location === "topRight" ? "flex-end" : "flex-start", // Align racks to the right for topRight
         }}
       >
-        {rackList.map((rack) => {
+        {processedRackList.map((rack) => {
           const isHorizontalRack =
             rack.location === "topLeft" ||
             rack.location === "topRight" ||
