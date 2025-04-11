@@ -26,6 +26,7 @@ export default function RackView({ warehouse }) {
           bottomLeft: "bottom",
           bottomRight: "bottom",
           center: "bottom",
+          bottom: "bottom", // Ensure all bottom racks are mapped correctly
           leftVertical: "leftVertical",
           rightVertical: "rightVertical",
         };
@@ -41,6 +42,8 @@ export default function RackView({ warehouse }) {
             initialRacks[mappedLocation].push(rack);
           }
         });
+
+        console.log("Mapped racks:", initialRacks); // Debugging
         setRacks(initialRacks);
       } catch (error) {
         console.error("Error fetching racks:", error);
@@ -61,10 +64,14 @@ export default function RackView({ warehouse }) {
       );
       const newRack = response.data;
 
-      setRacks((prev) => ({
-        ...prev,
-        [location]: [...(prev[location] || []), newRack],
-      }));
+      setRacks((prev) => {
+        const updatedRacks = {
+          ...prev,
+          [location]: [...(prev[location] || []), newRack],
+        };
+        console.log("Updated racks after adding:", updatedRacks); // Debugging
+        return updatedRacks;
+      });
     } catch (error) {
       console.error("Error adding rack:", error);
     }
@@ -90,6 +97,7 @@ export default function RackView({ warehouse }) {
   };
 
   const renderRacks = (rackList = [], orientation, location) => {
+    console.log(`Rendering racks for location ${location}:`, rackList); // Debugging
     return (
       <div
         className={`flex ${
@@ -100,14 +108,19 @@ export default function RackView({ warehouse }) {
           height: "100%",
           display: "flex",
           overflow: "hidden",
+          border: location === "bottom" ? "2px solid red" : "", // Force visibility for debugging
+          backgroundColor: location === "bottom" ? "rgba(255, 0, 0, 0.1)" : "", // Highlight for debugging
         }}
       >
         {rackList.map((rack) => {
-          const isHorizontalRack = rack.location === "topLeft" || rack.location === "topRight" || rack.location === "bottom";
-          const isVerticalRack = rack.location === "leftVertical" || rack.location === "rightVertical";
+          const isHorizontalRack =
+            rack.location === "topLeft" ||
+            rack.location === "topRight" ||
+            rack.location === "bottom";
+          const isVerticalRack =
+            rack.location === "leftVertical" ||
+            rack.location === "rightVertical";
 
-          console.log( rack.location === "topRight")
-  
           return (
             <div
               key={rack.id}
@@ -119,7 +132,11 @@ export default function RackView({ warehouse }) {
                 width: isHorizontalRack ? "6em" : "4em",
                 height: isVerticalRack ? "6em" : "4em",
                 fontSize: "0.5em",
-                alignSelf: rack.location === "topRight" || rack.location === "rightVertical" ? "flex-end" : "",
+                alignSelf:
+                  rack.location === "topRight" ||
+                  rack.location === "rightVertical"
+                    ? "flex-end"
+                    : "",
                 flexDirection: isHorizontalRack ? "row" : "column",
               }}
             >
@@ -130,6 +147,7 @@ export default function RackView({ warehouse }) {
       </div>
     );
   };
+
   return (
     <div
       className="grid h-full w-full"
@@ -287,7 +305,7 @@ export default function RackView({ warehouse }) {
             />
           </div>
         </div>
-        {renderRacks(racks.bottom, "horizontal")}
+        {renderRacks(racks.bottom, "horizontal", "bottom")} {/* Pass racks.bottom */}
       </div>
     </div>
   );
