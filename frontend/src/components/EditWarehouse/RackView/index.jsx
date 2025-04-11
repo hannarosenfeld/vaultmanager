@@ -112,6 +112,15 @@ export default function RackView({ warehouse }) {
     const rackHeight =
       location === "leftVertical" || location === "rightVertical" ? `${100 / totalSpots}%` : "4em";
 
+    // Determine prefix for potential field names
+    const locationPrefix = {
+      topLeft: "TL",
+      topRight: "TR",
+      leftVertical: "L",
+      rightVertical: "R",
+      bottom: "B",
+    }[location];
+
     return (
       <div
         className={`flex ${
@@ -149,7 +158,7 @@ export default function RackView({ warehouse }) {
             {rack.name}
           </div>
         ))}
-        {/* Render empty spots */}
+        {/* Render empty spots with potential field names */}
         {Array.from({ length: emptySpots }).map((_, index) => (
           <div
             key={`empty-${index}`}
@@ -163,7 +172,9 @@ export default function RackView({ warehouse }) {
               fontSize: "0.5em",
               flexDirection: "row",
             }}
-          />
+          >
+            {`${locationPrefix}-${index + filledSpots + 1}`}
+          </div>
         ))}
       </div>
     );
