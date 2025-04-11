@@ -14,7 +14,7 @@ export default function RackView({ warehouse }) {
         const fetchedRacks = response.data;
 
         console.log(
-          `Fetched racks for warehouse ${warehouse.id}:`,
+          `🏓 Fetched racks for warehouse ${warehouse.id}:`,
           fetchedRacks
         );
 
@@ -42,7 +42,7 @@ export default function RackView({ warehouse }) {
           }
         });
 
-        console.log("Mapped racks:", initialRacks); // Debugging
+        console.log("🏸 Mapped racks:", initialRacks); // Debugging
         setRacks(initialRacks);
       } catch (error) {
         console.error("Error fetching racks:", error);
@@ -144,7 +144,7 @@ export default function RackView({ warehouse }) {
         {processedRackList.map((rack) => (
           <div
             key={rack.id}
-            className="flex items-center justify-center border border-black text-black text-sm font-bold bg-yellow-200"
+            className="flex items-center justify-center text-black text-sm font-bold bg-yellow-200"
             style={{
               flexShrink: 0,
               flexGrow: 0,
@@ -193,7 +193,7 @@ export default function RackView({ warehouse }) {
           gridColumn: "1 / 2",
           gridRow: "1 / 2",
         }}
-        className="border border-black"
+        className=""
       >
         {renderRacks(racks.topLeft, "horizontal", "topLeft")}
       </div>
@@ -202,7 +202,7 @@ export default function RackView({ warehouse }) {
           gridColumn: "1 / 2",
           gridRow: "2 / 3",
         }}
-        className="border border-black"
+        className=""
       >
         {renderRacks(racks.leftVertical, "vertical", "leftVertical")}
       </div>
@@ -213,7 +213,7 @@ export default function RackView({ warehouse }) {
           width: "100%",
           margin: "0 auto",
         }}
-        className="border border-black"
+        className="px-2"
       >
         <EditWarehouseFieldGrid warehouse={warehouse} />
       </div>
@@ -222,7 +222,7 @@ export default function RackView({ warehouse }) {
           gridColumn: "3 / 4",
           gridRow: "1 / 2",
         }}
-        className="border border-black"
+        className=""
       >
         {renderRacks(racks.topRight, "horizontal", "topRight")}
       </div>
@@ -231,7 +231,7 @@ export default function RackView({ warehouse }) {
           gridColumn: "3 / 4",
           gridRow: "2 / 3",
         }}
-        className="border border-black"
+        className=""
       >
         {renderRacks(racks.rightVertical, "vertical", "rightVertical")}
       </div>
@@ -240,7 +240,7 @@ export default function RackView({ warehouse }) {
           gridColumn: "1 / 4",
           gridRow: "3 / 4",
         }}
-        className="border border-black"
+        className=""
       >
         {renderRacks(racks.bottom, "horizontal", "bottom")}
       </div>
