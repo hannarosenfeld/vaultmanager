@@ -1,7 +1,6 @@
 import EditWarehouseFieldGrid from "../EditWarehouseFieldGrid";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import RackButton from "./RackButton"; // Import the new RackButton component
 
 export default function RackView({ warehouse }) {
   const [racks, setRacks] = useState({});
@@ -102,17 +101,26 @@ export default function RackView({ warehouse }) {
     // Reverse the rack list for topRight location
     const processedRackList = location === "topRight" ? [...rackList].reverse() : rackList;
 
+    // Determine the number of potential spots
+    const totalSpots = location === "leftVertical" || location === "rightVertical" ? 10 : 10; // Adjust for vertical walls and bottom
+    const filledSpots = processedRackList.length;
+    const emptySpots = totalSpots - filledSpots;
+
     return (
       <div
         className={`flex ${
-          orientation === "horizontal" ? "flex-row-reverse" : "flex-col"
-        } flex-wrap gap-2`}
+          orientation === "horizontal" ? "flex-row" : "flex-col"
+        }`}
         style={{
           width: "100%",
           height: "100%",
           display: "flex",
           overflow: "hidden",
-          justifyContent: location === "topRight" ? "flex-end" : "flex-start", // Align racks to the right for topRight
+          justifyContent:
+            location === "topRight" ? "flex-end" : "flex-start", // Align topRight to the right
+          alignItems:
+            location === "rightVertical" ? "flex-end" : "flex-start", // Align rightVertical to the right wall
+          flexWrap: "nowrap", // Prevent wrapping
         }}
       >
         {processedRackList.map((rack) => {
@@ -133,18 +141,39 @@ export default function RackView({ warehouse }) {
                 flexGrow: 0,
                 flexBasis: "auto",
                 width: isHorizontalRack ? "6em" : "4em",
-                height: isVerticalRack ? "6em" : "4em",
+                height: isVerticalRack ? "10%" : "4em", // Adjust height for vertical racks
                 fontSize: "0.5em",
-                alignSelf:
-                  rack.location === "topRight" ||
-                  rack.location === "rightVertical"
-                    ? "flex-end"
-                    : "",
                 flexDirection: isHorizontalRack ? "row" : "column",
               }}
             >
               {rack.name}
             </div>
+          );
+        })}
+        {/* Render empty spots */}
+        {Array.from({ length: emptySpots }).map((_, index) => {
+          const isHorizontalRack =
+            location === "topLeft" ||
+            location === "topRight" ||
+            location === "bottom";
+          const isVerticalRack =
+            location === "leftVertical" ||
+            location === "rightVertical";
+
+          return (
+            <div
+              key={`empty-${index}`}
+              className="flex items-center justify-center border border-gray-400 bg-gray-200"
+              style={{
+                flexShrink: 0,
+                flexGrow: 0,
+                flexBasis: "auto",
+                width: isHorizontalRack ? "6em" : "4em",
+                height: isVerticalRack ? "10%" : "4em", // Adjust height for vertical racks
+                fontSize: "0.5em",
+                flexDirection: isHorizontalRack ? "row" : "column",
+              }}
+            />
           );
         })}
       </div>
@@ -164,66 +193,25 @@ export default function RackView({ warehouse }) {
           gridColumn: "1 / 2",
           gridRow: "1 / 2",
         }}
-        className="border border-black relative"
+        className="border border-black"
       >
-        <div
-          className="absolute top-0 right-0 flex flex-col gap-1 p-1 z-10 bg-white"
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-            width: "auto",
-          }}
-        >
-          <RackButton
-            onClick={() => handleAddRack("topLeft")}
-            label="+"
-            className="w-5 h-5"
-          />
-          <RackButton
-            onClick={() => handleRemoveRack("topLeft")}
-            label="-"
-            className="w-5 h-5"
-          />
-        </div>
-        {renderRacks(racks.topLeft, "horizontal")}
+        {renderRacks(racks.topLeft, "horizontal", "topLeft")}
       </div>
       <div
         style={{
           gridColumn: "1 / 2",
           gridRow: "2 / 3",
         }}
-        className="border border-black relative"
+        className="border border-black"
       >
-        <div
-          className="absolute top-0 right-0 flex flex-col gap-1 p-1 z-10 bg-white"
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-            width: "auto",
-          }}
-        >
-          <RackButton
-            onClick={() => handleAddRack("leftVertical")}
-            label="+"
-            className="w-5 h-5"
-          />
-          <RackButton
-            onClick={() => handleRemoveRack("leftVertical")}
-            label="-"
-            className="w-5 h-5"
-          />
-        </div>
-        {renderRacks(racks.leftVertical, "vertical")}
+        {renderRacks(racks.leftVertical, "vertical", "leftVertical")}
       </div>
       <div
         style={{
           gridColumn: "2 / 3",
           gridRow: "1 / 3",
           width: "100%",
-
-          margin: "0 auto",          
+          margin: "0 auto",
         }}
         className="border border-black"
       >
@@ -234,81 +222,27 @@ export default function RackView({ warehouse }) {
           gridColumn: "3 / 4",
           gridRow: "1 / 2",
         }}
-        className="border border-black relative"
+        className="border border-black"
       >
-        <div
-          className="absolute top-0 left-0 flex flex-col gap-1 p-1 z-10 bg-white"
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-            width: "auto",
-          }}
-        >
-          <RackButton
-            onClick={() => handleAddRack("topRight")}
-            label="+"
-            className="w-5 h-5"
-          />
-          <RackButton
-            onClick={() => handleRemoveRack("topRight")}
-            label="-"
-            className="w-5 h-5"
-          />
-        </div>
-        {renderRacks(racks.topRight, "horizontal")}
+        {renderRacks(racks.topRight, "horizontal", "topRight")}
       </div>
       <div
         style={{
           gridColumn: "3 / 4",
           gridRow: "2 / 3",
         }}
-        className="border border-black relative"
+        className="border border-black"
       >
-        <div
-          className="absolute top-0 left-0 flex flex-col gap-1 p-1 z-10 bg-white"
-          style={{
-            justifyContent: "center",
-            alignItems: "center",
-            height: "100%",
-            width: "auto",
-          }}
-        >
-          <RackButton
-            onClick={() => handleAddRack("rightVertical")}
-            label="+"
-            className="w-5 h-5"
-          />
-          <RackButton
-            onClick={() => handleRemoveRack("rightVertical")}
-            label="-"
-            className="w-5 h-5"
-          />
-        </div>
-        {renderRacks(racks.rightVertical, "vertical")}
+        {renderRacks(racks.rightVertical, "vertical", "rightVertical")}
       </div>
       <div
         style={{
           gridColumn: "1 / 4",
           gridRow: "3 / 4",
         }}
-        className="border border-black relative"
+        className="border border-black"
       >
-        <div className="absolute w-[100%] flex items-center gap-1 p-1 z-10 bg-white">
-          <div className="flex gap-1 m-auto">
-            <RackButton
-              onClick={() => handleAddRack("bottom")}
-              label="+"
-              className="px-1 py-0"
-            />
-            <RackButton
-              onClick={() => handleRemoveRack("bottom")}
-              label="-"
-              className="px-1 py-0"
-            />
-          </div>
-        </div>
-        {renderRacks(racks.bottom, "horizontal", "bottom")} {/* Pass racks.bottom */}
+        {renderRacks(racks.bottom, "horizontal", "bottom")}
       </div>
     </div>
   );
