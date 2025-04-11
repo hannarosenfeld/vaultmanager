@@ -128,9 +128,8 @@ export default function RackView({ warehouse }) {
               : location === "bottom"
               ? "flex-start" // Align bottom racks to fill the wall
               : "flex-start", // Default for other locations
-          alignItems:
-            location === "bottom" ? "flex-end" : "flex-start", // Align bottom racks to the bottom wall
-          flexWrap: "nowrap", // Prevent wrapping
+          alignItems: location === "rightVertical" || location === "bottom" ? "flex-end" : "auto",
+          flexWrap: "nowrap",
         }}
       >
         {processedRackList.map((rack) => (
