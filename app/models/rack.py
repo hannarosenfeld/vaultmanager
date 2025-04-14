@@ -1,12 +1,20 @@
-from app.models import db
+from app.utils import add_prefix_for_prod  # Adjusted import to avoid circular dependency
+from app.models import db, environment, SCHEMA
 
 class Rack(db.Model):
     __tablename__ = 'racks'
 
+    if environment == "production":
+        __table_args__ = {'schema': SCHEMA}
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
-    warehouse_id = db.Column(db.Integer, db.ForeignKey('warehouses.id'), nullable=False)
+    warehouse_id = db.Column(
+        db.Integer,
+        db.ForeignKey(add_prefix_for_prod('warehouses.id')),
+        nullable=False
+    )
     location = db.Column(db.String(50), nullable=False)
 
     # Relationship with Warehouse
