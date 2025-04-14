@@ -1,9 +1,13 @@
 import EditWarehouseFieldGrid from "../EditWarehouseFieldGrid";
 import { useState, useEffect } from "react";
 import axios from "axios";
+import RackModal from "./RackModal";
 
 export default function RackView({ warehouse }) {
   const [racks, setRacks] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState("");
+  const [potentialRackName, setPotentialRackName] = useState("");
 
   useEffect(() => {
     const fetchRacks = async () => {
@@ -95,6 +99,37 @@ export default function RackView({ warehouse }) {
     }
   };
 
+  const handleOpenModal = (location, potentialRackName) => {
+    setSelectedLocation(location);
+    setIsModalOpen(true);
+    setPotentialRackName(potentialRackName); // Set the potential rack name
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedLocation("");
+  };
+
+  const handleModalSubmit = async (rackData) => {
+    try {
+      const response = await axios.post(
+        `/api/racks/warehouse/${warehouse.id}/add`,
+        rackData
+      );
+      const newRack = response.data;
+
+      setRacks((prev) => {
+        const updatedRacks = {
+          ...prev,
+          [rackData.location]: [...(prev[rackData.location] || []), newRack],
+        };
+        return updatedRacks;
+      });
+    } catch (error) {
+      console.error("Error adding rack:", error);
+    }
+  };
+
   const renderRacks = (rackList = [], orientation, location) => {
     console.log(`Rendering racks for location ${location}:`, rackList); // Debugging
 
@@ -159,91 +194,104 @@ export default function RackView({ warehouse }) {
           </div>
         ))}
         {/* Render empty spots with potential field names */}
-        {Array.from({ length: emptySpots }).map((_, index) => (
-          <div
-            key={`empty-${index}`}
-            className="flex items-center justify-center border border-gray-400 bg-gray-200"
-            style={{
-              flexShrink: 0,
-              flexGrow: 0,
-              flexBasis: "auto",
-              width: rackWidth, // Consistent width
-              height: rackHeight, // Consistent height
-              fontSize: "0.5em",
-              flexDirection: "row",
-            }}
-          >
-            {`${locationPrefix}-${index + filledSpots + 1}`}
-          </div>
-        ))}
+        {Array.from({ length: emptySpots }).map((_, index) => {
+          const potentialRackName = `${locationPrefix}-${index + filledSpots + 1}`;
+          return (
+            <div
+              key={`empty-${index}`}
+              className="flex items-center justify-center border border-gray-400 bg-gray-200 cursor-pointer"
+              style={{
+                flexShrink: 0,
+                flexGrow: 0,
+                flexBasis: "auto",
+                width: rackWidth, // Consistent width
+                height: rackHeight, // Consistent height
+                fontSize: "0.5em",
+                flexDirection: "row",
+              }}
+              onClick={() => handleOpenModal(location, potentialRackName)}
+            >
+              {potentialRackName}
+            </div>
+          );
+        })}
       </div>
     );
   };
 
   return (
-    <div
-      className="grid h-full w-full"
-      style={{
-        gridTemplateColumns: "30% 40% 30%",
-        gridTemplateRows: "10% 90% 10%",
-      }}
-    >
+    <>
       <div
+        className="grid h-full w-full"
         style={{
-          gridColumn: "1 / 2",
-          gridRow: "1 / 2",
+          gridTemplateColumns: "30% 40% 30%",
+          gridTemplateRows: "10% 90% 10%",
         }}
-        className=""
       >
-        {renderRacks(racks.topLeft, "horizontal", "topLeft")}
+        <div
+          style={{
+            gridColumn: "1 / 2",
+            gridRow: "1 / 2",
+          }}
+          className=""
+        >
+          {renderRacks(racks.topLeft, "horizontal", "topLeft")}
+        </div>
+        <div
+          style={{
+            gridColumn: "1 / 2",
+            gridRow: "2 / 3",
+          }}
+          className=""
+        >
+          {renderRacks(racks.leftVertical, "vertical", "leftVertical")}
+        </div>
+        <div
+          style={{
+            gridColumn: "2 / 3",
+            gridRow: "1 / 3",
+            width: "100%",
+            margin: "0 auto",
+          }}
+          className="px-2"
+        >
+          <EditWarehouseFieldGrid warehouse={warehouse} />
+        </div>
+        <div
+          style={{
+            gridColumn: "3 / 4",
+            gridRow: "1 / 2",
+          }}
+          className=""
+        >
+          {renderRacks(racks.topRight, "horizontal", "topRight")}
+        </div>
+        <div
+          style={{
+            gridColumn: "3 / 4",
+            gridRow: "2 / 3",
+          }}
+          className=""
+        >
+          {renderRacks(racks.rightVertical, "vertical", "rightVertical")}
+        </div>
+        <div
+          style={{
+            gridColumn: "1 / 4",
+            gridRow: "3 / 4",
+          }}
+          className=""
+        >
+          {renderRacks(racks.bottom, "horizontal", "bottom")}
+        </div>
       </div>
-      <div
-        style={{
-          gridColumn: "1 / 2",
-          gridRow: "2 / 3",
-        }}
-        className=""
-      >
-        {renderRacks(racks.leftVertical, "vertical", "leftVertical")}
-      </div>
-      <div
-        style={{
-          gridColumn: "2 / 3",
-          gridRow: "1 / 3",
-          width: "100%",
-          margin: "0 auto",
-        }}
-        className="px-2"
-      >
-        <EditWarehouseFieldGrid warehouse={warehouse} />
-      </div>
-      <div
-        style={{
-          gridColumn: "3 / 4",
-          gridRow: "1 / 2",
-        }}
-        className=""
-      >
-        {renderRacks(racks.topRight, "horizontal", "topRight")}
-      </div>
-      <div
-        style={{
-          gridColumn: "3 / 4",
-          gridRow: "2 / 3",
-        }}
-        className=""
-      >
-        {renderRacks(racks.rightVertical, "vertical", "rightVertical")}
-      </div>
-      <div
-        style={{
-          gridColumn: "1 / 4",
-          gridRow: "3 / 4",
-        }}
-        className=""
-      >
-        {renderRacks(racks.bottom, "horizontal", "bottom")}
-      </div>
-    </div>
+      <RackModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleModalSubmit}
+        location={selectedLocation}
+        defaultRackName={potentialRackName} // Pass the potential rack name to the modal
+      />
+    </>
   );
 }
