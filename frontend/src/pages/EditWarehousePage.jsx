@@ -1,5 +1,5 @@
-import { useDispatch, useSelector } from "react-redux";
-import { useState, useEffect } from "react";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import EditWarehouseModal from "../components/EditWarehouse/EditWarehouseModal";
 import ToggleBox from "../components/EditWarehouse/ToggleBox";
@@ -14,46 +14,30 @@ import { throttle } from "lodash";
 export default function EditWarehousePage() {
   const dispatch = useDispatch();
   const { warehouseName } = useParams();
-  const warehouses = useSelector((state) => state.warehouse.warehouses);
-  const warehouse = useSelector((state) => state.warehouse.currentWarehouse);
+  const warehouses = useSelector((state) => state.warehouse.warehouses, shallowEqual);
+  const warehouse = useSelector((state) => state.warehouse.currentWarehouse, shallowEqual);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalProps, setModalProps] = useState({});
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("Warehouse");
-  const [fieldGridPosition, setFieldGridPosition] = useState({
-    x: warehouse?.fieldGridX || 0,
-    y: warehouse?.fieldGridY || 0,
-  });
+  const [fieldGridPosition, setFieldGridPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragPreviewPosition, setDragPreviewPosition] = useState(null);
 
   useEffect(() => {
     const foundWarehouse = Object.values(warehouses).find(
-      (w) =>
-        w.name.toLowerCase().split(" ").join("-") ===
-        warehouseName.toLowerCase()
+      (w) => w.name.toLowerCase().split(" ").join("-") === warehouseName.toLowerCase()
     );
     if (foundWarehouse) {
-      console.log("Found warehouse:", foundWarehouse);
       dispatch(setCurrentWarehouse(foundWarehouse));
       setFieldGridPosition({
         x: foundWarehouse.fieldgridLocation?.x || 0,
         y: foundWarehouse.fieldgridLocation?.y || 0,
       });
-      console.log("Initial field grid position set to:", {
-        x: foundWarehouse.fieldgridLocation?.x || 0,
-        y: foundWarehouse.fieldgridLocation?.y || 0,
-      });
-      setLoading(false);
-    } else {
-      console.log("Warehouse not found for name:", warehouseName);
-      setLoading(false);
     }
+    setLoading(false);
   }, [dispatch, warehouseName, warehouses]);
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
 
   const openModal = (dir, operation) => {
     setModalProps({ dir, operation, warehouseId: warehouse.id });
@@ -61,165 +45,133 @@ export default function EditWarehousePage() {
   };
 
   const handleSubmit = (fieldCapacity) => {
-    dispatch(editFieldCapacityThunk(warehouse.id, fieldCapacity))
-      .then((response) => {
-        if (response.error) {
-          alert("Error updating field capacity: " + response.error);
-        } else {
-          alert("Field capacity updated successfully!");
-        }
-      })
-      .catch((error) => {
-        console.error("Error updating field capacity:", error);
-      });
+    dispatch(editFieldCapacityThunk(warehouse.id, fieldCapacity)).then((response) => {
+      if (response.error) {
+        alert("Error updating field capacity: " + response.error);
+      } else {
+        alert("Field capacity updated successfully!");
+      }
+    });
   };
 
   const handleDragStart = (e) => {
-    e.dataTransfer.setDragImage(new Image(), 0, 0); // Prevent default drag image
+    e.dataTransfer.setDragImage(new Image(), 0, 0);
     setIsDragging(true);
   };
 
-  const handleDrag = throttle((e) => {
-    const warehouseElement = e.target.parentElement;
-    const warehouseRect = warehouseElement.getBoundingClientRect();
+  const handleDrag = useCallback(
+    throttle((e) => {
+      const warehouseEl = e.target.closest(".warehouse-grid");
+      if (!warehouseEl) return;
+      const rect = warehouseEl.getBoundingClientRect();
 
-    // Calculate preview position in feet
-    const previewX = ((e.clientX - warehouseRect.left) / warehouseRect.width) * warehouse.width;
-    const previewY = ((e.clientY - warehouseRect.top) / warehouseRect.height) * warehouse.length;
+      const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
+      const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    // Ensure the preview stays within bounds
-    const clampedX = Math.max(0, Math.min(previewX, warehouse.width - warehouse.cols * 5));
-    const clampedY = Math.max(0, Math.min(previewY, warehouse.length - warehouse.rows * 5));
+      const clampedX = Math.max(0, Math.min(x, warehouse.width - warehouse.cols * 5));
+      const clampedY = Math.max(0, Math.min(y, warehouse.length - warehouse.rows * 5));
 
-    setDragPreviewPosition({ x: clampedX, y: clampedY });
-  }, 100); // Throttle to 100ms
+      setDragPreviewPosition({ x: clampedX, y: clampedY });
+    }, 100),
+    [warehouse]
+  );
 
   const updateFieldGridPosition = async (warehouseId, position) => {
     try {
-      console.log("Updating field grid position to:", position);
-      const response = await axios.put(`/api/warehouse/${warehouseId}/field-grid`, {
+      await axios.put(`/api/warehouse/${warehouseId}/field-grid`, {
         fieldgridLocation: position,
       });
-      console.log("Field grid position updated successfully:", response.data);
     } catch (error) {
       console.error("Error updating field grid position:", error);
     }
   };
 
   const handleDragEnd = (e) => {
-    const warehouseElement = e.target.parentElement;
-    const warehouseRect = warehouseElement.getBoundingClientRect();
+    const warehouseEl = e.target.closest(".warehouse-grid");
+    const rect = warehouseEl.getBoundingClientRect();
 
-    // Calculate new position in feet
-    const newX = ((e.clientX - warehouseRect.left) / warehouseRect.width) * warehouse.width;
-    const newY = ((e.clientY - warehouseRect.top) / warehouseRect.height) * warehouse.length;
+    const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
+    const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    // Ensure the grid stays within bounds
-    const clampedX = Math.max(0, Math.min(newX, warehouse.width - warehouse.cols * 5));
-    const clampedY = Math.max(0, Math.min(newY, warehouse.length - warehouse.rows * 5));
-
-    console.log("Dragged to new position:", { x: clampedX, y: clampedY });
+    const clampedX = Math.max(0, Math.min(x, warehouse.width - warehouse.cols * 5));
+    const clampedY = Math.max(0, Math.min(y, warehouse.length - warehouse.rows * 5));
 
     setFieldGridPosition({ x: clampedX, y: clampedY });
     setIsDragging(false);
     setDragPreviewPosition(null);
 
-    // Update the position in the backend
     updateFieldGridPosition(warehouse.id, { x: clampedX, y: clampedY });
   };
 
-  // Calculate the aspect ratio of the warehouse
-  const aspectRatio = warehouse.width / warehouse.length;
+  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="flex flex-col items-center h-full mt-3">
       <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2>
 
-      {/* Render the warehouse shape */}
-      {warehouse.width && warehouse.length && (
-        <div className="flex flex-col justify-center items-center w-full grow p-2 mb-10">
-          <div className="flex justify-center items-center w-full grow p-2">
-            <div
-              style={{
-                flexGrow: 1,
-                aspectRatio: `${warehouse.width} / ${warehouse.length}`,
-                border: "2px solid black",
-                backgroundColor: "#f0f0f0",
-                position: "relative",
-                display: "grid",
-                gridTemplateColumns: `repeat(${warehouse.width}, 1fr)`,
-                gridTemplateRows: `repeat(${warehouse.length}, 1fr)`,
-              }}
-            >
-              {Array.from({ length: warehouse.width * warehouse.length }).map(
-                (_, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      border: "1px solid #ccc",
-                      boxSizing: "border-box",
-                    }}
-                  ></div>
-                )
-              )}
-              {/* Drag preview */}
-              {isDragging && dragPreviewPosition && (
-                <div
-                  style={{
-                    position: "absolute",
-                    top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
-                    left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
-                    width: `${(warehouse.cols * 5) / warehouse.width * 100}%`,
-                    height: `${(warehouse.rows * 5) / warehouse.length * 100}%`,
-                    backgroundColor: "rgba(0, 0, 255, 0.3)", // Blue transparent overlay
-                    border: "2px dashed blue",
-                    pointerEvents: "none",
-                  }}
-                ></div>
-              )}
-              {/* Place the field grid inside the warehouse shape */}
+      {/* Warehouse Visual */}
+      <div className="flex flex-col items-center w-full grow p-2 mb-10">
+        <div className="relative w-full aspect-[4/3] max-w-5xl border border-black overflow-hidden bg-white">
+          <div
+            className="warehouse-grid"
+            style={{
+              position: "relative",
+              width: "100%",
+              height: "100%",
+              backgroundImage: "linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px)",
+              backgroundSize: `${100 / warehouse.width}% ${100 / warehouse.length}%`,
+            }}
+          >
+            {/* Drag preview */}
+            {isDragging && dragPreviewPosition && (
               <div
-                draggable
-                onDragStart={handleDragStart}
-                onDrag={handleDrag}
-                onDragEnd={handleDragEnd}
                 style={{
                   position: "absolute",
-                  top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
-                  left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
+                  top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
+                  left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
                   width: `${(warehouse.cols * 5) / warehouse.width * 100}%`,
                   height: `${(warehouse.rows * 5) / warehouse.length * 100}%`,
-                  cursor: "grab",
-                  border: "1px solid blue", // Added border for visibility
-                  backgroundColor: "rgba(0, 0, 255, 0.1)", // Light blue background for visibility
+                  backgroundColor: "rgba(0, 0, 255, 0.2)",
+                  border: "2px dashed blue",
+                  pointerEvents: "none",
                 }}
-              >
-                <DragAndDropFieldGrid warehouse={warehouse} />
-              </div>
+              />
+            )}
+
+            {/* Field Grid */}
+            <div
+              draggable
+              onDragStart={handleDragStart}
+              onDrag={handleDrag}
+              onDragEnd={handleDragEnd}
+              style={{
+                position: "absolute",
+                top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
+                left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
+                width: `${(warehouse.cols * 5) / warehouse.width * 100}%`,
+                height: `${(warehouse.rows * 5) / warehouse.length * 100}%`,
+                cursor: "grab",
+                border: "1px solid blue",
+                backgroundColor: "rgba(0, 0, 255, 0.1)",
+              }}
+            >
+              <DragAndDropFieldGrid warehouse={warehouse} />
             </div>
           </div>
-
-          <p className="text-sm">
-            {`${warehouse.width} ft x ${warehouse.length} ft`}
-          </p>
         </div>
-      )}
-      {/* Toggle between Warehouse and Rack views */}
+        <p className="text-sm mt-2">{`${warehouse.width} ft x ${warehouse.length} ft`}</p>
+      </div>
+
       <ToggleBox viewMode={viewMode} setViewMode={setViewMode} />
+
       {viewMode === "Warehouse" ? (
-        <WarehouseView
-          warehouse={warehouse}
-          openModal={openModal}
-          handleSubmit={handleSubmit}
-        />
+        <WarehouseView warehouse={warehouse} openModal={openModal} handleSubmit={handleSubmit} />
       ) : (
         <RackView warehouse={warehouse} />
       )}
+
       {isModalOpen && (
-        <EditWarehouseModal
-          {...modalProps}
-          onClose={() => setIsModalOpen(false)}
-        />
+        <EditWarehouseModal {...modalProps} onClose={() => setIsModalOpen(false)} />
       )}
     </div>
   );
