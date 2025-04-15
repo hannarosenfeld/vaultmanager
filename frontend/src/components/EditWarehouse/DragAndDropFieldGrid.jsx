@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { sortWarehouseFields } from "../../utils/sortWarehouseFields";
 
-export default function EditWarehouseFieldGridDuplicated({ warehouse }) {
+export default function DragAndDropFieldGrid({ warehouse }) {
   const dispatch = useDispatch();
   const [sortedFields, setSortedFields] = useState([]);
 

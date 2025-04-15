@@ -7,7 +7,7 @@ import WarehouseView from "../components/EditWarehouse/WarehouseView";
 import RackView from "../components/EditWarehouse/RackView";
 import { setCurrentWarehouse, editFieldCapacityThunk } from "../store/warehouse";
 import LoadingSpinner from "../components/LoadingSpinner";
-import DragAndDropWarehouse from "../components/EditWarehouse/DragAndDropWarehouse";
+import DragAndDropFieldGrid from "../components/EditWarehouse/DragAndDropFieldGrid";
 import axios from "axios";
 import { throttle } from "lodash";
 
@@ -194,7 +194,7 @@ export default function EditWarehousePage() {
                   backgroundColor: "rgba(0, 0, 255, 0.1)", // Light blue background for visibility
                 }}
               >
-                <DragAndDropWarehouse warehouse={warehouse} />
+                <DragAndDropFieldGrid warehouse={warehouse} />
               </div>
             </div>
           </div>
