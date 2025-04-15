@@ -25,6 +25,8 @@ export default function EditWarehousePage() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragPreviewPosition, setDragPreviewPosition] = useState(null);
 
+  const FIELD_SIZE_FT = 5;
+
   useEffect(() => {
     const foundWarehouse = Object.values(warehouses).find(
       (w) => w.name.toLowerCase().split(" ").join("-") === warehouseName.toLowerCase()
@@ -68,8 +70,8 @@ export default function EditWarehousePage() {
       const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
       const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-      const clampedX = Math.max(0, Math.min(x, warehouse.width - warehouse.cols * 5));
-      const clampedY = Math.max(0, Math.min(y, warehouse.length - warehouse.rows * 5));
+      const clampedX = Math.max(0, Math.min(x, warehouse.width - warehouse.cols * FIELD_SIZE_FT));
+      const clampedY = Math.max(0, Math.min(y, warehouse.length - warehouse.rows * FIELD_SIZE_FT));
 
       setDragPreviewPosition({ x: clampedX, y: clampedY });
     }, 100),
@@ -93,8 +95,8 @@ export default function EditWarehousePage() {
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    const clampedX = Math.max(0, Math.min(x, warehouse.width - warehouse.cols * 5));
-    const clampedY = Math.max(0, Math.min(y, warehouse.length - warehouse.rows * 5));
+    const clampedX = Math.max(0, Math.min(x, warehouse.width - warehouse.cols * FIELD_SIZE_FT));
+    const clampedY = Math.max(0, Math.min(y, warehouse.length - warehouse.rows * FIELD_SIZE_FT));
 
     setFieldGridPosition({ x: clampedX, y: clampedY });
     setIsDragging(false);
@@ -105,21 +107,27 @@ export default function EditWarehousePage() {
 
   if (loading) return <LoadingSpinner />;
 
+  const aspectRatio = warehouse.width / warehouse.length;
+
   return (
     <div className="flex flex-col items-center h-full mt-3">
       <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2>
 
       {/* Warehouse Visual */}
       <div className="flex flex-col items-center w-full grow p-2 mb-10">
-        <div className="relative w-full aspect-[4/3] max-w-5xl border border-black overflow-hidden bg-white">
+        <div
+          className="relative w-full max-w-5xl border border-black overflow-hidden bg-white"
+          style={{ aspectRatio }}
+        >
           <div
             className="warehouse-grid"
             style={{
               position: "relative",
               width: "100%",
               height: "100%",
-              backgroundImage: "linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px)",
-              backgroundSize: `${100 / warehouse.width}% ${100 / warehouse.length}%`,
+              backgroundImage:
+                "linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px)",
+              backgroundSize: `${(FIELD_SIZE_FT / warehouse.width) * 100}% ${(FIELD_SIZE_FT / warehouse.length) * 100}%`,
             }}
           >
             {/* Drag preview */}
@@ -129,8 +137,8 @@ export default function EditWarehousePage() {
                   position: "absolute",
                   top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
                   left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
-                  width: `${(warehouse.cols * 5) / warehouse.width * 100}%`,
-                  height: `${(warehouse.rows * 5) / warehouse.length * 100}%`,
+                  width: `${(warehouse.cols * FIELD_SIZE_FT) / warehouse.width * 100}%`,
+                  height: `${(warehouse.rows * FIELD_SIZE_FT) / warehouse.length * 100}%`,
                   backgroundColor: "rgba(0, 0, 255, 0.2)",
                   border: "2px dashed blue",
                   pointerEvents: "none",
@@ -148,8 +156,8 @@ export default function EditWarehousePage() {
                 position: "absolute",
                 top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
                 left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
-                width: `${(warehouse.cols * 5) / warehouse.width * 100}%`,
-                height: `${(warehouse.rows * 5) / warehouse.length * 100}%`,
+                width: `${(warehouse.cols * FIELD_SIZE_FT) / warehouse.width * 100}%`,
+                height: `${(warehouse.rows * FIELD_SIZE_FT) / warehouse.length * 100}%`,
                 cursor: "grab",
                 border: "1px solid blue",
                 backgroundColor: "rgba(0, 0, 255, 0.1)",
