@@ -2,17 +2,30 @@ import { useState, useEffect } from "react";
 
 export default function RackModal({ isOpen, onClose, onSubmit, location, defaultRackName }) {
   const [rackName, setRackName] = useState("");
-  const [capacity, setCapacity] = useState("");
+  const [shelves, setShelves] = useState("");
 
   useEffect(() => {
     if (isOpen) {
-      setRackName(defaultRackName || ""); // Set the default rack name when the modal opens
+      setRackName(defaultRackName || "");
     }
   }, [isOpen, defaultRackName]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ name: rackName, capacity: parseInt(capacity, 10), location });
+  
+    // Prepare the rack data with shelves
+    const rackData = {
+      name: rackName,
+      shelves: parseInt(shelves), // Number of shelves
+      location,
+    };
+
+    console.log("🏓 Rack data to be submitted:", rackData);
+  
+    // Pass the rack data to the parent component
+    onSubmit(rackData);
+  
+    // Close the modal
     onClose();
   };
 
@@ -34,11 +47,11 @@ export default function RackModal({ isOpen, onClose, onSubmit, location, default
             />
           </div>
           <div className="mb-4">
-            <label className="block text-sm font-medium mb-1">Capacity</label>
+            <label className="block text-sm font-medium mb-1">Shelves</label>
             <input
               type="number"
-              value={capacity}
-              onChange={(e) => setCapacity(e.target.value)}
+              value={shelves}
+              onChange={(e) => setShelves(e.target.value)}
               className="w-full border border-gray-300 rounded px-3 py-2"
               required
             />

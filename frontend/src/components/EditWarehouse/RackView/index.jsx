@@ -55,48 +55,48 @@ export default function RackView({ warehouse }) {
     fetchRacks();
   }, [warehouse.id]);
 
-  const handleAddRack = async (location) => {
-    try {
-      const response = await axios.post(
-        `/api/racks/warehouse/${warehouse.id}/add`,
-        {
-          location,
-          name: `Rack in ${location}`,
-        }
-      );
-      const newRack = response.data;
+  // const handleAddRack = async (location) => {
+  //   try {
+  //     const response = await axios.post(
+  //       `/api/racks/warehouse/${warehouse.id}/add`,
+  //       {
+  //         location,
+  //         name: `Rack in ${location}`,
+  //       }
+  //     );
+  //     const newRack = response.data;
 
-      setRacks((prev) => {
-        const updatedRacks = {
-          ...prev,
-          [location]: [...(prev[location] || []), newRack],
-        };
-        console.log("Updated racks after adding:", updatedRacks); // Debugging
-        return updatedRacks;
-      });
-    } catch (error) {
-      console.error("Error adding rack:", error);
-    }
-  };
+  //     setRacks((prev) => {
+  //       const updatedRacks = {
+  //         ...prev,
+  //         [location]: [...(prev[location] || []), newRack],
+  //       };
+  //       console.log("Updated racks after adding:", updatedRacks); // Debugging
+  //       return updatedRacks;
+  //     });
+  //   } catch (error) {
+  //     console.error("Error adding rack:", error);
+  //   }
+  // };
 
-  const handleRemoveRack = async (location) => {
-    try {
-      const rackList = racks[location];
-      if (!rackList || rackList.length === 0) return;
+  // const handleRemoveRack = async (location) => {
+  //   try {
+  //     const rackList = racks[location];
+  //     if (!rackList || rackList.length === 0) return;
 
-      const rackToRemove = rackList[rackList.length - 1]; // Remove the last rack
-      await axios.delete(
-        `/api/racks/warehouse/${warehouse.id}/remove/${rackToRemove.id}`
-      );
+  //     const rackToRemove = rackList[rackList.length - 1]; // Remove the last rack
+  //     await axios.delete(
+  //       `/api/racks/warehouse/${warehouse.id}/remove/${rackToRemove.id}`
+  //     );
 
-      setRacks((prev) => ({
-        ...prev,
-        [location]: prev[location].slice(0, -1),
-      }));
-    } catch (error) {
-      console.error("Error removing rack:", error);
-    }
-  };
+  //     setRacks((prev) => ({
+  //       ...prev,
+  //       [location]: prev[location].slice(0, -1),
+  //     }));
+  //   } catch (error) {
+  //     console.error("Error removing rack:", error);
+  //   }
+  // };
 
   const handleOpenModal = (location, potentialRackName) => {
     setSelectedLocation(location);
@@ -111,12 +111,14 @@ export default function RackView({ warehouse }) {
 
   const handleModalSubmit = async (rackData) => {
     try {
+      // Send the rack data to the backend
       const response = await axios.post(
         `/api/racks/warehouse/${warehouse.id}/add`,
         rackData
       );
       const newRack = response.data;
-
+  
+      // Update the racks state with the new rack
       setRacks((prev) => {
         const updatedRacks = {
           ...prev,
@@ -130,8 +132,6 @@ export default function RackView({ warehouse }) {
   };
 
   const renderRacks = (rackList = [], orientation, location) => {
-    console.log(`Rendering racks for location ${location}:`, rackList); // Debugging
-
     // Reverse the rack list for topRight location
     const processedRackList = location === "topRight" ? [...rackList].reverse() : rackList;
 
