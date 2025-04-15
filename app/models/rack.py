@@ -1,5 +1,4 @@
-from app.utils import add_prefix_for_prod
-from app.models import db, environment, SCHEMA
+from app.models.db import db, environment, SCHEMA, add_prefix_for_prod  # Import directly from db.py
 
 class Rack(db.Model):
     __tablename__ = 'racks'
@@ -12,7 +11,7 @@ class Rack(db.Model):
     capacity = db.Column(db.Integer, nullable=False)
     warehouse_id = db.Column(
         db.Integer,
-        db.ForeignKey(add_prefix_for_prod('warehouses.id')),
+        db.ForeignKey(add_prefix_for_prod('warehouses.id')),  # Use add_prefix_for_prod
         nullable=False
     )
     location = db.Column(db.String(50), nullable=False)
@@ -30,5 +29,5 @@ class Rack(db.Model):
             'capacity': self.capacity,
             'warehouseId': self.warehouse_id,
             'location': self.location,
-            'shelves': [shelf.to_dict() for shelf in self.shelves],  # Include shelves in the dictionary
+            'shelves': [shelf.to_dict() for shelf in self.shelves],
         }

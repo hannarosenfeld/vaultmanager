@@ -1,15 +1,19 @@
-from app.models import db, environment, SCHEMA
+from app.models.db import db, environment, SCHEMA, add_prefix_for_prod  # Import directly from db.py
 
 class Shelf(db.Model):
     __tablename__ = 'shelves'
-    
+
     if environment == "production":
-        __table_args__ = {'schema': SCHEMA}  # Ensure the schema is set for production
+        __table_args__ = {'schema': SCHEMA}
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     capacity = db.Column(db.Integer, nullable=False)
-    rack_id = db.Column(db.Integer, db.ForeignKey('racks.id'), nullable=False)
+    rack_id = db.Column(
+        db.Integer,
+        db.ForeignKey(add_prefix_for_prod('racks.id')),  # Use add_prefix_for_prod
+        nullable=False
+    )
 
     # Relationship with Rack
     rack = db.relationship('Rack', back_populates='shelves')
