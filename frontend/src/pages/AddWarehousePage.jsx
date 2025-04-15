@@ -10,6 +10,8 @@ export default function AddWarehouse() {
   const [rows, setRows] = useState("");
   const [cols, setCols] = useState("");
   const [capacity, setCapacity] = useState("");
+  const [length, setLength] = useState(""); // Length in feet
+  const [width, setWidth] = useState(""); // Width in feet
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -20,6 +22,8 @@ export default function AddWarehouse() {
       rows: parseInt(rows, 10),
       cols: parseInt(cols, 10),
       field_capacity: parseInt(capacity, 10),
+      length: parseFloat(length), // Include length in feet
+      width: parseFloat(width), // Include width in feet
     };
     const result = await dispatch(addWarehouseThunk(warehouseData));
     setIsLoading(false);
@@ -29,7 +33,7 @@ export default function AddWarehouse() {
   };
 
   return (
-    <div className="max-w-sm mx-auto mt-10 p-4 rounded-lg">
+    <div className="max-w-lg mx-auto mt-10 p-4 rounded-lg">
       <h1 className="text-2xl font-semibold mb-4">Add Warehouse</h1>
       <form onSubmit={handleSubmit}>
         <div className="mb-5">
@@ -48,7 +52,7 @@ export default function AddWarehouse() {
         </div>
         <div className="mb-5">
           <label htmlFor="rows" className="block mb-2 text-sm font-medium text-gray-900 ">
-            Number of Rows
+            Field Grid: Number of Rows
           </label>
           <input
             type="number"
@@ -62,7 +66,7 @@ export default function AddWarehouse() {
         </div>
         <div className="mb-5">
           <label htmlFor="cols" className="block mb-2 text-sm font-medium text-gray-900 ">
-            Number of Cols
+            Field Grid: Number of Columns
           </label>
           <input
             type="number"
@@ -70,7 +74,7 @@ export default function AddWarehouse() {
             value={cols}
             onChange={(e) => setCols(e.target.value)}
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  "
-            placeholder="Number of Cols"
+            placeholder="Number of Columns"
             required
           />
         </div>
@@ -88,6 +92,34 @@ export default function AddWarehouse() {
             required
           />
         </div>
+        <div className="mb-5">
+          <label htmlFor="length" className="block mb-2 text-sm font-medium text-gray-900 ">
+            Length (feet)
+          </label>
+          <input
+            type="number"
+            id="length"
+            value={length}
+            onChange={(e) => setLength(e.target.value)}
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Length of the Warehouse (in feet)"
+            required
+          />
+        </div>
+        <div className="mb-5">
+          <label htmlFor="width" className="block mb-2 text-sm font-medium text-gray-900 ">
+            Width (feet)
+          </label>
+          <input
+            type="number"
+            id="width"
+            value={width}
+            onChange={(e) => setWidth(e.target.value)}
+            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            placeholder="Width of the Warehouse (in feet)"
+            required
+          />
+        </div>
         <button
           type="submit"
           disabled={isLoading}
@@ -98,6 +130,34 @@ export default function AddWarehouse() {
           {isLoading ? "Adding..." : "Add Warehouse"}
         </button>
       </form>
+
+      {/* Warehouse Preview */}
+      <div className="mt-10 flex justify-center items-center">
+        <h2 className="text-xl font-semibold mb-4">Warehouse Preview</h2>
+        <div
+          style={{
+            width: `${width * 2}px`, // Scale up the width for better visibility
+            height: `${length * 2}px`, // Scale up the length for better visibility
+            border: "2px solid black",
+            backgroundColor: "#f0f0f0",
+            position: "relative",
+            margin: "0 auto", // Center horizontally
+          }}
+        >
+          <p
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              fontSize: "14px",
+              color: "#333",
+            }}
+          >
+            {width && length ? `${width} ft x ${length} ft` : "Enter dimensions"}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
