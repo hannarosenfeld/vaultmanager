@@ -135,72 +135,72 @@ export default function EditWarehousePage() {
       <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2>
 
       {/* Render the warehouse shape */}
-      <div className="flex flex-col justify-center items-center w-full grow p-2 mb-10">
-        <div className="flex justify-center items-center w-full grow p-2">
-          <div
-            style={{
-              flexGrow: 1,
-              aspectRatio: `${warehouse.width} / ${warehouse.length}`,
-              border: "2px solid black",
-              backgroundColor: "#f0f0f0",
-              position: "relative",
-              display: "grid",
-              gridTemplateColumns: `repeat(${warehouse.width}, 1fr)`,
-              gridTemplateRows: `repeat(${warehouse.length}, 1fr)`,
-            }}
-          >
-            {Array.from({ length: warehouse.width * warehouse.length }).map(
-              (_, index) => (
-                <div
-                  key={index}
-                  style={{
-                    border: "1px solid #ccc",
-                    boxSizing: "border-box",
-                  }}
-                ></div>
-              )
-            )}
-            {/* Drag preview */}
-            {isDragging && dragPreviewPosition && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
-                  left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
-                  width: `${(warehouse.cols * 5) / warehouse.width * 100}%`,
-                  height: `${(warehouse.rows * 5) / warehouse.length * 100}%`,
-                  backgroundColor: "rgba(0, 0, 255, 0.3)", // Blue transparent overlay
-                  border: "2px dashed blue",
-                  pointerEvents: "none",
-                }}
-              ></div>
-            )}
-            {/* Place the field grid inside the warehouse shape */}
+      {warehouse.width && warehouse.length && (
+        <div className="flex flex-col justify-center items-center w-full grow p-2 mb-10">
+          <div className="flex justify-center items-center w-full grow p-2">
             <div
-              draggable
-              onDragStart={handleDragStart}
-              onDrag={handleDrag}
-              onDragEnd={handleDragEnd}
               style={{
-                position: "absolute",
-                top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
-                left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
-                width: `${(warehouse.cols * 5) / warehouse.width * 100}%`,
-                height: `${(warehouse.rows * 5) / warehouse.length * 100}%`,
-                cursor: "grab",
+                flexGrow: 1,
+                aspectRatio: `${warehouse.width} / ${warehouse.length}`,
+                border: "2px solid black",
+                backgroundColor: "#f0f0f0",
+                position: "relative",
+                display: "grid",
+                gridTemplateColumns: `repeat(${warehouse.width}, 1fr)`,
+                gridTemplateRows: `repeat(${warehouse.length}, 1fr)`,
               }}
             >
-              <EditWarehouseFieldGridDuplicated warehouse={warehouse} />
+              {Array.from({ length: warehouse.width * warehouse.length }).map(
+                (_, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      border: "1px solid #ccc",
+                      boxSizing: "border-box",
+                    }}
+                  ></div>
+                )
+              )}
+              {/* Drag preview */}
+              {isDragging && dragPreviewPosition && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
+                    left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
+                    width: `${(warehouse.cols * 5) / warehouse.width * 100}%`,
+                    height: `${(warehouse.rows * 5) / warehouse.length * 100}%`,
+                    backgroundColor: "rgba(0, 0, 255, 0.3)", // Blue transparent overlay
+                    border: "2px dashed blue",
+                    pointerEvents: "none",
+                  }}
+                ></div>
+              )}
+              {/* Place the field grid inside the warehouse shape */}
+              <div
+                draggable
+                onDragStart={handleDragStart}
+                onDrag={handleDrag}
+                onDragEnd={handleDragEnd}
+                style={{
+                  position: "absolute",
+                  top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
+                  left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
+                  width: `${(warehouse.cols * 5) / warehouse.width * 100}%`,
+                  height: `${(warehouse.rows * 5) / warehouse.length * 100}%`,
+                  cursor: "grab",
+                }}
+              >
+                <EditWarehouseFieldGridDuplicated warehouse={warehouse} />
+              </div>
             </div>
           </div>
-        </div>
 
-        <p className="text-sm">
-          {warehouse.width && warehouse.length
-            ? `${warehouse.width} ft x ${warehouse.length} ft`
-            : "No dimensions available"}
-        </p>
-      </div>
+          <p className="text-sm">
+            {`${warehouse.width} ft x ${warehouse.length} ft`}
+          </p>
+        </div>
+      )}
       {/* Toggle between Warehouse and Rack views */}
       <ToggleBox viewMode={viewMode} setViewMode={setViewMode} />
       {viewMode === "Warehouse" ? (
