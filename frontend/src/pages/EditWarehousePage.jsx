@@ -9,6 +9,7 @@ import { setCurrentWarehouse, editFieldCapacityThunk } from "../store/warehouse"
 import LoadingSpinner from "../components/LoadingSpinner";
 import DragAndDropWarehouse from "../components/EditWarehouse/DragAndDropWarehouse";
 import axios from "axios";
+import { throttle } from "lodash";
 
 export default function EditWarehousePage() {
   const dispatch = useDispatch();
@@ -48,7 +49,7 @@ export default function EditWarehousePage() {
       console.log("Warehouse not found for name:", warehouseName);
       setLoading(false);
     }
-  }, [dispatch, warehouseName, warehouses]); // Ensure dependencies are correct and minimal
+  }, [dispatch, warehouseName, warehouses]);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -78,7 +79,7 @@ export default function EditWarehousePage() {
     setIsDragging(true);
   };
 
-  const handleDrag = (e) => {
+  const handleDrag = throttle((e) => {
     const warehouseElement = e.target.parentElement;
     const warehouseRect = warehouseElement.getBoundingClientRect();
 
@@ -91,7 +92,7 @@ export default function EditWarehousePage() {
     const clampedY = Math.max(0, Math.min(previewY, warehouse.length - warehouse.rows * 5));
 
     setDragPreviewPosition({ x: clampedX, y: clampedY });
-  };
+  }, 100); // Throttle to 100ms
 
   const updateFieldGridPosition = async (warehouseId, position) => {
     try {
@@ -189,6 +190,8 @@ export default function EditWarehousePage() {
                   width: `${(warehouse.cols * 5) / warehouse.width * 100}%`,
                   height: `${(warehouse.rows * 5) / warehouse.length * 100}%`,
                   cursor: "grab",
+                  border: "1px solid blue", // Added border for visibility
+                  backgroundColor: "rgba(0, 0, 255, 0.1)", // Light blue background for visibility
                 }}
               >
                 <DragAndDropWarehouse warehouse={warehouse} />

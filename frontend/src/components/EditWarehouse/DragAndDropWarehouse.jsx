@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { sortWarehouseFields } from "../../utils/sortWarehouseFields";
 
@@ -12,59 +12,31 @@ export default function DragAndDropWarehouse({ warehouse }) {
     }
   }, [warehouse, dispatch, warehouse.fields]);
 
+  if (!warehouse || !warehouse.width || !warehouse.length) {
+    return <div>No warehouse data available</div>;
+  }
+
   return (
-    <div className="flex-grow max-w-full overflow-x-hidden">
-      {sortedFields.length ? (
+    <div
+      style={{
+        width: "100%",
+        height: "100%",
+        display: "grid",
+        gridTemplateColumns: `repeat(${warehouse.cols}, 1fr)`,
+        gridTemplateRows: `repeat(${warehouse.rows}, 1fr)`,
+        border: "1px solid black",
+        backgroundColor: "#f9f9f9",
+      }}
+    >
+      {Array.from({ length: warehouse.cols * warehouse.rows }).map((_, index) => (
         <div
-          className="grid w-full h-full gap-1"
+          key={index}
           style={{
-            gridTemplateColumns: `repeat(${warehouse.cols}, minmax(0, 1fr))`,
-            gridTemplateRows: `repeat(${warehouse.rows}, 1fr)`,
-            gridAutoFlow: "column",
-            maxWidth: "100%",
-            height: "100%",
+            border: "1px solid #ccc",
+            backgroundColor: "#e0e0e0",
           }}
-        >
-          {sortedFields.map((field) => (
-            <div
-              className="bg-gray-200"
-              key={field.id}
-              style={{
-                display: field.type === "couchbox-B" ? "none" : "flex",
-                height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "5vh",
-                backgroundColor: `${
-                  (Object.keys(field.vaults).length === 3 && field.type === "vault") ||
-                  field.full ||
-                  (Object.keys(field.vaults).length === 4 && field.type === "couchbox-T") ||
-                  field.full
-                    ? "var(--red)"
-                    : (Object.keys(field.vaults).length === 3 &&
-                        field.type === "couchbox-T") ||
-                      field.full ||
-                      Object.keys(field.vaults).length === 2
-                    ? "var(--yellow)"
-                    : Object.keys(field.vaults).length === 1
-                    ? "var(--green)"
-                    : "var(--lightgrey)"
-                }`,
-                width: "100%",
-                zIndex: field.type === "couchbox-B" ? "100" : "auto",
-                alignItems: "center",
-                justifyContent: "center",
-                gridRow: field.type === "couchbox-T" ? "span 2" : "auto",
-              }}
-            >
-              {field.type !== "couchbox-B" && (
-                <div className="md:text-md text-center" style={{ fontSize: "0.5rem" }}>
-                  {field.name}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      ) : (
-        "no fields"
-      )}
+        ></div>
+      ))}
     </div>
   );
 }
