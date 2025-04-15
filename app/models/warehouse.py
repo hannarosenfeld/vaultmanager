@@ -1,6 +1,7 @@
 from .db import db, environment, SCHEMA, add_prefix_for_prod
 from flask_login import UserMixin
 import json
+from sqlalchemy.dialects.postgresql import JSON  # Import JSON type for PostgreSQL
 
 
 class Warehouse(db.Model):
@@ -16,6 +17,7 @@ class Warehouse(db.Model):
     field_capacity = db.Column(db.Integer)  # Capacity of each field
     length = db.Column(db.Float, nullable=True)  # Overall length of the warehouse (in feet)
     width = db.Column(db.Float, nullable=True)   # Overall width of the warehouse (in feet)
+    fieldgrid_location = db.Column(JSON, default={"x": 0.0, "y": 0.0})  # Field grid position as JSON
     address = db.Column(db.String)
     company_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('companies.id')))
     company = db.relationship('Company', back_populates='company_warehouses')
@@ -41,5 +43,6 @@ class Warehouse(db.Model):
             'companyName': self.company.name,
             'racks': [rack.to_dict() for rack in self.racks],
             'length': self.length,
-            'width': self.width
+            'width': self.width,
+            'fieldgridLocation': self.fieldgrid_location  # Include field grid location in the response
         }
