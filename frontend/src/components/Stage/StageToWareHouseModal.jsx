@@ -14,10 +14,6 @@ export default function StageToWareHouseModal({ isOpen, onClose, vault }) {
   const [selectedField, setSelectedField] = useState(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
 
-  useEffect(() => {
-    console.log("💖 selected warehouse: ", currentWarehouse);
-  }, [currentWarehouse]);
-
   useEffect(() => { 
     dispatch(setCurrentWarehouse(warehouseArr[0]));
   }, []);

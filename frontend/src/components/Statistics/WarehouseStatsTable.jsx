@@ -8,8 +8,6 @@ function WarehouseStats({ warehouse }) {
   const warehouseCapacity = warehouse.warehouseCapacity;
   const potentialSpaces = warehouseCapacity - allVaultsPresentInWarehouse.length;
 
-  console.log("🍊 warehouseCap: ", warehouseCapacity)
-
   return (
     <div className="relative overflow-x-auto mb-5">
       <h1 className="text-2xl font-bold mb-4">{warehouseName}</h1>

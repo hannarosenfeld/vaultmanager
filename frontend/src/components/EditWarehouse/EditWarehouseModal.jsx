@@ -11,15 +11,6 @@ export function EditWarehouseModal({ dir, operation, warehouseId, onClose }) {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("🏁 Submitting form...");
-    console.log("warehouseId:", warehouseId);
-    console.log("direction:", dir);
-    console.log("operation:", operation);
-    console.log("warehouse:", warehouse);
-    console.log("warehouse_cols:", warehouse?.cols);
-    console.log("warehouse_rows:", warehouse?.rows);
-    console.log("count:", count);
-
     const formData = new FormData();
     formData.append("warehouse_id", warehouseId);
     formData.append("direction", dir);

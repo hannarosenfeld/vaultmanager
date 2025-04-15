@@ -46,7 +46,6 @@ export default function RackView({ warehouse }) {
           }
         });
 
-        console.log("🏸 Mapped racks:", initialRacks); // Debugging
         setRacks(initialRacks);
       } catch (error) {
         console.error("Error fetching racks:", error);

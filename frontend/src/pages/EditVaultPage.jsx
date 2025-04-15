@@ -56,7 +56,6 @@ export default function EditVaultPage() {
     setLoading(true);
 
     try {
-      console.log("💖 dispatching....")
       await dispatch(updateVaultThunk(editableVault));
       console.log("Vault updated successfully");
     } catch (error) {
