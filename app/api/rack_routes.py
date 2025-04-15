@@ -5,15 +5,9 @@ rack_routes = Blueprint('racks', __name__)
 
 
 @rack_routes.route('/warehouse/<int:warehouse_id>', methods=['GET'])
-def get_racks_by_warehouse(warehouse_id):
+def get_racks_for_warehouse(warehouse_id):
     racks = Rack.query.filter_by(warehouse_id=warehouse_id).all()
     return jsonify([rack.to_dict() for rack in racks])
-
-from flask import Blueprint, jsonify, request
-from app.models import Rack, Shelf, db  # Ensure Shelf is imported
-
-rack_routes = Blueprint('racks', __name__)
-
 
 @rack_routes.route('/warehouse/<int:warehouse_id>/add', methods=['POST'])
 def add_rack_to_warehouse(warehouse_id):

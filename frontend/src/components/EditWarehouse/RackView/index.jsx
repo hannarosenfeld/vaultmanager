@@ -17,10 +17,7 @@ export default function RackView({ warehouse }) {
         );
         const fetchedRacks = response.data;
 
-        console.log(
-          `🏓 Fetched racks for warehouse ${warehouse.id}:`,
-          fetchedRacks
-        );
+        console.log("Fetched racks:", fetchedRacks); // Debugging
 
         // Map fetched locations to expected keys
         const locationMapping = {
