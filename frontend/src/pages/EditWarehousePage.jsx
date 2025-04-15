@@ -7,7 +7,7 @@ import WarehouseView from "../components/EditWarehouse/WarehouseView";
 import RackView from "../components/EditWarehouse/RackView";
 import { setCurrentWarehouse, editFieldCapacityThunk } from "../store/warehouse";
 import LoadingSpinner from "../components/LoadingSpinner";
-import EditWarehouseFieldGridDuplicated from "../components/EditWarehouse/EditWarehouseFieldGridDuplicated";
+import DragAndDropWarehouse from "../components/EditWarehouse/DragAndDropWarehouse";
 import axios from "axios";
 
 export default function EditWarehousePage() {
@@ -48,7 +48,7 @@ export default function EditWarehousePage() {
       console.log("Warehouse not found for name:", warehouseName);
       setLoading(false);
     }
-  }, [dispatch, warehouseName, warehouses]);
+  }, [dispatch, warehouseName, warehouses]); // Ensure dependencies are correct and minimal
 
   if (loading) {
     return <LoadingSpinner />;
@@ -191,7 +191,7 @@ export default function EditWarehousePage() {
                   cursor: "grab",
                 }}
               >
-                <EditWarehouseFieldGridDuplicated warehouse={warehouse} />
+                <DragAndDropWarehouse warehouse={warehouse} />
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { sortWarehouseFields } from "../../utils/sortWarehouseFields";
 
-export default function EditWarehouseFieldGrid({ warehouse }) {
+export default function DragAndDropWarehouse({ warehouse }) {
   const dispatch = useDispatch();
   const [sortedFields, setSortedFields] = useState([]);
 
@@ -10,7 +10,7 @@ export default function EditWarehouseFieldGrid({ warehouse }) {
     if (warehouse.fields) {
       setSortedFields(sortWarehouseFields(warehouse.fields));
     }
-  }, [warehouse.fields]); // Removed unnecessary dependencies like `warehouse` and `dispatch`
+  }, [warehouse, dispatch, warehouse.fields]);
 
   return (
     <div className="flex-grow max-w-full overflow-x-hidden">
@@ -21,8 +21,8 @@ export default function EditWarehouseFieldGrid({ warehouse }) {
             gridTemplateColumns: `repeat(${warehouse.cols}, minmax(0, 1fr))`,
             gridTemplateRows: `repeat(${warehouse.rows}, 1fr)`,
             gridAutoFlow: "column",
-            maxWidth: "75vw",
-            margin: "0 auto",
+            maxWidth: "100%",
+            height: "100%",
           }}
         >
           {sortedFields.map((field) => (

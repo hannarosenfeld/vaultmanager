@@ -10,7 +10,7 @@ export default function EditWarehouseFieldGridDuplicated({ warehouse }) {
     if (warehouse.fields) {
       setSortedFields(sortWarehouseFields(warehouse.fields));
     }
-  }, [warehouse, dispatch, warehouse.fields]);
+  }, [warehouse.fields]); // Removed unnecessary dependencies like `warehouse` and `dispatch`
 
   return (
     <div className="flex-grow max-w-full overflow-x-hidden">
@@ -21,8 +21,8 @@ export default function EditWarehouseFieldGridDuplicated({ warehouse }) {
             gridTemplateColumns: `repeat(${warehouse.cols}, minmax(0, 1fr))`,
             gridTemplateRows: `repeat(${warehouse.rows}, 1fr)`,
             gridAutoFlow: "column",
-            maxWidth: "100%",
-            height: "100%",
+            maxWidth: "75vw",
+            margin: "0 auto",
           }}
         >
           {sortedFields.map((field) => (
