@@ -55,9 +55,36 @@ export default function EditWarehousePage() {
       });
   };
 
+  // Calculate the aspect ratio of the warehouse
+  const aspectRatio = warehouse.width / warehouse.length;
+
   return (
     <div className="flex flex-col items-center h-full mt-3">
       <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2>
+
+      {/* Render the warehouse shape */}
+      <div className="flex flex-col justify-center items-center w-full grow p-2 mb-10" >
+      <div className="flex justify-center items-center w-full grow p-2">
+        <div
+          style={{
+            flexGrow: 1,
+            aspectRatio: `${warehouse.width} / ${warehouse.length}`,
+            border: "2px solid black",
+            backgroundColor: "#f0f0f0",
+            position: "relative",
+          }}
+        >
+          {/* Warehouse shape */}
+        </div>
+      </div>
+      
+      <p className="text-sm">
+        {warehouse.width && warehouse.length
+          ? `${warehouse.width} ft x ${warehouse.length} ft`
+          : "No dimensions available"}
+      </p>
+</div>
+      {/* Toggle between Warehouse and Rack views */}
       <ToggleBox viewMode={viewMode} setViewMode={setViewMode} />
       {viewMode === "Warehouse" ? (
         <WarehouseView
