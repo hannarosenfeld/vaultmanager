@@ -20,8 +20,6 @@ export default function RackModal({ isOpen, onClose, onSubmit, location, default
       location,
     };
 
-    console.log("🏓 Rack data to be submitted:", rackData);
-  
     // Pass the rack data to the parent component
     onSubmit(rackData);
   
