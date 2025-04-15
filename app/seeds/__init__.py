@@ -6,8 +6,7 @@ from .fields import seed_fields, undo_fields
 from .companies import seed_companies, undo_companies
 from .warehouse import seed_warehouse, undo_warehouse
 from .orders import seed_orders, undo_orders
-from .rack import seed_racks, undo_racks  # Import rack seeder
-from app.models import Field, Warehouse, Customer, Company, User, Order, Vault, Rack
+from app.models import Field, Warehouse, Customer, Company, User, Order, Vault
 
 from app.models.db import db, environment, SCHEMA
 
@@ -38,12 +37,9 @@ def seed():
         seed_vaults(customers)
     if not Company.query.all(): 
         companies = seed_companies()
-    if not Rack.query.all():
-        seed_racks()
 
 @seed_commands.command('undo')
 def undo():
-    undo_racks()
     undo_companies()
     undo_vaults()
     undo_fields()
