@@ -1,4 +1,4 @@
-from app.utils import add_prefix_for_prod  # Adjusted import to avoid circular dependency
+from app.utils import add_prefix_for_prod
 from app.models import db, environment, SCHEMA
 
 class Rack(db.Model):
