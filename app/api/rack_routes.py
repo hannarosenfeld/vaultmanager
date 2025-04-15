@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from app.models import Rack, db
+from app.models import Rack, Shelf, db
 
 rack_routes = Blueprint('racks', __name__)
 
