@@ -77,6 +77,7 @@ export default function EditWarehouseLayout({
 
   return (
     <>
+    <h2 className="text-lg font-bold">Edit Warehouse Layout</h2>
       {/* Rack Selection */}
       <RackCreator />
 

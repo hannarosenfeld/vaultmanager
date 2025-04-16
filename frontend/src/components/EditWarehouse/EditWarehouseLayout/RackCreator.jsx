@@ -39,8 +39,8 @@ export default function RackCreator() {
   };
 
   return (
-    <div className="w-full p-2 mb-4">
-      <h3 className="text-lg font-semibold mb-2 text-center">Add a Rack</h3>
+    <div className="w-full p-2 mb-4 mt-2">
+      <h3 className="text-md font-semibold mb-2 text-center">Add a Rack</h3>
 
       <div className="flex flex-col md:flex-row w-full gap-4 items-start">
         <div className="flex w-full gap-4 items-stretch">
