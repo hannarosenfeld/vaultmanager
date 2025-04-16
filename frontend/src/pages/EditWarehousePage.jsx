@@ -333,10 +333,10 @@ export default function EditWarehousePage() {
               top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
               left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
               width: `${
-                ((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100 + 5
+                ((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100 + 3.1
               }%`,
               height: `${
-                ((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100
+                ((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100 + 1.9
               }%`,
               cursor: "grab",
               backgroundColor: "rgba(0, 0, 255, 0.1)",
