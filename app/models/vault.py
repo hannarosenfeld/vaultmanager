@@ -40,5 +40,5 @@ class Vault(db.Model, UserMixin):
             'type': self.type,
             'note': self.note,
             'attachments': [attachment.to_dict() for attachment in self.attachments],
-            'warehouse_id': self.warehouse_id,  # Added warehouse_id to the dictionary
+            'warehouse_id': self.field.warehouse_id if self.field else None,  # Dynamically set warehouse_id
         }
