@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { throttle } from "lodash";
+import axios from "axios"; // Import axios for API calls
 import DragAndDropFieldGrid from "../DragAndDropFieldGrid";
 
 export default function EditWarehouseLayout({
@@ -42,7 +43,7 @@ export default function EditWarehouseLayout({
     [warehouse]
   );
 
-  const handleDragEnd = (e) => {
+  const handleDragEnd = async (e) => {
     const warehouseEl = e.target.closest(".warehouse-grid");
     const rect = warehouseEl.getBoundingClientRect();
 
@@ -58,12 +59,20 @@ export default function EditWarehouseLayout({
       Math.min(y, warehouse.length - warehouse.rows * VAULT_SIZE_FT)
     );
 
-    setFieldGridPosition({ x: clampedX, y: clampedY });
+    const newPosition = { x: clampedX, y: clampedY };
+    setFieldGridPosition(newPosition);
     setIsDragging(false);
     setDragPreviewPosition(null);
 
-    // Simulate API call to update field grid position
-    console.log("Updated field grid position:", { x: clampedX, y: clampedY });
+    try {
+      // Persist the updated position to the backend
+      await axios.put(`/api/warehouse/${warehouse.id}/field-grid`, {
+        fieldgridLocation: newPosition,
+      });
+      console.log("Field grid position saved:", newPosition);
+    } catch (error) {
+      console.error("Error saving field grid position:", error);
+    }
   };
 
   const rackDimensions = [
