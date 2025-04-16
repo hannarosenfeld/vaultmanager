@@ -146,7 +146,7 @@ export default function EditWarehousePage() {
         </div>
 
         <div
-          className="relative w-full border-1 overflow-hidden bg-white"
+          className="relative w-full overflow-hidden bg-white"
           style={{ aspectRatio }}
         >
           <div
