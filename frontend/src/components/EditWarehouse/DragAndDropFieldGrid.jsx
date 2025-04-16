@@ -18,9 +18,10 @@ export default function DragAndDropFieldGrid({ warehouse }) {
         <div
           className="grid w-full h-full gap-1 overflow-hidden"
           style={{
-            gridTemplateColumns: `repeat(${warehouse.cols}, minmax(0, 1fr))`,
+            gridTemplateColumns: `repeat(${warehouse.cols}, 1fr)`,
             gridTemplateRows: `repeat(${warehouse.rows}, 1fr)`,
-            gridAutoFlow: "column",
+            // Ensure fields are perfect squares
+            aspectRatio: `${warehouse.cols} / ${warehouse.rows}`,
             margin: "0 auto",
           }}
         >
@@ -30,7 +31,7 @@ export default function DragAndDropFieldGrid({ warehouse }) {
               key={field.id}
               style={{
                 display: field.type === "couchbox-B" ? "none" : "flex",
-                height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "5vh",
+                height: "100%", // Adjusted to maintain square shape
                 backgroundColor: "var(--lightgrey)",
                 width: "100%",
                 zIndex: field.type === "couchbox-B" ? "100" : "auto",
