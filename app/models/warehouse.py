@@ -25,6 +25,7 @@ class Warehouse(db.Model):
     # Relationships
     warehouse_fields = db.relationship('Field', back_populates='warehouse', foreign_keys='Field.warehouse_id')
     racks = db.relationship('Rack', back_populates='warehouse', cascade='all, delete-orphan')
+    vaults = db.relationship('Vault', back_populates='warehouse', cascade='all, delete-orphan')
 
     def initialize_grid(self):
         """Initialize the field grid as a 2D array with empty cells."""

@@ -17,11 +17,13 @@ class Vault(db.Model, UserMixin):
     customer_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('customers.id'), ondelete='CASCADE'))
     note = db.Column(db.Text)
     empty = db.Column(db.Boolean)
+    warehouse_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('warehouses.id')))
     
     field = db.relationship('Field', back_populates='vaults')
     order = db.relationship('Order', back_populates='order_vaults')
     customer = db.relationship('Customer', back_populates='vaults')
     attachments = db.relationship('Attachment', back_populates='vault', cascade='all, delete-orphan')
+    warehouse = db.relationship('Warehouse', back_populates='vaults')
 
     def to_dict(self):
         customer_name = self.customer.name if self.customer else None
@@ -38,5 +40,5 @@ class Vault(db.Model, UserMixin):
             'type': self.type,
             'note': self.note,
             'attachments': [attachment.to_dict() for attachment in self.attachments],
-            # 'empty': self.empty # ⚠️ we could probably get rid of this alltogether since customer name EMPTY already signifies this.
+            'warehouse_id': self.warehouse_id,  # Added warehouse_id to the dictionary
         }
