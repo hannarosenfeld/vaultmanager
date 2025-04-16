@@ -5,7 +5,10 @@ import EditWarehouseModal from "../components/EditWarehouse/EditWarehouseModal";
 import ToggleBox from "../components/EditWarehouse/ToggleBox";
 import WarehouseView from "../components/EditWarehouse/WarehouseView";
 import RackView from "../components/EditWarehouse/RackView";
-import { setCurrentWarehouse, editFieldCapacityThunk } from "../store/warehouse";
+import {
+  setCurrentWarehouse,
+  editFieldCapacityThunk,
+} from "../store/warehouse";
 import LoadingSpinner from "../components/LoadingSpinner";
 import DragAndDropFieldGrid from "../components/EditWarehouse/DragAndDropFieldGrid";
 import axios from "axios";
@@ -14,8 +17,14 @@ import { throttle } from "lodash";
 export default function EditWarehousePage() {
   const dispatch = useDispatch();
   const { warehouseName } = useParams();
-  const warehouses = useSelector((state) => state.warehouse.warehouses, shallowEqual);
-  const warehouse = useSelector((state) => state.warehouse.currentWarehouse, shallowEqual);
+  const warehouses = useSelector(
+    (state) => state.warehouse.warehouses,
+    shallowEqual
+  );
+  const warehouse = useSelector(
+    (state) => state.warehouse.currentWarehouse,
+    shallowEqual
+  );
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalProps, setModalProps] = useState({});
@@ -30,7 +39,9 @@ export default function EditWarehousePage() {
 
   useEffect(() => {
     const foundWarehouse = Object.values(warehouses).find(
-      (w) => w.name.toLowerCase().split(" ").join("-") === warehouseName.toLowerCase()
+      (w) =>
+        w.name.toLowerCase().split(" ").join("-") ===
+        warehouseName.toLowerCase()
     );
     if (foundWarehouse) {
       dispatch(setCurrentWarehouse(foundWarehouse));
@@ -48,13 +59,15 @@ export default function EditWarehousePage() {
   };
 
   const handleSubmit = (fieldCapacity) => {
-    dispatch(editFieldCapacityThunk(warehouse.id, fieldCapacity)).then((response) => {
-      if (response.error) {
-        alert("Error updating field capacity: " + response.error);
-      } else {
-        alert("Field capacity updated successfully!");
+    dispatch(editFieldCapacityThunk(warehouse.id, fieldCapacity)).then(
+      (response) => {
+        if (response.error) {
+          alert("Error updating field capacity: " + response.error);
+        } else {
+          alert("Field capacity updated successfully!");
+        }
       }
-    });
+    );
   };
 
   const handleDragStart = (e) => {
@@ -71,8 +84,14 @@ export default function EditWarehousePage() {
       const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
       const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-      const clampedX = Math.max(0, Math.min(x, warehouse.width - warehouse.cols * FIELD_SIZE_FT));
-      const clampedY = Math.max(0, Math.min(y, warehouse.length - warehouse.rows * FIELD_SIZE_FT));
+      const clampedX = Math.max(
+        0,
+        Math.min(x, warehouse.width - warehouse.cols * FIELD_SIZE_FT)
+      );
+      const clampedY = Math.max(
+        0,
+        Math.min(y, warehouse.length - warehouse.rows * FIELD_SIZE_FT)
+      );
 
       setDragPreviewPosition({ x: clampedX, y: clampedY });
     }, 100),
@@ -96,8 +115,14 @@ export default function EditWarehousePage() {
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    const clampedX = Math.max(0, Math.min(x, warehouse.width - warehouse.cols * VAULT_SIZE_FT));
-    const clampedY = Math.max(0, Math.min(y, warehouse.length - warehouse.rows * VAULT_SIZE_FT));
+    const clampedX = Math.max(
+      0,
+      Math.min(x, warehouse.width - warehouse.cols * VAULT_SIZE_FT)
+    );
+    const clampedY = Math.max(
+      0,
+      Math.min(y, warehouse.length - warehouse.rows * VAULT_SIZE_FT)
+    );
 
     setFieldGridPosition({ x: clampedX, y: clampedY });
     setIsDragging(false);
@@ -116,8 +141,12 @@ export default function EditWarehousePage() {
 
       {/* Warehouse Visual */}
       <div className="flex flex-col items-center w-full grow p-2 mb-10">
+        <div className="flex flex-col items-center w-full grow p-2 border-1 mb-3">
+          <h3 className="text-lg font-semibold">Edit Warehouse Layout</h3>
+        </div>
+
         <div
-          className="relative w-full max-w-5xl border border-black overflow-hidden bg-white"
+          className="relative w-full border-1 overflow-hidden bg-white"
           style={{ aspectRatio }}
         >
           <div
@@ -128,7 +157,9 @@ export default function EditWarehousePage() {
               height: "100%",
               backgroundImage:
                 "linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px)",
-              backgroundSize: `${(FIELD_SIZE_FT / warehouse.width) * 100}% ${(FIELD_SIZE_FT / warehouse.length) * 100}%`,
+              backgroundSize: `${(FIELD_SIZE_FT / warehouse.width) * 100}% ${
+                (FIELD_SIZE_FT / warehouse.length) * 100
+              }%`,
             }}
           >
             {/* Drag preview */}
@@ -138,8 +169,12 @@ export default function EditWarehousePage() {
                   position: "absolute",
                   top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
                   left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
-                  width: `${(warehouse.cols * VAULT_SIZE_FT) / warehouse.width * 100}%`,
-                  height: `${(warehouse.rows * VAULT_SIZE_FT) / warehouse.length * 100}%`,
+                  width: `${
+                    ((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100
+                  }%`,
+                  height: `${
+                    ((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100
+                  }%`,
                   backgroundColor: "rgba(0, 0, 255, 0.2)",
                   border: "2px dashed blue",
                   pointerEvents: "none",
@@ -157,10 +192,14 @@ export default function EditWarehousePage() {
                 position: "absolute",
                 top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
                 left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
-                width: `${(warehouse.cols * VAULT_SIZE_FT) / warehouse.width * 100}%`,
-                height: `${(warehouse.rows * VAULT_SIZE_FT) / warehouse.length * 100}%`,
+                width: `${
+                  ((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100
+                }%`,
+                height: `${
+                  ((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100
+                }%`,
                 cursor: "grab",
-                border: "1px solid blue",
+                // border: "1px solid blue",
                 backgroundColor: "rgba(0, 0, 255, 0.1)",
               }}
             >
@@ -174,13 +213,20 @@ export default function EditWarehousePage() {
       <ToggleBox viewMode={viewMode} setViewMode={setViewMode} />
 
       {viewMode === "Warehouse" ? (
-        <WarehouseView warehouse={warehouse} openModal={openModal} handleSubmit={handleSubmit} />
+        <WarehouseView
+          warehouse={warehouse}
+          openModal={openModal}
+          handleSubmit={handleSubmit}
+        />
       ) : (
         <RackView warehouse={warehouse} />
       )}
 
       {isModalOpen && (
-        <EditWarehouseModal {...modalProps} onClose={() => setIsModalOpen(false)} />
+        <EditWarehouseModal
+          {...modalProps}
+          onClose={() => setIsModalOpen(false)}
+        />
       )}
     </div>
   );
