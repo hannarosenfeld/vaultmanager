@@ -30,9 +30,9 @@ export default function DragAndDropFieldGrid({ warehouse }) {
               key={field.id}
               style={{
                 display: field.type === "couchbox-B" ? "none" : "flex",
-                height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "5vh",
+                height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "2.25em",
                 backgroundColor: "var(--lightgrey)",
-                width: "100%",
+                width: "2.25em",
                 zIndex: field.type === "couchbox-B" ? "100" : "auto",
                 alignItems: "center",
                 justifyContent: "center",
