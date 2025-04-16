@@ -96,8 +96,8 @@ export default function EditWarehousePage() {
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    const clampedX = Math.max(0, Math.min(x, warehouse.width - warehouse.cols * FIELD_SIZE_FT));
-    const clampedY = Math.max(0, Math.min(y, warehouse.length - warehouse.rows * FIELD_SIZE_FT));
+    const clampedX = Math.max(0, Math.min(x, warehouse.width - warehouse.cols * VAULT_SIZE_FT));
+    const clampedY = Math.max(0, Math.min(y, warehouse.length - warehouse.rows * VAULT_SIZE_FT));
 
     setFieldGridPosition({ x: clampedX, y: clampedY });
     setIsDragging(false);
@@ -138,8 +138,8 @@ export default function EditWarehousePage() {
                   position: "absolute",
                   top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
                   left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
-                  width: `${(warehouse.cols * FIELD_SIZE_FT) / warehouse.width * 100}%`,
-                  height: `${(warehouse.rows * FIELD_SIZE_FT) / warehouse.length * 100}%`,
+                  width: `${(warehouse.cols * VAULT_SIZE_FT) / warehouse.width * 100}%`,
+                  height: `${(warehouse.rows * VAULT_SIZE_FT) / warehouse.length * 100}%`,
                   backgroundColor: "rgba(0, 0, 255, 0.2)",
                   border: "2px dashed blue",
                   pointerEvents: "none",
