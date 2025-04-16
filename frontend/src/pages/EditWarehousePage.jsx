@@ -51,25 +51,30 @@ export default function EditWarehousePage() {
   const [selectedDirection, setSelectedDirection] = useState(rackDirections[0]);
 
   const getRackStyle = () => {
-    const width =
-      selectedDirection.id === "horizontal"
-        ? (selectedDimension.width / warehouse.width) * 100 + "%"
-        : (selectedDimension.height / warehouse.width) * 100 + "%";
-    const height =
-      selectedDirection.id === "horizontal"
-        ? (selectedDimension.height / warehouse.length) * 100 + "%"
-        : (selectedDimension.width / warehouse.length) * 100 + "%";
-
+    const isHorizontal = selectedDirection.id === "horizontal";
+    const rackWidthFt = isHorizontal
+      ? selectedDimension.width
+      : selectedDimension.height;
+    const rackHeightFt = isHorizontal
+      ? selectedDimension.height
+      : selectedDimension.width;
+  
+    // This scale makes sure the rack fills most of the preview box (200px max size)
+    const scale = 10; // 1 ft = 10px — tweak this as needed for visibility
+  
     return {
-      width: width,
-      height: height,
+      width: `${rackWidthFt * scale}px`,
+      height: `${rackHeightFt * scale}px`,
       backgroundColor: "rgba(0, 0, 255, 0.1)",
       border: "1px solid blue",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
+      fontSize: "0.8rem",
+      textAlign: "center",
     };
   };
+  
 
   useEffect(() => {
     const foundWarehouse = Object.values(warehouses).find(
@@ -174,61 +179,107 @@ export default function EditWarehousePage() {
       <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2>
 
       {/* Rack Selection */}
-      <div className="flex flex-col items-center w-full grow p-2 mb-1">
-        <div className="flex items-start w-full justify-between p-4 border rounded-lg gap-8">
-          {/* Buttons Section */}
-          <div className="flex flex-col gap-6">
-            <div>
-              <h3 className="text-lg font-semibold">Select Rack Dimensions</h3>
-              <div className="flex gap-4 mt-2 flex-wrap">
-                {rackDimensions.map((dimension) => (
-                  <button
-                    key={dimension.id}
-                    className={`px-4 py-2 border rounded-lg ${
-                      selectedDimension.id === dimension.id
-                        ? "bg-blue-200 border-blue-500"
-                        : "bg-gray-100 hover:bg-gray-200"
-                    }`}
-                    onClick={() => setSelectedDimension(dimension)}
-                  >
-                    {dimension.label}
-                  </button>
-                ))}
+      <div className="w-full p-2 mb-4">
+        <h3 className="text-lg font-semibold mb-2 text-center">Add a Rack</h3>
+
+        <div className="flex flex-col md:flex-row w-full gap-4 items-start">
+          {/* Input Fields + Preview in matching height container */}
+          <div className="flex w-full gap-4 items-stretch">
+            {/* Input Fields */}
+            <div className="flex-1 bg-gray-100 p-4 rounded shadow flex flex-col">
+              <div className="mb-2">
+                <label className="block text-sm font-medium">Rack Name</label>
+                <input
+                  type="text"
+                  className="w-full p-2 border rounded"
+                  value={selectedDimension.name || ""}
+                  onChange={(e) =>
+                    setSelectedDimension((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="flex gap-2 mb-2">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium">
+                    Width (ft)
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full p-2 border rounded"
+                    value={selectedDimension.width}
+                    onChange={(e) =>
+                      setSelectedDimension((prev) => ({
+                        ...prev,
+                        width: parseFloat(e.target.value),
+                      }))
+                    }
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium">
+                    Height (ft)
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full p-2 border rounded"
+                    value={selectedDimension.height}
+                    onChange={(e) =>
+                      setSelectedDimension((prev) => ({
+                        ...prev,
+                        height: parseFloat(e.target.value),
+                      }))
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="mb-2">
+                <label className="block text-sm font-medium">Shelves</label>
+                <input
+                  type="number"
+                  className="w-full p-2 border rounded"
+                  min="1"
+                  value={selectedDimension.shelves || 1}
+                  onChange={(e) =>
+                    setSelectedDimension((prev) => ({
+                      ...prev,
+                      shelves: parseInt(e.target.value),
+                    }))
+                  }
+                />
+              </div>
+
+              <div className="mb-2">
+                <label className="block text-sm font-medium">Direction</label>
+                <select
+                  className="w-full p-2 border rounded"
+                  value={selectedDirection.id}
+                  onChange={(e) =>
+                    setSelectedDirection(
+                      rackDirections.find((dir) => dir.id === e.target.value)
+                    )
+                  }
+                >
+                  {rackDirections.map((dir) => (
+                    <option key={dir.id} value={dir.id}>
+                      {dir.label}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
-            <div>
-              <h3 className="text-lg font-semibold">Select Rack Direction</h3>
-              <div className="flex gap-4 mt-2 flex-wrap">
-                {rackDirections.map((direction) => (
-                  <button
-                    key={direction.id}
-                    className={`px-4 py-2 border rounded-lg flex items-center gap-2 ${
-                      selectedDirection.id === direction.id
-                        ? "bg-blue-200 border-blue-500"
-                        : "bg-gray-100 hover:bg-gray-200"
-                    }`}
-                    onClick={() => setSelectedDirection(direction)}
-                  >
-                    <span>{direction.icon}</span>
-                    {direction.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Rack Preview Section */}
-          <div className="flex flex-col items-center">
-            <h3 className="text-lg font-semibold">Rack Preview</h3>
-            <div className="mt-4 flex items-center justify-center h-40 w-40">
-              <div
-                style={getRackStyle()}
-                className="transition-all duration-300 ease-in-out"
-              >
-                <span className="text-sm font-medium text-center px-2">
-                  {selectedDimension.label} ({selectedDirection.label})
-                </span>
+            {/* Rack Preview */}
+            <div
+              className="w-1/3 bg-blue-50 rounded shadow flex items-center justify-center p-4"
+              style={{ width: "200px", height: "200px" }} // match your scale base
+            >
+              <div style={getRackStyle()}>
+                {selectedDimension.name || "Rack"}
               </div>
             </div>
           </div>
@@ -236,7 +287,10 @@ export default function EditWarehousePage() {
       </div>
 
       {/* Warehouse Visual */}
-      <div className="relative w-full overflow-hidden bg-white" style={{ aspectRatio }}>
+      <div
+        className="relative w-full overflow-hidden bg-white"
+        style={{ aspectRatio }}
+      >
         <div
           className="warehouse-grid"
           style={{
@@ -245,7 +299,9 @@ export default function EditWarehousePage() {
             height: "100%",
             backgroundImage:
               "linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px)",
-            backgroundSize: `${(FIELD_SIZE_FT / warehouse.width) * 100}% ${(FIELD_SIZE_FT / warehouse.length) * 100}%`,
+            backgroundSize: `${(FIELD_SIZE_FT / warehouse.width) * 100}% ${
+              (FIELD_SIZE_FT / warehouse.length) * 100
+            }%`,
           }}
         >
           {isDragging && dragPreviewPosition && (
@@ -254,8 +310,12 @@ export default function EditWarehousePage() {
                 position: "absolute",
                 top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
                 left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
-                width: `${((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100}%`,
-                height: `${((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100}%`,
+                width: `${
+                  ((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100
+                }%`,
+                height: `${
+                  ((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100
+                }%`,
                 backgroundColor: "rgba(0, 0, 255, 0.2)",
                 border: "2px dashed blue",
                 pointerEvents: "none",
@@ -272,8 +332,12 @@ export default function EditWarehousePage() {
               position: "absolute",
               top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
               left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
-              width: `${((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100}%`,
-              height: `${((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100}%`,
+              width: `${
+                ((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100 + 5
+              }%`,
+              height: `${
+                ((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100
+              }%`,
               cursor: "grab",
               backgroundColor: "rgba(0, 0, 255, 0.1)",
             }}
@@ -288,13 +352,20 @@ export default function EditWarehousePage() {
       <ToggleBox viewMode={viewMode} setViewMode={setViewMode} />
 
       {viewMode === "Warehouse" ? (
-        <WarehouseView warehouse={warehouse} openModal={openModal} handleSubmit={handleSubmit} />
+        <WarehouseView
+          warehouse={warehouse}
+          openModal={openModal}
+          handleSubmit={handleSubmit}
+        />
       ) : (
         <RackView warehouse={warehouse} />
       )}
 
       {isModalOpen && (
-        <EditWarehouseModal {...modalProps} onClose={() => setIsModalOpen(false)} />
+        <EditWarehouseModal
+          {...modalProps}
+          onClose={() => setIsModalOpen(false)}
+        />
       )}
     </div>
   );
