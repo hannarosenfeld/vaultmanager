@@ -25,7 +25,8 @@ export default function EditWarehousePage() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragPreviewPosition, setDragPreviewPosition] = useState(null);
 
-  const FIELD_SIZE_FT = 5;
+  const FIELD_SIZE_FT = 1;
+  const VAULT_SIZE_FT = 5;
 
   useEffect(() => {
     const foundWarehouse = Object.values(warehouses).find(
@@ -156,8 +157,8 @@ export default function EditWarehousePage() {
                 position: "absolute",
                 top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
                 left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
-                width: `${(warehouse.cols * FIELD_SIZE_FT) / warehouse.width * 100}%`,
-                height: `${(warehouse.rows * FIELD_SIZE_FT) / warehouse.length * 100}%`,
+                width: `${(warehouse.cols * VAULT_SIZE_FT) / warehouse.width * 100}%`,
+                height: `${(warehouse.rows * VAULT_SIZE_FT) / warehouse.length * 100}%`,
                 cursor: "grab",
                 border: "1px solid blue",
                 backgroundColor: "rgba(0, 0, 255, 0.1)",
