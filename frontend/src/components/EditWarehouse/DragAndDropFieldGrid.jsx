@@ -16,7 +16,7 @@ export default function DragAndDropFieldGrid({ warehouse }) {
     <div className="flex-grow max-w-full overflow-x-hidden">
       {sortedFields.length ? (
         <div
-          className="grid w-full h-full gap-1"
+          className="grid w-full h-full gap-1 overflow-hidden"
           style={{
             gridTemplateColumns: `repeat(${warehouse.cols}, minmax(0, 1fr))`,
             gridTemplateRows: `repeat(${warehouse.rows}, 1fr)`,
@@ -30,9 +30,9 @@ export default function DragAndDropFieldGrid({ warehouse }) {
               key={field.id}
               style={{
                 display: field.type === "couchbox-B" ? "none" : "flex",
-                height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "2.25em",
+                height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "5vh",
                 backgroundColor: "var(--lightgrey)",
-                width: "2.25em",
+                width: "100%",
                 zIndex: field.type === "couchbox-B" ? "100" : "auto",
                 alignItems: "center",
                 justifyContent: "center",
