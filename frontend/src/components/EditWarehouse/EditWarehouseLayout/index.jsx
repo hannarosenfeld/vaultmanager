@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { throttle } from "lodash";
 import axios from "axios";
-import DragAndDropFieldGrid from "../DragAndDropFieldGrid";
 import RackCreator from "./RackCreator";
 
 export default function EditWarehouseLayout({
@@ -135,9 +134,20 @@ export default function EditWarehouseLayout({
               }%`,
               cursor: "grab",
               backgroundColor: "rgba(0, 0, 255, 0.1)",
+              display: "flex", // Added to center content
+              alignItems: "center", // Center vertically
+              justifyContent: "center", // Center horizontally
             }}
           >
-            <DragAndDropFieldGrid warehouse={warehouse} />
+            <span
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: "bold",
+                color: "black",
+              }}
+            >
+              VAULTS
+            </span>
           </div>
         </div>
       </div>
