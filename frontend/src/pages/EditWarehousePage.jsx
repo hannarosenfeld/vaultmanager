@@ -37,6 +37,40 @@ export default function EditWarehousePage() {
   const FIELD_SIZE_FT = 1;
   const VAULT_SIZE_FT = 5;
 
+  const rackDimensions = [
+    { id: "12x4", label: "12ft x 4ft", width: 12, height: 4 },
+    { id: "8x4", label: "8ft x 4ft", width: 8, height: 4 },
+  ];
+
+  const rackDirections = [
+    { id: "horizontal", label: "Horizontal", icon: "↔️" },
+    { id: "vertical", label: "Vertical", icon: "↕️" },
+  ];
+
+  const [selectedDimension, setSelectedDimension] = useState(rackDimensions[0]);
+  const [selectedDirection, setSelectedDirection] = useState(rackDirections[0]);
+
+  const getRackStyle = () => {
+    const width =
+      selectedDirection.id === "horizontal"
+        ? (selectedDimension.width / warehouse.width) * 100 + "%"
+        : (selectedDimension.height / warehouse.width) * 100 + "%";
+    const height =
+      selectedDirection.id === "horizontal"
+        ? (selectedDimension.height / warehouse.length) * 100 + "%"
+        : (selectedDimension.width / warehouse.length) * 100 + "%";
+
+    return {
+      width: width,
+      height: height,
+      backgroundColor: "rgba(0, 0, 255, 0.1)",
+      border: "1px solid blue",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    };
+  };
+
   useEffect(() => {
     const foundWarehouse = Object.values(warehouses).find(
       (w) =>
@@ -139,94 +173,128 @@ export default function EditWarehousePage() {
     <div className="flex flex-col items-center h-full mt-3">
       <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2>
 
-      {/* Warehouse Visual */}
-      <div className="flex flex-col items-center w-full grow p-2 mb-10">
-        <div className="flex flex-col items-center w-full grow p-2 border-1 mb-3">
-          <h3 className="text-lg font-semibold">Edit Warehouse Layout</h3>
-        </div>
+      {/* Rack Selection */}
+      <div className="flex flex-col items-center w-full grow p-2 mb-1">
+        <div className="flex items-start w-full justify-between p-4 border rounded-lg gap-8">
+          {/* Buttons Section */}
+          <div className="flex flex-col gap-6">
+            <div>
+              <h3 className="text-lg font-semibold">Select Rack Dimensions</h3>
+              <div className="flex gap-4 mt-2 flex-wrap">
+                {rackDimensions.map((dimension) => (
+                  <button
+                    key={dimension.id}
+                    className={`px-4 py-2 border rounded-lg ${
+                      selectedDimension.id === dimension.id
+                        ? "bg-blue-200 border-blue-500"
+                        : "bg-gray-100 hover:bg-gray-200"
+                    }`}
+                    onClick={() => setSelectedDimension(dimension)}
+                  >
+                    {dimension.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        <div
-          className="relative w-full overflow-hidden bg-white"
-          style={{ aspectRatio }}
-        >
-          <div
-            className="warehouse-grid"
-            style={{
-              position: "relative",
-              width: "100%",
-              height: "100%",
-              backgroundImage:
-                "linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px)",
-              backgroundSize: `${(FIELD_SIZE_FT / warehouse.width) * 100}% ${
-                (FIELD_SIZE_FT / warehouse.length) * 100
-              }%`,
-            }}
-          >
-            {/* Drag preview */}
-            {isDragging && dragPreviewPosition && (
+            <div>
+              <h3 className="text-lg font-semibold">Select Rack Direction</h3>
+              <div className="flex gap-4 mt-2 flex-wrap">
+                {rackDirections.map((direction) => (
+                  <button
+                    key={direction.id}
+                    className={`px-4 py-2 border rounded-lg flex items-center gap-2 ${
+                      selectedDirection.id === direction.id
+                        ? "bg-blue-200 border-blue-500"
+                        : "bg-gray-100 hover:bg-gray-200"
+                    }`}
+                    onClick={() => setSelectedDirection(direction)}
+                  >
+                    <span>{direction.icon}</span>
+                    {direction.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Rack Preview Section */}
+          <div className="flex flex-col items-center">
+            <h3 className="text-lg font-semibold">Rack Preview</h3>
+            <div className="mt-4 flex items-center justify-center h-40 w-40">
               <div
-                style={{
-                  position: "absolute",
-                  top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
-                  left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
-                  width: `${
-                    ((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100
-                  }%`,
-                  height: `${
-                    ((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100
-                  }%`,
-                  backgroundColor: "rgba(0, 0, 255, 0.2)",
-                  border: "2px dashed blue",
-                  pointerEvents: "none",
-                }}
-              />
-            )}
-
-            {/* Field Grid */}
-            <div
-              draggable
-              onDragStart={handleDragStart}
-              onDrag={handleDrag}
-              onDragEnd={handleDragEnd}
-              style={{
-                position: "absolute",
-                top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
-                left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
-                width: `${
-                  ((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100
-                }%`,
-                height: `${
-                  ((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100
-                }%`,
-                cursor: "grab",
-                // border: "1px solid blue",
-                backgroundColor: "rgba(0, 0, 255, 0.1)",
-              }}
-            >
-              <DragAndDropFieldGrid warehouse={warehouse} />
+                style={getRackStyle()}
+                className="transition-all duration-300 ease-in-out"
+              >
+                <span className="text-sm font-medium text-center px-2">
+                  {selectedDimension.label} ({selectedDirection.label})
+                </span>
+              </div>
             </div>
           </div>
         </div>
-        <p className="text-sm mt-2">{`${warehouse.width} ft x ${warehouse.length} ft`}</p>
       </div>
+
+      {/* Warehouse Visual */}
+      <div className="relative w-full overflow-hidden bg-white" style={{ aspectRatio }}>
+        <div
+          className="warehouse-grid"
+          style={{
+            position: "relative",
+            width: "100%",
+            height: "100%",
+            backgroundImage:
+              "linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px)",
+            backgroundSize: `${(FIELD_SIZE_FT / warehouse.width) * 100}% ${(FIELD_SIZE_FT / warehouse.length) * 100}%`,
+          }}
+        >
+          {isDragging && dragPreviewPosition && (
+            <div
+              style={{
+                position: "absolute",
+                top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
+                left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
+                width: `${((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100}%`,
+                height: `${((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100}%`,
+                backgroundColor: "rgba(0, 0, 255, 0.2)",
+                border: "2px dashed blue",
+                pointerEvents: "none",
+              }}
+            />
+          )}
+
+          <div
+            draggable
+            onDragStart={handleDragStart}
+            onDrag={handleDrag}
+            onDragEnd={handleDragEnd}
+            style={{
+              position: "absolute",
+              top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
+              left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
+              width: `${((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100}%`,
+              height: `${((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100}%`,
+              cursor: "grab",
+              backgroundColor: "rgba(0, 0, 255, 0.1)",
+            }}
+          >
+            <DragAndDropFieldGrid warehouse={warehouse} />
+          </div>
+        </div>
+      </div>
+
+      <p className="text-sm mt-2">{`${warehouse.width} ft x ${warehouse.length} ft`}</p>
 
       <ToggleBox viewMode={viewMode} setViewMode={setViewMode} />
 
       {viewMode === "Warehouse" ? (
-        <WarehouseView
-          warehouse={warehouse}
-          openModal={openModal}
-          handleSubmit={handleSubmit}
-        />
+        <WarehouseView warehouse={warehouse} openModal={openModal} handleSubmit={handleSubmit} />
       ) : (
         <RackView warehouse={warehouse} />
       )}
 
       {isModalOpen && (
-        <EditWarehouseModal
-          {...modalProps}
-          onClose={() => setIsModalOpen(false)}
-        />
+        <EditWarehouseModal {...modalProps} onClose={() => setIsModalOpen(false)} />
       )}
     </div>
   );
