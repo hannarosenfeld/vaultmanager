@@ -21,7 +21,6 @@ export default function DragAndDropFieldGrid({ warehouse }) {
             gridTemplateColumns: `repeat(${warehouse.cols}, minmax(0, 1fr))`,
             gridTemplateRows: `repeat(${warehouse.rows}, 1fr)`,
             gridAutoFlow: "column",
-            maxWidth: "75vw",
             margin: "0 auto",
           }}
         >
@@ -32,21 +31,7 @@ export default function DragAndDropFieldGrid({ warehouse }) {
               style={{
                 display: field.type === "couchbox-B" ? "none" : "flex",
                 height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "5vh",
-                backgroundColor: `${
-                  (Object.keys(field.vaults).length === 3 && field.type === "vault") ||
-                  field.full ||
-                  (Object.keys(field.vaults).length === 4 && field.type === "couchbox-T") ||
-                  field.full
-                    ? "var(--red)"
-                    : (Object.keys(field.vaults).length === 3 &&
-                        field.type === "couchbox-T") ||
-                      field.full ||
-                      Object.keys(field.vaults).length === 2
-                    ? "var(--yellow)"
-                    : Object.keys(field.vaults).length === 1
-                    ? "var(--green)"
-                    : "var(--lightgrey)"
-                }`,
+                backgroundColor: "var(--lightgrey)",
                 width: "100%",
                 zIndex: field.type === "couchbox-B" ? "100" : "auto",
                 alignItems: "center",
@@ -56,7 +41,7 @@ export default function DragAndDropFieldGrid({ warehouse }) {
             >
               {field.type !== "couchbox-B" && (
                 <div className="md:text-md text-center" style={{ fontSize: "0.5rem" }}>
-                  {field.name}
+
                 </div>
               )}
             </div>
