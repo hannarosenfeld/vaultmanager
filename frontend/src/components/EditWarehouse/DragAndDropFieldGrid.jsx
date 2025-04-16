@@ -1,16 +1,14 @@
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
 import { sortWarehouseFields } from "../../utils/sortWarehouseFields";
 
 export default function DragAndDropFieldGrid({ warehouse }) {
-  const dispatch = useDispatch();
   const [sortedFields, setSortedFields] = useState([]);
 
   useEffect(() => {
     if (warehouse.fields) {
       setSortedFields(sortWarehouseFields(warehouse.fields));
     }
-  }, [warehouse.fields]); // Removed unnecessary dependencies like `warehouse` and `dispatch`
+  }, [warehouse.fields]);
 
   return (
     <div className="flex-grow max-w-full overflow-x-hidden">
@@ -20,7 +18,6 @@ export default function DragAndDropFieldGrid({ warehouse }) {
           style={{
             gridTemplateColumns: `repeat(${warehouse.cols}, 1fr)`,
             gridTemplateRows: `repeat(${warehouse.rows}, 1fr)`,
-            // Ensure fields are perfect squares
             aspectRatio: `${warehouse.cols} / ${warehouse.rows}`,
             margin: "0 auto",
           }}
