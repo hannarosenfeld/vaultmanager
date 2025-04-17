@@ -3,6 +3,7 @@ import { throttle } from "lodash";
 import RackCreator from "./RackCreator";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRacksThunk, addRackThunk, moveRackThunk } from '../../../store/rack';
+import { updateFieldGridThunk } from '../../../store/warehouse'; // Import the thunk
 
 export default function EditWarehouseLayout({
   warehouse,
@@ -82,19 +83,8 @@ export default function EditWarehouseLayout({
     setDragPreviewPosition(null);
 
     try {
-      const response = await fetch(`/api/warehouse/${warehouse.id}/field-grid`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ fieldgridLocation: newPosition }),
-      });
-
-      if (response.ok) {
-        console.log("Field grid position saved:", newPosition);
-      } else {
-        console.error("Error saving field grid position:", await response.json());
-      }
+      await dispatch(updateFieldGridThunk(warehouse.id, newPosition));
+      console.log("Field grid position saved:", newPosition);
     } catch (error) {
       console.error("Error saving field grid position:", error);
     }
@@ -107,7 +97,14 @@ export default function EditWarehouseLayout({
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    const rackData = JSON.parse(e.dataTransfer.getData("rack"));
+    let rackData;
+    try {
+      rackData = JSON.parse(e.dataTransfer.getData("rack"));
+    } catch (error) {
+      console.error("Error parsing rack data:", error);
+      return; // Exit if rack data is invalid
+    }
+
     console.log("📦 Rack data from drag event:", rackData);
 
     const { x: clampedX, y: clampedY } = clampPosition(

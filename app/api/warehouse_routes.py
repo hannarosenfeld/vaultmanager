@@ -194,3 +194,28 @@ def add_rack(warehouse_id):
     db.session.commit()
 
     return jsonify(new_rack.to_dict()), 201
+
+
+@warehouse_routes.route('/<int:warehouse_id>/field-grid', methods=['PUT'])
+def update_field_grid(warehouse_id):
+    """
+    Update the field grid position of a warehouse.
+    """
+    data = request.get_json()
+    new_position = data.get('fieldgridLocation')
+
+    if not new_position:
+        return jsonify({'error': 'Field grid position is required'}), 400
+
+    warehouse = Warehouse.query.get(warehouse_id)
+
+    if not warehouse:
+        return jsonify({'error': 'Warehouse not found'}), 404
+
+    try:
+        warehouse.fieldgrid_location = new_position
+        db.session.commit()
+        return jsonify({'message': 'Field grid position updated successfully', 'fieldgridLocation': new_position}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500

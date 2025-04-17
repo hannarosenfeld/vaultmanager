@@ -20,6 +20,7 @@ const SET_CURRENT_VAULT = "warehouse/SET_CURRENT_VAULT";
 const UPDATE_VAULT = "warehouse/UPDATE_VAULT";
 const SET_FIELD_FULL = "warehouse/SET_FIELD_FULL";
 const EDIT_FIELD_CAPACITY = "warehouse/EDIT_FIELD_CAPACITY";
+const UPDATE_FIELD_GRID = "warehouse/UPDATE_FIELD_GRID";
 
 export const updateVault = (payload) => ({
   type: UPDATE_VAULT,
@@ -132,6 +133,11 @@ export const setFieldFull = (fieldId, isFull) => ({
 export const editFieldCapacity = (warehouse) => ({
   type: EDIT_FIELD_CAPACITY,
   warehouse,
+});
+
+export const updateFieldGrid = (warehouseId, fieldgridLocation) => ({
+  type: UPDATE_FIELD_GRID,
+  payload: { warehouseId, fieldgridLocation },
 });
 
 export const getAllWarehousesThunk = () => async (dispatch) => {
@@ -472,6 +478,31 @@ export const editFieldCapacityThunk = (warehouseId, fieldCapacity) => async (dis
     }
   } catch (error) {
     console.error("Error editing field capacity:", error);
+    return error;
+  }
+};
+
+export const updateFieldGridThunk = (warehouseId, fieldgridLocation) => async (dispatch) => {
+  try {
+    const response = await fetch(`/api/warehouse/${warehouseId}/field-grid`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ fieldgridLocation }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      dispatch(updateFieldGrid(warehouseId, data.fieldgridLocation));
+      return data;
+    } else {
+      const error = await response.json();
+      console.error("Error updating field grid position:", error);
+      return error;
+    }
+  } catch (error) {
+    console.error("Error updating field grid position:", error);
     return error;
   }
 };
@@ -963,6 +994,18 @@ const warehouseReducer = (state = initialState, action) => {
           state.currentWarehouse?.id === action.warehouse.id
             ? action.warehouse
             : state.currentWarehouse,
+      };
+
+    case UPDATE_FIELD_GRID:
+      return {
+        ...state,
+        warehouses: {
+          ...state.warehouses,
+          [action.payload.warehouseId]: {
+            ...state.warehouses[action.payload.warehouseId],
+            fieldgridLocation: action.payload.fieldgridLocation,
+          },
+        },
       };
 
     default:
