@@ -3,6 +3,7 @@ import warehouseReducer from './warehouse';
 import stageReducer from './stage';
 import session from './session';
 import printReducer from './print';
+import rackReducer from './rack';
 import logger from 'redux-logger';
 
 export default configureStore({
@@ -11,6 +12,7 @@ export default configureStore({
     stage: stageReducer,
     session,
     print: printReducer,
+    rack: rackReducer,
   },
   middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
 });

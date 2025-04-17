@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { throttle } from "lodash";
-import axios from "axios";
 import RackCreator from "./RackCreator";
+import { useDispatch } from 'react-redux';
+import { moveRackThunk } from '../../../store/rack'; // Import moveRackThunk
 
 export default function EditWarehouseLayout({
   warehouse,
@@ -18,6 +19,8 @@ export default function EditWarehouseLayout({
   const [racks, setRacks] = useState([]);
   const [invalidDrop, setInvalidDrop] = useState(false);
 
+  const dispatch = useDispatch();
+
   // Initialize racks state with existing racks from the warehouse
   useEffect(() => {
     if (warehouse.racks) {
@@ -29,8 +32,13 @@ export default function EditWarehouseLayout({
   useEffect(() => {
     const fetchRacks = async () => {
       try {
-        const response = await axios.get(`/api/warehouse/${warehouse.id}/racks`);
-        setRacks(response.data);
+        const response = await fetch(`/api/warehouse/${warehouse.id}/racks`);
+        if (response.ok) {
+          const data = await response.json();
+          setRacks(data);
+        } else {
+          console.error("Error fetching racks:", await response.json());
+        }
       } catch (error) {
         console.error("Error fetching racks:", error);
       }
@@ -40,6 +48,21 @@ export default function EditWarehouseLayout({
       fetchRacks();
     }
   }, [warehouse.id]);
+
+  // Utility function to clamp coordinates
+  const clampPosition = (x, y, width, height, maxWidth, maxHeight) => ({
+    x: Math.max(0, Math.min(x, maxWidth - width)),
+    y: Math.max(0, Math.min(y, maxHeight - height)),
+  });
+
+  // Utility function to update rack position in state
+  const updateRackPositionInState = (rackId, updatedPosition, setRacks) => {
+    setRacks((prev) =>
+      prev.map((rack) =>
+        rack.id === rackId ? { ...rack, position: updatedPosition } : rack
+      )
+    );
+  };
 
   const handleDragStart = (e) => {
     e.dataTransfer.setDragImage(new Image(), 0, 0);
@@ -55,13 +78,13 @@ export default function EditWarehouseLayout({
       const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
       const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-      const clampedX = Math.max(
-        0,
-        Math.min(x, warehouse.width - warehouse.cols * FIELD_SIZE_FT)
-      );
-      const clampedY = Math.max(
-        0,
-        Math.min(y, warehouse.length - warehouse.rows * FIELD_SIZE_FT)
+      const { x: clampedX, y: clampedY } = clampPosition(
+        x,
+        y,
+        warehouse.cols * FIELD_SIZE_FT,
+        warehouse.rows * FIELD_SIZE_FT,
+        warehouse.width,
+        warehouse.length
       );
 
       setDragPreviewPosition({ x: clampedX, y: clampedY });
@@ -76,25 +99,33 @@ export default function EditWarehouseLayout({
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    const clampedX = Math.max(
-      0,
-      Math.min(x, warehouse.width - warehouse.cols * VAULT_SIZE_FT)
-    );
-    const clampedY = Math.max(
-      0,
-      Math.min(y, warehouse.length - warehouse.rows * VAULT_SIZE_FT)
+    const newPosition = clampPosition(
+      x,
+      y,
+      warehouse.cols * VAULT_SIZE_FT,
+      warehouse.rows * VAULT_SIZE_FT,
+      warehouse.width,
+      warehouse.length
     );
 
-    const newPosition = { x: clampedX, y: clampedY };
     setFieldGridPosition(newPosition);
     setIsDragging(false);
     setDragPreviewPosition(null);
 
     try {
-      await axios.put(`/api/warehouse/${warehouse.id}/field-grid`, {
-        fieldgridLocation: newPosition,
+      const response = await fetch(`/api/warehouse/${warehouse.id}/field-grid`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fieldgridLocation: newPosition }),
       });
-      console.log("Field grid position saved:", newPosition);
+
+      if (response.ok) {
+        console.log("Field grid position saved:", newPosition);
+      } else {
+        console.error("Error saving field grid position:", await response.json());
+      }
     } catch (error) {
       console.error("Error saving field grid position:", error);
     }
@@ -108,65 +139,78 @@ export default function EditWarehouseLayout({
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
     const rackData = JSON.parse(e.dataTransfer.getData("rack"));
-    console.log("📦 Rack data from drag event:", rackData); // Log rack data
+    console.log("📦 Rack data from drag event:", rackData);
 
-    const clampedX = Math.max(0, Math.min(x, warehouse.width - rackData.width));
-    const clampedY = Math.max(0, Math.min(y, warehouse.length - rackData.height));
+    const { x: clampedX, y: clampedY } = clampPosition(
+      x,
+      y,
+      rackData.width,
+      rackData.height,
+      warehouse.width,
+      warehouse.length
+    );
 
     const updatedPosition = {
-        x: clampedX,
-        y: clampedY,
-        width: rackData.width,
-        height: rackData.height,
+      x: clampedX,
+      y: clampedY,
+      width: rackData.width,
+      height: rackData.height,
     };
 
     if (rackData.id) {
-        // Existing rack: Update its position
-        console.log("🔄 Moving existing rack:", { id: rackData.id, updatedPosition });
+      console.log("🔄 Moving existing rack:", { id: rackData.id, updatedPosition });
 
-        try {
-            const response = await axios.put(
-                `/api/warehouse/${warehouse.id}/rack/${rackData.id}`,
-                { position: updatedPosition }
-            );
-            console.log("✅ Rack position updated successfully:", response.data);
+      try {
+        const response = await fetch(
+          `/api/warehouse/${warehouse.id}/rack/${rackData.id}`,
+          {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ position: updatedPosition }),
+          }
+        );
 
-            // Update the rack's position in the state
-            setRacks((prev) =>
-                prev.map((rack) =>
-                    rack.id === rackData.id ? { ...rack, position: updatedPosition } : rack
-                )
-            );
-        } catch (error) {
-            console.error("❌ Error updating rack position:", error);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("✅ Rack position updated successfully:", data);
+          updateRackPositionInState(rackData.id, updatedPosition, setRacks);
+        } else {
+          console.error("❌ Error updating rack position:", await response.json());
         }
+      } catch (error) {
+        console.error("❌ Error updating rack position:", error);
+      }
     } else {
-        // New rack: Create it
-        const newRack = {
-            name: rackData.name || "Unnamed Rack", // Use the provided name or a default
-            capacity: 100,
-            position: updatedPosition,
-        };
+      const newRack = {
+        name: rackData.name || "Unnamed Rack",
+        capacity: 100,
+        position: updatedPosition,
+      };
 
-        console.log("📍 Creating new rack:", newRack);
+      console.log("📍 Creating new rack:", newRack);
 
-        try {
-            const response = await axios.post(`/api/racks/warehouse/${warehouse.id}/add`, newRack);
-            console.log("✅ Rack saved successfully:", response.data);
+      try {
+        const response = await fetch(`/api/racks/warehouse/${warehouse.id}/add`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newRack),
+        });
 
-            // Add the new rack to the state
-            setRacks((prev) => [...prev, response.data]);
-        } catch (error) {
-            console.error("❌ Error saving rack position:", error);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("✅ Rack saved successfully:", data);
+          setRacks((prev) => [...prev, data]);
+        } else {
+          console.error("❌ Error saving rack position:", await response.json());
         }
+      } catch (error) {
+        console.error("❌ Error saving rack position:", error);
+      }
     }
-};
-
-  const handleRackDrag = (e, rackIndex) => {
-    const updatedRacks = [...racks];
-    updatedRacks[rackIndex].x = e.clientX;
-    updatedRacks[rackIndex].y = e.clientY;
-    setRacks(updatedRacks);
   };
 
   const handleRackDragStart = (e, rack) => {
@@ -191,41 +235,27 @@ export default function EditWarehouseLayout({
     });
   };
 
-  const handleRackDragEnd = async (e, rack) => {
+  const handleRackDragEnd = (e, rack) => {
     const warehouseEl = e.target.closest(".warehouse-grid");
     const rect = warehouseEl.getBoundingClientRect();
 
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    const clampedX = Math.max(0, Math.min(x, warehouse.width - rack.position.width));
-    const clampedY = Math.max(0, Math.min(y, warehouse.length - rack.position.height));
-
-    const updatedPosition = {
-        x: clampedX,
-        y: clampedY,
-        width: rack.position.width,
-        height: rack.position.height,
-    };
+    const updatedPosition = clampPosition(
+      x,
+      y,
+      rack.position.width,
+      rack.position.height,
+      warehouse.width,
+      warehouse.length
+    );
 
     console.log("🔄 Moving rack:", { id: rack.id, updatedPosition });
 
-    try {
-        // Call the PUT route to update the rack's position
-        const response = await axios.put(
-            `/api/warehouse/${warehouse.id}/rack/${rack.id}`,
-            { position: updatedPosition }
-        );
-        console.log("✅ Rack position updated successfully:", response.data);
-
-        // Update the rack's position in the state
-        setRacks((prev) =>
-            prev.map((r) => (r.id === rack.id ? { ...r, position: updatedPosition } : r))
-        );
-    } catch (error) {
-        console.error("❌ Error updating rack position:", error);
-    }
-};
+    // Dispatch the thunk to update the rack position
+    dispatch(moveRackThunk(warehouse.id, rack.id, updatedPosition));
+  };
 
   if (!warehouse.width || !warehouse.length) {
     return null; // Do not render if width or length is undefined
@@ -233,7 +263,7 @@ export default function EditWarehouseLayout({
 
   return (
     <>
-    <h2 className="text-lg font-bold">Edit Warehouse Layout</h2>
+      <h2 className="text-lg font-bold">Edit Warehouse Layout</h2>
       {/* Rack Selection */}
       <RackCreator />
 
