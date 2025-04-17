@@ -173,8 +173,8 @@ export default function EditWarehouseLayout({
     const updatedPosition = clampPosition(
       x,
       y,
-      rack.position.width,
-      rack.position.height,
+      rack.position.width, // Ensure width is preserved
+      rack.position.height, // Ensure height is preserved
       warehouse.width,
       warehouse.length
     );
@@ -189,7 +189,13 @@ export default function EditWarehouseLayout({
     }
 
     try {
-      await dispatch(updateRackPositionThunk(warehouse.id, rack.id, updatedPosition));
+      await dispatch(
+        updateRackPositionThunk(warehouse.id, rack.id, {
+          ...updatedPosition,
+          width: rack.position.width, // Include width
+          height: rack.position.height, // Include height
+        })
+      );
       console.log("✅ Rack position saved:", updatedPosition);
     } catch (error) {
       console.error("❌ Error saving rack position:", error);
@@ -285,8 +291,8 @@ export default function EditWarehouseLayout({
                 position: "absolute",
                 top: `${(rack.position.y / warehouse.length) * 100}%`,
                 left: `${(rack.position.x / warehouse.width) * 100}%`,
-                width: `${(rack.position.width / warehouse.width) * 100}%`,
-                height: `${(rack.position.height / warehouse.length) * 100}%`,
+                width: `${((rack.position.width || 1) / warehouse.width) * 100}%`, // Fallback to 1 if width is missing
+                height: `${((rack.position.height || 1) / warehouse.length) * 100}%`, // Fallback to 1 if height is missing
                 backgroundColor: "rgba(0, 0, 255, 0.2)",
                 border: "1px solid blue",
                 display: "flex",
