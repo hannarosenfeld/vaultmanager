@@ -289,9 +289,20 @@ export default function EditWarehouseLayout({
                 height: `${(rack.position.height / warehouse.length) * 100}%`,
                 backgroundColor: "rgba(0, 0, 255, 0.2)",
                 border: "1px solid blue",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden", // Hide overflow
               }}
             >
-              <span style={{ fontSize: "0.8rem", color: "black" }}>
+              <span
+                className="text-xs text-center"
+                style={{
+                  whiteSpace: "nowrap", // Prevent text wrapping
+                  overflow: "hidden", // Hide overflow
+                  textOverflow: "ellipsis", // Add ellipsis for overflowed text
+                }}
+              >
                 {rack.name}
               </span>
             </div>
