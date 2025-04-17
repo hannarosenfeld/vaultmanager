@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { throttle } from "lodash";
 import RackCreator from "./RackCreator";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchRacksThunk, addRackThunk, moveRackThunk } from '../../../store/rack';
+import { fetchRacksThunk, addRackThunk, moveRackThunk, updateRackPositionThunk } from '../../../store/rack';
 import { updateFieldGridThunk } from '../../../store/warehouse'; // Import the thunk
 
 export default function EditWarehouseLayout({
@@ -29,10 +29,21 @@ export default function EditWarehouseLayout({
   }, [warehouse.id, dispatch]);
 
   // Utility function to clamp coordinates
-  const clampPosition = (x, y, width, height, maxWidth, maxHeight) => ({
-    x: Math.max(0, Math.min(x, maxWidth - width)),
-    y: Math.max(0, Math.min(y, maxHeight - height)),
-  });
+  const clampPosition = (x, y, width, height, maxWidth, maxHeight) => {
+    // Ensure all values are valid numbers
+    const validX = isNaN(x) || x === null ? 0 : x;
+    const validY = isNaN(y) || y === null ? 0 : y;
+    const validWidth = isNaN(width) || width === null ? 0 : width;
+    const validHeight = isNaN(height) || height === null ? 0 : height;
+
+    // Debugging: Log the validated input values
+    console.log("🔍 Validating clampPosition inputs:", { validX, validY, validWidth, validHeight });
+
+    return {
+      x: Math.max(0, Math.min(validX, maxWidth - validWidth)),
+      y: Math.max(0, Math.min(validY, maxHeight - validHeight)),
+    };
+  };
 
   const handleDragStart = (e) => {
     e.dataTransfer.setDragImage(new Image(), 0, 0);
@@ -149,12 +160,15 @@ export default function EditWarehouseLayout({
     );
   };
 
-  const handleRackDragEnd = (e, rack) => {
+  const handleRackDragEnd = async (e, rack) => {
     const warehouseEl = e.target.closest(".warehouse-grid");
     const rect = warehouseEl.getBoundingClientRect();
 
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
+
+    // Debugging: Log the raw input values
+    console.log("🔍 Raw input values for rack position:", { x, y });
 
     const updatedPosition = clampPosition(
       x,
@@ -165,7 +179,21 @@ export default function EditWarehouseLayout({
       warehouse.length
     );
 
-    dispatch(moveRackThunk(warehouse.id, rack.id, updatedPosition));
+    // Debugging: Log the calculated position
+    console.log("🔍 Calculated rack position:", updatedPosition);
+
+    // Validate position before sending to the backend
+    if (isNaN(updatedPosition.x) || isNaN(updatedPosition.y)) {
+      console.error("❌ Invalid rack position:", updatedPosition);
+      return;
+    }
+
+    try {
+      await dispatch(updateRackPositionThunk(warehouse.id, rack.id, updatedPosition));
+      console.log("✅ Rack position saved:", updatedPosition);
+    } catch (error) {
+      console.error("❌ Error saving rack position:", error);
+    }
   };
 
   if (!warehouse.width || !warehouse.length) {

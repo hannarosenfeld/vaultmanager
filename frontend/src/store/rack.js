@@ -57,24 +57,66 @@ export const addRackThunk = (warehouseId, newRack) => async (dispatch) => {
 };
 
 export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (dispatch) => {
+  // Ensure all required fields are included in the position object
+  const position = {
+    x: updatedPosition.x || 0,
+    y: updatedPosition.y || 0,
+    width: updatedPosition.width || 0,
+    height: updatedPosition.height || 0,
+  };
+
   try {
     const response = await fetch(`/api/racks/${warehouseId}/rack/${rackId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ position: updatedPosition }),
+      body: JSON.stringify({ position }),
     });
 
     if (response.ok) {
       const data = await response.json();
-      dispatch(updateRackPosition(rackId, updatedPosition));
+      dispatch(updateRackPosition(rackId, position));
       console.log('✅ Rack position updated successfully:', data);
     } else {
-      console.error('❌ Error updating rack position:', await response.json());
+      const error = await response.json();
+      console.error('❌ Error updating rack position:', error);
     }
   } catch (error) {
     console.error('❌ Error updating rack position:', error);
+  }
+};
+
+export const updateRackPositionThunk = (warehouseId, rackId, position) => async (dispatch) => {
+  // Ensure all required fields are included in the position object
+  const validatedPosition = {
+    x: position.x || 0,
+    y: position.y || 0,
+    width: position.width || 0,
+    height: position.height || 0,
+  };
+
+  try {
+    const response = await fetch(`/api/racks/${warehouseId}/rack/${rackId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ position: validatedPosition }),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log("✅ Rack position updated successfully:", data);
+      return data;
+    } else {
+      const error = await response.json();
+      console.error("❌ Error updating rack position:", error);
+      return error;
+    }
+  } catch (error) {
+    console.error("❌ Error updating rack position:", error);
+    return error;
   }
 };
 

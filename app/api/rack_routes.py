@@ -52,39 +52,58 @@ def add_rack_to_warehouse(warehouse_id):
 
 @rack_routes.route('/<int:warehouse_id>/rack/<int:rack_id>', methods=['PUT'])
 def update_rack_position(warehouse_id, rack_id):
-    print("💖💖💖💖💖💖💖💖💖💖")
-    print(f"🔄 Updating position for rack {rack_id} in warehouse {warehouse_id}")
+    """
+    Update the position of a rack in the warehouse.
+    """
     data = request.get_json()
-    print(f"📥 Received data: {data}")
+    new_position = data.get('position')
 
-    position = data.get('position')
-    if not position:
-        print("❌ Error: Position is required")
+    # Debugging: Log the received position data
+    print(f"🔍 Received position data: {new_position}")
+
+    if not new_position:
         return jsonify({'error': 'Position is required'}), 400
 
-    # Validate rack existence
+    # Validate position data
+    try:
+        x = new_position.get('x')
+        y = new_position.get('y')
+        width = new_position.get('width')
+        height = new_position.get('height')
+
+        if any(value is None or not isinstance(value, (int, float)) for value in [x, y, width, height]):
+            raise ValueError("Position values must be valid numbers.")
+
+    except Exception as e:
+        print(f"❌ Invalid position data: {e}")
+        return jsonify({'error': 'Invalid position data', 'details': str(e)}), 400
+
+    # Debugging: Log validated position data
+    print(f"✅ Validated position data: {new_position}")
+
     rack = Rack.query.filter_by(id=rack_id, warehouse_id=warehouse_id).first()
     if not rack:
-        print(f"❌ Error: Rack {rack_id} not found in warehouse {warehouse_id}")
         return jsonify({'error': 'Rack not found'}), 404
 
-    # Validate warehouse existence
     warehouse = Warehouse.query.get(warehouse_id)
     if not warehouse:
-        print(f"❌ Error: Warehouse {warehouse_id} not found")
         return jsonify({'error': 'Warehouse not found'}), 404
 
-    # Validate new position
-    rack.position = position
-    if not warehouse.validate_rack_position(rack):
-        print("❌ Error: Invalid rack position")
-        return jsonify({'error': 'Invalid rack position'}), 400
+    # Validate the new position
+    try:
+        rack.position = new_position
+        if not warehouse.validate_rack_position(rack):
+            return jsonify({'error': 'Invalid rack position'}), 400
+    except Exception as e:
+        # Debugging: Log validation error
+        print(f"❌ Error validating rack position: {e}")
+        return jsonify({'error': 'Invalid position data', 'details': str(e)}), 400
 
     try:
         db.session.commit()
-        print(f"✅ Rack position updated successfully: {rack.to_dict()}")
+        return jsonify({'message': 'Rack position updated successfully', 'rack': rack.to_dict()}), 200
     except Exception as e:
+        # Debugging: Log the exception
         print(f"❌ Error updating rack position: {e}")
-        return jsonify({'error': 'Failed to update rack position', 'details': str(e)}), 500
-
-    return jsonify(rack.to_dict()), 200
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
