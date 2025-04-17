@@ -131,7 +131,21 @@ export default function RackCreator() {
             className="w-1/3 bg-blue-50 rounded shadow flex items-center justify-center p-4"
             style={{ width: "200px", height: "200px" }}
           >
-            <div style={getRackStyle()}>
+            <div
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData(
+                  "rack",
+                  JSON.stringify({
+                    name: selectedDimension.name || "Unnamed Rack", // Include the rack name
+                    width: selectedDimension.width,
+                    height: selectedDimension.height,
+                    direction: selectedDirection.id,
+                  })
+                );
+              }}
+              style={getRackStyle()}
+            >
               {selectedDimension.name || "Rack"}
             </div>
           </div>

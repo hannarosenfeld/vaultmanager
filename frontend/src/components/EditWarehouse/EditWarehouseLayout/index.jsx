@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { throttle } from "lodash";
 import axios from "axios";
 import RackCreator from "./RackCreator";
@@ -14,6 +14,32 @@ export default function EditWarehouseLayout({
   const [isDragging, setIsDragging] = useState(false);
   const [dragPreviewPosition, setDragPreviewPosition] = useState(null);
   const aspectRatio = warehouse.width / warehouse.length;
+
+  const [racks, setRacks] = useState([]);
+  const [invalidDrop, setInvalidDrop] = useState(false);
+
+  // Initialize racks state with existing racks from the warehouse
+  useEffect(() => {
+    if (warehouse.racks) {
+      setRacks(warehouse.racks);
+    }
+  }, [warehouse.racks]);
+
+  // Fetch racks from the database when the component mounts
+  useEffect(() => {
+    const fetchRacks = async () => {
+      try {
+        const response = await axios.get(`/api/warehouse/${warehouse.id}/racks`);
+        setRacks(response.data);
+      } catch (error) {
+        console.error("Error fetching racks:", error);
+      }
+    };
+
+    if (warehouse.id) {
+      fetchRacks();
+    }
+  }, [warehouse.id]);
 
   const handleDragStart = (e) => {
     e.dataTransfer.setDragImage(new Image(), 0, 0);
@@ -74,6 +100,133 @@ export default function EditWarehouseLayout({
     }
   };
 
+  const handleRackDrop = async (e) => {
+    const warehouseEl = e.target.closest(".warehouse-grid");
+    const rect = warehouseEl.getBoundingClientRect();
+
+    const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
+    const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
+
+    const rackData = JSON.parse(e.dataTransfer.getData("rack"));
+    console.log("📦 Rack data from drag event:", rackData); // Log rack data
+
+    const clampedX = Math.max(0, Math.min(x, warehouse.width - rackData.width));
+    const clampedY = Math.max(0, Math.min(y, warehouse.length - rackData.height));
+
+    const updatedPosition = {
+        x: clampedX,
+        y: clampedY,
+        width: rackData.width,
+        height: rackData.height,
+    };
+
+    if (rackData.id) {
+        // Existing rack: Update its position
+        console.log("🔄 Moving existing rack:", { id: rackData.id, updatedPosition });
+
+        try {
+            const response = await axios.put(
+                `/api/warehouse/${warehouse.id}/rack/${rackData.id}`,
+                { position: updatedPosition }
+            );
+            console.log("✅ Rack position updated successfully:", response.data);
+
+            // Update the rack's position in the state
+            setRacks((prev) =>
+                prev.map((rack) =>
+                    rack.id === rackData.id ? { ...rack, position: updatedPosition } : rack
+                )
+            );
+        } catch (error) {
+            console.error("❌ Error updating rack position:", error);
+        }
+    } else {
+        // New rack: Create it
+        const newRack = {
+            name: rackData.name || "Unnamed Rack", // Use the provided name or a default
+            capacity: 100,
+            position: updatedPosition,
+        };
+
+        console.log("📍 Creating new rack:", newRack);
+
+        try {
+            const response = await axios.post(`/api/racks/warehouse/${warehouse.id}/add`, newRack);
+            console.log("✅ Rack saved successfully:", response.data);
+
+            // Add the new rack to the state
+            setRacks((prev) => [...prev, response.data]);
+        } catch (error) {
+            console.error("❌ Error saving rack position:", error);
+        }
+    }
+};
+
+  const handleRackDrag = (e, rackIndex) => {
+    const updatedRacks = [...racks];
+    updatedRacks[rackIndex].x = e.clientX;
+    updatedRacks[rackIndex].y = e.clientY;
+    setRacks(updatedRacks);
+  };
+
+  const handleRackDragStart = (e, rack) => {
+    e.dataTransfer.setData(
+      "rack",
+      JSON.stringify({
+        id: rack.id,
+        name: rack.name,
+        width: rack.position.width,
+        height: rack.position.height,
+        x: rack.position.x,
+        y: rack.position.y,
+      })
+    );
+    console.log("📦 Dragging rack:", {
+      id: rack.id,
+      name: rack.name,
+      width: rack.position.width,
+      height: rack.position.height,
+      x: rack.position.x,
+      y: rack.position.y,
+    });
+  };
+
+  const handleRackDragEnd = async (e, rack) => {
+    const warehouseEl = e.target.closest(".warehouse-grid");
+    const rect = warehouseEl.getBoundingClientRect();
+
+    const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
+    const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
+
+    const clampedX = Math.max(0, Math.min(x, warehouse.width - rack.position.width));
+    const clampedY = Math.max(0, Math.min(y, warehouse.length - rack.position.height));
+
+    const updatedPosition = {
+        x: clampedX,
+        y: clampedY,
+        width: rack.position.width,
+        height: rack.position.height,
+    };
+
+    console.log("🔄 Moving rack:", { id: rack.id, updatedPosition });
+
+    try {
+        // Call the PUT route to update the rack's position
+        const response = await axios.put(
+            `/api/warehouse/${warehouse.id}/rack/${rack.id}`,
+            { position: updatedPosition }
+        );
+        console.log("✅ Rack position updated successfully:", response.data);
+
+        // Update the rack's position in the state
+        setRacks((prev) =>
+            prev.map((r) => (r.id === rack.id ? { ...r, position: updatedPosition } : r))
+        );
+    } catch (error) {
+        console.error("❌ Error updating rack position:", error);
+    }
+};
+
   if (!warehouse.width || !warehouse.length) {
     return null; // Do not render if width or length is undefined
   }
@@ -90,7 +243,9 @@ export default function EditWarehouseLayout({
         style={{ aspectRatio }}
       >
         <div
-          className="warehouse-grid"
+          className={`warehouse-grid ${invalidDrop ? "bg-red-200" : ""}`}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleRackDrop}
           style={{
             position: "relative",
             width: "100%",
@@ -153,6 +308,28 @@ export default function EditWarehouseLayout({
               VAULTS
             </span>
           </div>
+
+          {racks.map((rack, index) => (
+            <div
+              key={index}
+              draggable
+              onDragStart={(e) => handleRackDragStart(e, rack)} // Set dataTransfer payload
+              onDragEnd={(e) => handleRackDragEnd(e, rack)} // Call updated drag end handler
+              style={{
+                position: "absolute",
+                top: `${(rack.position.y / warehouse.length) * 100}%`, // Use rack.position.y
+                left: `${(rack.position.x / warehouse.width) * 100}%`, // Use rack.position.x
+                width: `${(rack.position.width / warehouse.width) * 100}%`, // Use rack.position.width
+                height: `${(rack.position.height / warehouse.length) * 100}%`, // Use rack.position.height
+                backgroundColor: "rgba(0, 0, 255, 0.2)",
+                border: "1px solid blue",
+              }}
+            >
+              <span style={{ fontSize: "0.8rem", color: "black" }}>
+                {rack.name}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
     </>

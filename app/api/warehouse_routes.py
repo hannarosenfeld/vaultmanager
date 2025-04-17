@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
-from app.models import Warehouse, Field, Order, Vault, db
+from app.models import Warehouse, Field, Order, Vault, db, Rack
 
 warehouse_routes = Blueprint('warehouse', __name__)
 
@@ -184,3 +184,35 @@ def update_field_grid_position(warehouse_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+
+@warehouse_routes.route('/<int:warehouse_id>/racks', methods=['GET'])
+def get_racks(warehouse_id):
+    racks = Rack.query.filter_by(warehouse_id=warehouse_id).all()
+    return jsonify([rack.to_dict() for rack in racks])
+
+
+@warehouse_routes.route('/<int:warehouse_id>/racks', methods=['POST'])
+def add_rack(warehouse_id):
+    data = request.get_json()
+    warehouse = Warehouse.query.get(warehouse_id)
+
+    if not warehouse:
+        return jsonify({"error": "Warehouse not found"}), 404
+
+    new_rack = Rack(
+        name=data.get("name"),
+        capacity=data.get("capacity"),
+        warehouse_id=warehouse_id,
+        position=data.get("position"),
+        location=data.get("location"),
+    )
+
+    # Validate rack position
+    if not warehouse.validate_rack_position(new_rack):
+        return jsonify({"error": "Invalid rack position"}), 400
+
+    db.session.add(new_rack)
+    db.session.commit()
+
+    return jsonify(new_rack.to_dict()), 201

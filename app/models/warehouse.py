@@ -31,6 +31,43 @@ class Warehouse(db.Model):
         """Initialize the field grid as a 2D array with empty cells."""
         return [["" for _ in range(self.cols)] for _ in range(self.rows)]
 
+    def validate_rack_position(self, rack):
+        """Validate if a rack can be placed in the warehouse."""
+        rack_x = rack.position.get("x", 0)
+        rack_y = rack.position.get("y", 0)
+        rack_width = rack.position.get("width", 0)
+        rack_height = rack.position.get("height", 0)
+
+        # Debugging: Log rack position details
+        print(f"🔍 Validating rack position: x={rack_x}, y={rack_y}, width={rack_width}, height={rack_height}")
+
+        # Ensure the rack does not overlap with the field grid
+        field_x = self.fieldgrid_location.get("x", 0)
+        field_y = self.fieldgrid_location.get("y", 0)
+        field_width = self.cols
+        field_height = self.rows
+
+        overlaps_field_grid = (
+            rack_x < field_x + field_width and
+            rack_x + rack_width > field_x and
+            rack_y < field_y + field_height and
+            rack_y + rack_height > field_y
+        )
+
+        # Debugging: Log overlap check
+        print(f"🔍 Overlaps field grid: {overlaps_field_grid}")
+
+        # Ensure the rack is within warehouse bounds
+        within_bounds = (
+            0 <= rack_x <= self.width - rack_width and
+            0 <= rack_y <= self.length - rack_height
+        )
+
+        # Debugging: Log bounds check
+        print(f"🔍 Within warehouse bounds: {within_bounds}")
+
+        return within_bounds and not overlaps_field_grid
+
     def to_dict(self):
         return {
             'id': self.id,

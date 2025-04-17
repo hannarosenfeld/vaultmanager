@@ -47,11 +47,12 @@ export default function EditWarehousePage() {
   }, [dispatch, warehouseName, warehouses]);
 
   const openModal = (dir, operation) => {
-    setModalProps({ dir, operation, warehouseId: warehouse.id });
+    setModalProps({ dir, operation, warehouseId: warehouse?.id });
     setIsModalOpen(true);
   };
 
   const handleSubmit = (fieldCapacity) => {
+    if (!warehouse) return; // Prevent errors if warehouse is null
     dispatch(editFieldCapacityThunk(warehouse.id, fieldCapacity)).then(
       (response) => {
         if (response.error) {
@@ -65,12 +66,21 @@ export default function EditWarehousePage() {
 
   if (loading) return <LoadingSpinner />;
 
+  if (!warehouse) {
+    return (
+      <div className="flex flex-col items-center h-full mt-3">
+        <h2 className="mb-4 text-2xl font-bold">Warehouse Not Found</h2>
+        <p>The warehouse you are looking for does not exist.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col items-center h-full mt-3">
       <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2>
       {warehouse.width && warehouse.length && (
         <>
-          <hr class="w-full h-px my-4 bg-black" />
+          <hr className="w-full h-px my-4 bg-black" />
           <EditWarehouseLayout
             warehouse={warehouse}
             fieldGridPosition={fieldGridPosition}
@@ -79,9 +89,9 @@ export default function EditWarehousePage() {
           />
         </>
       )}
-      <br/>
-      <hr class="w-full h-px my-8 bg-black"/>
-      
+      <br />
+      <hr className="w-full h-px my-8 bg-black" />
+
       <ToggleBox viewMode={viewMode} setViewMode={setViewMode} />
 
       {viewMode === "Warehouse" ? (
