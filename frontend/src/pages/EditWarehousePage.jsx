@@ -68,19 +68,20 @@ export default function EditWarehousePage() {
   return (
     <div className="flex flex-col items-center h-full mt-3">
       <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2>
-      <hr class="w-full h-px my-4 bg-black"/>
-      <EditWarehouseLayout
-        warehouse={warehouse}
-        fieldGridPosition={fieldGridPosition}
-        setFieldGridPosition={setFieldGridPosition}
-        openModal={openModal}
-      />
+      {warehouse.width && warehouse.length && (
+        <>
+          <hr class="w-full h-px my-4 bg-black" />
+          <EditWarehouseLayout
+            warehouse={warehouse}
+            fieldGridPosition={fieldGridPosition}
+            setFieldGridPosition={setFieldGridPosition}
+            openModal={openModal}
+          />
+        </>
+      )}
       <br/>
-
-      {/* insert a dividing line here */}
       <hr class="w-full h-px my-8 bg-black"/>
-
-
+      
       <ToggleBox viewMode={viewMode} setViewMode={setViewMode} />
 
       {viewMode === "Warehouse" ? (

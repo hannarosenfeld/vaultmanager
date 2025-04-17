@@ -74,6 +74,10 @@ export default function EditWarehouseLayout({
     }
   };
 
+  if (!warehouse.width || !warehouse.length) {
+    return null; // Do not render if width or length is undefined
+  }
+
   return (
     <>
     <h2 className="text-lg font-bold">Edit Warehouse Layout</h2>
