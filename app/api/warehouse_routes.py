@@ -164,28 +164,6 @@ def edit_field_capacity(warehouse_id):
         return jsonify({'error': str(e)}), 500
 
 
-@warehouse_routes.route('/<int:warehouse_id>/field-grid', methods=['PUT'])
-def update_field_grid_position(warehouse_id):
-    """
-    Update the field grid location for a specific warehouse.
-    """
-    print("🍑 we are in the route")
-    data = request.get_json()
-    warehouse = Warehouse.query.get(warehouse_id)
-
-    if not warehouse:
-        return jsonify({"error": "Warehouse not found"}), 404
-
-    try:
-        # Update the field grid location
-        warehouse.fieldgrid_location = data.get('fieldgridLocation', warehouse.fieldgrid_location)
-        db.session.commit()
-        return jsonify({"message": "Field grid location updated successfully"}), 200
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"error": str(e)}), 500
-
-
 @warehouse_routes.route('/<int:warehouse_id>/racks', methods=['GET'])
 def get_racks(warehouse_id):
     racks = Rack.query.filter_by(warehouse_id=warehouse_id).all()

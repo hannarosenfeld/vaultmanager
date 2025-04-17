@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { throttle } from "lodash";
 import RackCreator from "./RackCreator";
-import { useDispatch } from 'react-redux';
-import { moveRackThunk } from '../../../store/rack'; // Import moveRackThunk
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchRacksThunk, addRackThunk, moveRackThunk } from '../../../store/rack';
 
 export default function EditWarehouseLayout({
   warehouse,
@@ -14,55 +14,24 @@ export default function EditWarehouseLayout({
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragPreviewPosition, setDragPreviewPosition] = useState(null);
+  const [invalidDrop, setInvalidDrop] = useState(false); // Define invalidDrop with a default value
   const aspectRatio = warehouse.width / warehouse.length;
 
-  const [racks, setRacks] = useState([]);
-  const [invalidDrop, setInvalidDrop] = useState(false);
-
   const dispatch = useDispatch();
+  const racks = useSelector((state) => state.rack.racks);
 
-  // Initialize racks state with existing racks from the warehouse
+  // Fetch racks when the component mounts
   useEffect(() => {
-    if (warehouse.racks) {
-      setRacks(warehouse.racks);
-    }
-  }, [warehouse.racks]);
-
-  // Fetch racks from the database when the component mounts
-  useEffect(() => {
-    const fetchRacks = async () => {
-      try {
-        const response = await fetch(`/api/warehouse/${warehouse.id}/racks`);
-        if (response.ok) {
-          const data = await response.json();
-          setRacks(data);
-        } else {
-          console.error("Error fetching racks:", await response.json());
-        }
-      } catch (error) {
-        console.error("Error fetching racks:", error);
-      }
-    };
-
     if (warehouse.id) {
-      fetchRacks();
+      dispatch(fetchRacksThunk(warehouse.id));
     }
-  }, [warehouse.id]);
+  }, [warehouse.id, dispatch]);
 
   // Utility function to clamp coordinates
   const clampPosition = (x, y, width, height, maxWidth, maxHeight) => ({
     x: Math.max(0, Math.min(x, maxWidth - width)),
     y: Math.max(0, Math.min(y, maxHeight - height)),
   });
-
-  // Utility function to update rack position in state
-  const updateRackPositionInState = (rackId, updatedPosition, setRacks) => {
-    setRacks((prev) =>
-      prev.map((rack) =>
-        rack.id === rackId ? { ...rack, position: updatedPosition } : rack
-      )
-    );
-  };
 
   const handleDragStart = (e) => {
     e.dataTransfer.setDragImage(new Image(), 0, 0);
@@ -158,58 +127,14 @@ export default function EditWarehouseLayout({
     };
 
     if (rackData.id) {
-      console.log("🔄 Moving existing rack:", { id: rackData.id, updatedPosition });
-
-      try {
-        const response = await fetch(
-          `/api/warehouse/${warehouse.id}/rack/${rackData.id}`,
-          {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ position: updatedPosition }),
-          }
-        );
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log("✅ Rack position updated successfully:", data);
-          updateRackPositionInState(rackData.id, updatedPosition, setRacks);
-        } else {
-          console.error("❌ Error updating rack position:", await response.json());
-        }
-      } catch (error) {
-        console.error("❌ Error updating rack position:", error);
-      }
+      dispatch(moveRackThunk(warehouse.id, rackData.id, updatedPosition));
     } else {
       const newRack = {
         name: rackData.name || "Unnamed Rack",
         capacity: 100,
         position: updatedPosition,
       };
-
-      console.log("📍 Creating new rack:", newRack);
-
-      try {
-        const response = await fetch(`/api/racks/warehouse/${warehouse.id}/add`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newRack),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log("✅ Rack saved successfully:", data);
-          setRacks((prev) => [...prev, data]);
-        } else {
-          console.error("❌ Error saving rack position:", await response.json());
-        }
-      } catch (error) {
-        console.error("❌ Error saving rack position:", error);
-      }
+      dispatch(addRackThunk(warehouse.id, newRack));
     }
   };
 
@@ -225,14 +150,6 @@ export default function EditWarehouseLayout({
         y: rack.position.y,
       })
     );
-    console.log("📦 Dragging rack:", {
-      id: rack.id,
-      name: rack.name,
-      width: rack.position.width,
-      height: rack.position.height,
-      x: rack.position.x,
-      y: rack.position.y,
-    });
   };
 
   const handleRackDragEnd = (e, rack) => {
@@ -251,9 +168,6 @@ export default function EditWarehouseLayout({
       warehouse.length
     );
 
-    console.log("🔄 Moving rack:", { id: rack.id, updatedPosition });
-
-    // Dispatch the thunk to update the rack position
     dispatch(moveRackThunk(warehouse.id, rack.id, updatedPosition));
   };
 
@@ -264,10 +178,7 @@ export default function EditWarehouseLayout({
   return (
     <>
       <h2 className="text-lg font-bold">Edit Warehouse Layout</h2>
-      {/* Rack Selection */}
       <RackCreator />
-
-      {/* Warehouse Visual */}
       <div
         className="relative w-full overflow-hidden bg-white"
         style={{ aspectRatio }}
@@ -323,9 +234,9 @@ export default function EditWarehouseLayout({
               }%`,
               cursor: "grab",
               backgroundColor: "rgba(0, 0, 255, 0.1)",
-              display: "flex", // Added to center content
-              alignItems: "center", // Center vertically
-              justifyContent: "center", // Center horizontally
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             <span
@@ -343,14 +254,14 @@ export default function EditWarehouseLayout({
             <div
               key={index}
               draggable
-              onDragStart={(e) => handleRackDragStart(e, rack)} // Set dataTransfer payload
-              onDragEnd={(e) => handleRackDragEnd(e, rack)} // Call updated drag end handler
+              onDragStart={(e) => handleRackDragStart(e, rack)}
+              onDragEnd={(e) => handleRackDragEnd(e, rack)}
               style={{
                 position: "absolute",
-                top: `${(rack.position.y / warehouse.length) * 100}%`, // Use rack.position.y
-                left: `${(rack.position.x / warehouse.width) * 100}%`, // Use rack.position.x
-                width: `${(rack.position.width / warehouse.width) * 100}%`, // Use rack.position.width
-                height: `${(rack.position.height / warehouse.length) * 100}%`, // Use rack.position.height
+                top: `${(rack.position.y / warehouse.length) * 100}%`,
+                left: `${(rack.position.x / warehouse.width) * 100}%`,
+                width: `${(rack.position.width / warehouse.width) * 100}%`,
+                height: `${(rack.position.height / warehouse.length) * 100}%`,
                 backgroundColor: "rgba(0, 0, 255, 0.2)",
                 border: "1px solid blue",
               }}

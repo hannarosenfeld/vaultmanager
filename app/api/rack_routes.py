@@ -50,18 +50,7 @@ def add_rack_to_warehouse(warehouse_id):
     return jsonify(new_rack.to_dict()), 201
 
 
-@rack_routes.route('/warehouse/<int:warehouse_id>/remove/<int:rack_id>', methods=['DELETE'])
-def remove_rack_from_warehouse(warehouse_id, rack_id):
-    rack = Rack.query.filter_by(id=rack_id, warehouse_id=warehouse_id).first()
-
-    if not rack:
-        return jsonify({'error': 'Rack not found'}), 404
-
-    db.session.delete(rack)
-    db.session.commit()
-    return jsonify({'message': 'Rack removed successfully'}), 200
-
-@rack_routes.route('/warehouse/<int:warehouse_id>/rack/<int:rack_id>', methods=['PUT'])
+@rack_routes.route('/<int:warehouse_id>/rack/<int:rack_id>', methods=['PUT'])
 def update_rack_position(warehouse_id, rack_id):
     print("💖💖💖💖💖💖💖💖💖💖")
     print(f"🔄 Updating position for rack {rack_id} in warehouse {warehouse_id}")
