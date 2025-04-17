@@ -62,7 +62,7 @@ export default function RackCreator() {
 
             <div className="flex gap-2 mb-2">
               <div className="flex-1">
-                <label className="block text-sm font-medium">Width (ft)</label>
+                <label className="block text-sm font-medium">Length (ft)</label>
                 <input
                   type="number"
                   className="w-full p-2 border rounded"
@@ -76,7 +76,7 @@ export default function RackCreator() {
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-sm font-medium">Height (ft)</label>
+                <label className="block text-sm font-medium">Width (ft)</label>
                 <input
                   type="number"
                   className="w-full p-2 border rounded"
