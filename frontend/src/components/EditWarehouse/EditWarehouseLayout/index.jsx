@@ -200,11 +200,16 @@ export default function EditWarehouseLayout({
       const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
       const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
+      // Determine rack dimensions based on its direction
+      const isHorizontal = rack.direction === "horizontal";
+      const rackWidth = isHorizontal ? rack.position.width : rack.position.height;
+      const rackHeight = isHorizontal ? rack.position.height : rack.position.width;
+
       const { x: clampedX, y: clampedY } = clampPosition(
         x,
         y,
-        rack.position.width,
-        rack.position.height,
+        rackWidth,
+        rackHeight,
         warehouse.width,
         warehouse.length
       );
@@ -212,8 +217,8 @@ export default function EditWarehouseLayout({
       setRackDragPreview({
         x: clampedX,
         y: clampedY,
-        width: rack.position.width,
-        height: rack.position.height,
+        width: rackWidth,
+        height: rackHeight,
       });
     }, 100),
     [warehouse]
