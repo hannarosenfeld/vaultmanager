@@ -13,6 +13,7 @@ def get_racks_for_warehouse(warehouse_id):
 def add_rack_to_warehouse(warehouse_id):
     data = request.get_json()
     position = data.get('position')  # Expecting x, y, width, height
+    direction = data.get('direction', 'vertical')  # Default to vertical if not provided
     name = data.get('name', f"Rack in Warehouse {warehouse_id}")
     capacity = data.get('capacity', 100)
     location = data.get('location', f"Rack-{warehouse_id}-{position.get('x', 0)}-{position.get('y', 0)}")
@@ -31,6 +32,7 @@ def add_rack_to_warehouse(warehouse_id):
         capacity=capacity,
         warehouse_id=warehouse_id,
         position=position,
+        direction=direction,  # Save direction
         location=location  # Ensure location is set
     )
 
@@ -57,6 +59,7 @@ def update_rack_position(warehouse_id, rack_id):
     """
     data = request.get_json()
     new_position = data.get('position')
+    direction = data.get('direction', 'vertical')  # Default to vertical if not provided
 
     # Debugging: Log the received position data
     print(f"🔍 Received position data: {new_position}")
@@ -73,6 +76,9 @@ def update_rack_position(warehouse_id, rack_id):
 
         if any(value is None or not isinstance(value, (int, float)) for value in [x, y, width, height]):
             raise ValueError("Position values must be valid numbers.")
+
+        # Debugging: Log validated position data
+        print(f"✅ Validated position data: {new_position}")
 
     except Exception as e:
         print(f"❌ Invalid position data: {e}")
@@ -92,10 +98,14 @@ def update_rack_position(warehouse_id, rack_id):
     # Validate the new position
     try:
         rack.position = new_position
+        rack.direction = direction  # Update direction
         if not warehouse.validate_rack_position(rack):
+            print(f"❌ Rack position validation failed for position: {new_position}")
+            # Debugging: Log specific reasons for failure
+            print(f"🔍 Warehouse dimensions: width={warehouse.width}, length={warehouse.length}")
+            print(f"🔍 Rack dimensions: width={rack.position['width']}, height={rack.position['height']}")
             return jsonify({'error': 'Invalid rack position'}), 400
     except Exception as e:
-        # Debugging: Log validation error
         print(f"❌ Error validating rack position: {e}")
         return jsonify({'error': 'Invalid position data', 'details': str(e)}), 400
 

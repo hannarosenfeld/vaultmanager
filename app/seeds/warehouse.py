@@ -11,6 +11,8 @@ def seed_warehouse(users, fields, orders):
     warehouse.name = "Warehouse 4"
     warehouse.cols = 9
     warehouse.rows = 12
+    warehouse.width = 100
+    warehouse.length = 100
     warehouse.warehouse_fields = allFields
     warehouse.users = user_instances
     warehouse.orders = order_instances

@@ -46,7 +46,7 @@ export const addRackThunk = (warehouseId, newRack) => async (dispatch) => {
 
     if (response.ok) {
       const data = await response.json();
-      dispatch(addRack(data));
+      dispatch(addRack(data)); // Update Redux state immediately
       console.log('✅ Rack added successfully:', data);
     } else {
       console.error('❌ Error adding rack:', await response.json());
@@ -57,12 +57,12 @@ export const addRackThunk = (warehouseId, newRack) => async (dispatch) => {
 };
 
 export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (dispatch) => {
-  // Ensure all required fields are included in the position object
   const position = {
     x: updatedPosition.x || 0,
     y: updatedPosition.y || 0,
     width: updatedPosition.width || 0,
     height: updatedPosition.height || 0,
+    direction: updatedPosition.direction || "vertical", // Default to vertical if not provided
   };
 
   try {
@@ -76,7 +76,7 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
 
     if (response.ok) {
       const data = await response.json();
-      dispatch(updateRackPosition(rackId, position));
+      dispatch(updateRackPosition(rackId, position)); // Update Redux state immediately
       console.log('✅ Rack position updated successfully:', data);
     } else {
       const error = await response.json();

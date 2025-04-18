@@ -17,6 +17,7 @@ class Rack(db.Model):
     )
     location = db.Column(db.String(50), nullable=False)
     position = db.Column(JSON, nullable=False, default={"x": 0.0, "y": 0.0})  # Use float for precision
+    direction = db.Column(db.String(10), nullable=False, default="vertical")  # Add direction field
 
     # Relationship with Warehouse
     warehouse = db.relationship('Warehouse', back_populates='racks')
@@ -32,6 +33,7 @@ class Rack(db.Model):
             'warehouseId': self.warehouse_id,
             'location': self.location,  # Include location in the response
             'position': self.position,  # Include position in the response
+            'direction': self.direction,  # Include direction in the response
             'shelves': [shelf.to_dict() for shelf in self.shelves],
         }
 

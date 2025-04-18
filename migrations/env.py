@@ -21,7 +21,10 @@ SCHEMA = os.environ.get("SCHEMA")
 config = context.config
 
 # Interpret the config file for Python logging.
-fileConfig(config.config_file_name)
+# This line sets up loggers basically.
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
+
 logger = logging.getLogger('alembic.env')
 
 with app.app_context():

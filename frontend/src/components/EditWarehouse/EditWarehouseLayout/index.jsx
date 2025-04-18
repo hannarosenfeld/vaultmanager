@@ -18,6 +18,9 @@ export default function EditWarehouseLayout({
   const [invalidDrop, setInvalidDrop] = useState(false); // Define invalidDrop with a default value
   const aspectRatio = warehouse.width / warehouse.length;
 
+  const [rackDragPreview, setRackDragPreview] = useState(null); // Add state for rack drag preview
+  const [initialRackPreview, setInitialRackPreview] = useState(null); // State for initial rack placement preview
+
   const dispatch = useDispatch();
   const racks = useSelector((state) => state.rack.racks);
 
@@ -36,13 +39,17 @@ export default function EditWarehouseLayout({
     const validWidth = isNaN(width) || width === null ? 0 : width;
     const validHeight = isNaN(height) || height === null ? 0 : height;
 
-    // Debugging: Log the validated input values
-    console.log("🔍 Validating clampPosition inputs:", { validX, validY, validWidth, validHeight });
+    // Debugging: Log the input values
+    console.log("🔍 clampPosition inputs:", { validX, validY, validWidth, validHeight, maxWidth, maxHeight });
 
-    return {
-      x: Math.max(0, Math.min(validX, maxWidth - validWidth)),
-      y: Math.max(0, Math.min(validY, maxHeight - validHeight)),
-    };
+    // Adjust clamping to ensure racks can be placed exactly at the top border
+    const clampedX = Math.max(0, Math.min(validX, maxWidth - validWidth));
+    const clampedY = Math.max(0, Math.min(validY, maxHeight - validHeight));
+
+    // Debugging: Log the clamped values
+    console.log("✅ Clamped position:", { clampedX, clampedY });
+
+    return { x: clampedX, y: clampedY };
   };
 
   const handleDragStart = (e) => {
@@ -103,6 +110,11 @@ export default function EditWarehouseLayout({
 
   const handleRackDrop = async (e) => {
     const warehouseEl = e.target.closest(".warehouse-grid");
+    if (!warehouseEl) {
+      console.error("❌ Warehouse grid element not found during drop.");
+      return;
+    }
+
     const rect = warehouseEl.getBoundingClientRect();
 
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
@@ -112,11 +124,11 @@ export default function EditWarehouseLayout({
     try {
       rackData = JSON.parse(e.dataTransfer.getData("rack"));
     } catch (error) {
-      console.error("Error parsing rack data:", error);
+      console.error("❌ Error parsing rack data from drop event:", error);
       return; // Exit if rack data is invalid
     }
 
-    console.log("📦 Rack data from drag event:", rackData);
+    console.log("📦 Rack data from drop event:", rackData);
 
     const { x: clampedX, y: clampedY } = clampPosition(
       x,
@@ -134,16 +146,33 @@ export default function EditWarehouseLayout({
       height: rackData.height,
     };
 
-    if (rackData.id) {
-      dispatch(moveRackThunk(warehouse.id, rackData.id, updatedPosition));
-    } else {
-      const newRack = {
-        name: rackData.name || "Unnamed Rack",
-        capacity: 100,
-        position: updatedPosition,
-      };
-      dispatch(addRackThunk(warehouse.id, newRack));
+    try {
+      if (rackData.id) {
+        // Update existing rack position
+        await dispatch(
+          moveRackThunk(warehouse.id, rackData.id, {
+            ...updatedPosition,
+            direction: rackData.direction, // Include direction
+          })
+        );
+        console.log("✅ Rack moved successfully:", updatedPosition);
+      } else {
+        // Add a new rack
+        const newRack = {
+          name: rackData.name || "Unnamed Rack",
+          capacity: 100,
+          position: updatedPosition,
+          direction: rackData.direction, // Include direction
+        };
+        await dispatch(addRackThunk(warehouse.id, newRack));
+        console.log("✅ New rack added successfully:", newRack);
+      }
+    } catch (error) {
+      console.error("❌ Error handling rack drop:", error);
     }
+
+    setRackDragPreview(null); // Clear rack drag preview after drop
+    setInitialRackPreview(null); // Clear initial rack preview
   };
 
   const handleRackDragStart = (e, rack) => {
@@ -156,9 +185,39 @@ export default function EditWarehouseLayout({
         height: rack.position.height,
         x: rack.position.x,
         y: rack.position.y,
+        direction: rack.direction, // Include direction
       })
     );
+    setInitialRackPreview(rack); // Set the initial rack preview
   };
+
+  const handleRackDrag = useCallback(
+    throttle((e, rack) => {
+      const warehouseEl = e.target.closest(".warehouse-grid");
+      if (!warehouseEl) return;
+      const rect = warehouseEl.getBoundingClientRect();
+
+      const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
+      const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
+
+      const { x: clampedX, y: clampedY } = clampPosition(
+        x,
+        y,
+        rack.position.width,
+        rack.position.height,
+        warehouse.width,
+        warehouse.length
+      );
+
+      setRackDragPreview({
+        x: clampedX,
+        y: clampedY,
+        width: rack.position.width,
+        height: rack.position.height,
+      });
+    }, 100),
+    [warehouse]
+  );
 
   const handleRackDragEnd = async (e, rack) => {
     const warehouseEl = e.target.closest(".warehouse-grid");
@@ -194,12 +253,15 @@ export default function EditWarehouseLayout({
           ...updatedPosition,
           width: rack.position.width, // Include width
           height: rack.position.height, // Include height
+          direction: rack.direction, // Include direction
         })
       );
       console.log("✅ Rack position saved:", updatedPosition);
     } catch (error) {
       console.error("❌ Error saving rack position:", error);
     }
+
+    setRackDragPreview(null); // Clear rack drag preview
   };
 
   if (!warehouse.width || !warehouse.length) {
@@ -248,6 +310,38 @@ export default function EditWarehouseLayout({
             />
           )}
 
+          {rackDragPreview && (
+            <div
+              style={{
+                position: "absolute",
+                top: `${(rackDragPreview.y / warehouse.length) * 100}%`,
+                left: `${(rackDragPreview.x / warehouse.width) * 100}%`,
+                width: `${(rackDragPreview.width / warehouse.width) * 100}%`,
+                height: `${(rackDragPreview.height / warehouse.length) * 100}%`,
+                backgroundColor: "rgba(0, 255, 0, 0.2)",
+                border: "2px dashed green",
+                pointerEvents: "none",
+              }}
+            />
+          )}
+
+          {initialRackPreview && (
+            <div
+              style={{
+                position: "absolute",
+                top: "0%", // Default preview position
+                left: "0%",
+                width: `${(initialRackPreview.width / warehouse.width) * 100}%`,
+                height: `${
+                  (initialRackPreview.height / warehouse.length) * 100
+                }%`,
+                backgroundColor: "rgba(255, 165, 0, 0.2)",
+                border: "2px dashed orange",
+                pointerEvents: "none",
+              }}
+            />
+          )}
+
           <div
             draggable
             onDragStart={handleDragStart}
@@ -281,38 +375,46 @@ export default function EditWarehouseLayout({
             </span>
           </div>
 
-          {racks.map((rack, index) => (
-            <div
-              key={index}
-              draggable
-              onDragStart={(e) => handleRackDragStart(e, rack)}
-              onDragEnd={(e) => handleRackDragEnd(e, rack)}
-              style={{
-                position: "absolute",
-                top: `${(rack.position.y / warehouse.length) * 100}%`,
-                left: `${(rack.position.x / warehouse.width) * 100}%`,
-                width: `${((rack.position.width || 1) / warehouse.width) * 100}%`, // Fallback to 1 if width is missing
-                height: `${((rack.position.height || 1) / warehouse.length) * 100}%`, // Fallback to 1 if height is missing
-                backgroundColor: "rgba(0, 0, 255, 0.2)",
-                border: "1px solid blue",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                overflow: "hidden", // Hide overflow
-              }}
-            >
-              <span
-                className="text-xs text-center"
+          {racks.map((rack, index) => {
+            // Determine rack dimensions based on its direction
+            const isHorizontal = rack.direction === "horizontal";
+            const rackWidth = isHorizontal ? rack.position.width : rack.position.height;
+            const rackHeight = isHorizontal ? rack.position.height : rack.position.width;
+          
+            return (
+              <div
+                key={index}
+                draggable
+                onDragStart={(e) => handleRackDragStart(e, rack)}
+                onDrag={(e) => handleRackDrag(e, rack)}
+                onDragEnd={(e) => handleRackDragEnd(e, rack)}
                 style={{
-                  whiteSpace: "nowrap", // Prevent text wrapping
-                  overflow: "hidden", // Hide overflow
-                  textOverflow: "ellipsis", // Add ellipsis for overflowed text
+                  position: "absolute",
+                  top: `${(rack.position.y / warehouse.length) * 100}%`,
+                  left: `${(rack.position.x / warehouse.width) * 100}%`,
+                  width: `${(rackWidth / warehouse.width) * 100}%`,
+                  height: `${(rackHeight / warehouse.length) * 100}%`,
+                  backgroundColor: "rgba(0, 0, 255, 0.2)",
+                  border: "1px solid blue",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
                 }}
               >
-                {rack.name}
-              </span>
-            </div>
-          ))}
+                <span
+                  className="text-xs text-center"
+                  style={{
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {rack.name}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
     </>

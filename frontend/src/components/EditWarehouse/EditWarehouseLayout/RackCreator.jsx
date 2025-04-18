@@ -137,10 +137,10 @@ export default function RackCreator() {
                 e.dataTransfer.setData(
                   "rack",
                   JSON.stringify({
-                    name: selectedDimension.name || "Unnamed Rack", // Include the rack name
+                    name: selectedDimension.name || "Unnamed Rack",
                     width: selectedDimension.width,
                     height: selectedDimension.height,
-                    direction: selectedDirection.id,
+                    direction: selectedDirection.id, // Include the direction
                   })
                 );
               }}
