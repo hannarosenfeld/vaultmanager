@@ -12,7 +12,9 @@ def get_racks_for_warehouse(warehouse_id):
 @rack_routes.route('/warehouse/<int:warehouse_id>/add', methods=['POST'])
 def add_rack_to_warehouse(warehouse_id):
     data = request.get_json()
-    position = data.get('position')  # Expecting x, y, width, height
+    position = data.get('position', {})
+    position['width'] = position.get('width', 1.0)  # Default width
+    position['height'] = position.get('height', 1.0)  # Default height
     orientation = data.get('orientation', 'vertical')  # Default to vertical if not provided
     name = data.get('name', f"Rack in Warehouse {warehouse_id}")
     capacity = data.get('capacity', 100)
@@ -58,10 +60,12 @@ def update_rack_position(warehouse_id, rack_id):
     Update the position of a rack in the warehouse.
     """
     data = request.get_json()
-    new_position = data.get('position')
+    new_position = data.get('position', {})
+    new_position['width'] = new_position.get('width', 1.0)  # Default width
+    new_position['height'] = new_position.get('height', 1.0)  # Default height
 
     # Ensure orientation is retrieved from the request
-    orientation = data.get('position', {}).get('orientation')
+    orientation = new_position.get('orientation')
     if orientation is None:
         return jsonify({'error': 'Orientation is required'}), 400
 

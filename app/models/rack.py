@@ -8,16 +8,18 @@ class Rack(db.Model):
         __table_args__ = {'schema': SCHEMA}
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    capacity = db.Column(db.Integer, nullable=False)
+    name = db.Column(db.String(100))
+    capacity = db.Column(db.Integer)
     warehouse_id = db.Column(
         db.Integer,
         db.ForeignKey(add_prefix_for_prod('warehouses.id')),
-        nullable=False
+
     )
-    location = db.Column(db.String(50), nullable=False)
-    position = db.Column(JSON, nullable=False, default={"x": 0.0, "y": 0.0})
+    location = db.Column(db.String(50))
+    position = db.Column(JSON, default={"x": 0.0, "y": 0.0})
     orientation = db.Column(db.String(10), default="vertical")
+    width = db.Column(db.Float, default=1.0)  # Add width property
+    length = db.Column(db.Float, default=1.0)  # Add length property
 
     # Relationship with Warehouse
     warehouse = db.relationship('Warehouse', back_populates='racks')
@@ -34,6 +36,8 @@ class Rack(db.Model):
             'location': self.location,
             'position': self.position,
             'orientation': self.orientation,  # Ensure orientation is included
+            'width': self.width,  # Include width in the dictionary
+            'length': self.length,  # Include length in the dictionary
             'shelves': [shelf.to_dict() for shelf in self.shelves],
         }
 

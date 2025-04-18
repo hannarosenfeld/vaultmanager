@@ -142,8 +142,8 @@ export default function EditWarehouseLayout({
     const updatedPosition = {
       x: clampedX,
       y: clampedY,
-      width: rackData.width,
-      height: rackData.height,
+      width: rackData.width || 1.0, // Default width
+      height: rackData.height || 1.0, // Default height
     };
 
     try {
@@ -236,8 +236,8 @@ export default function EditWarehouseLayout({
     const updatedPosition = clampPosition(
       x,
       y,
-      rack.position.width,
-      rack.position.height,
+      rack.position.width || 1.0, // Default width
+      rack.position.height || 1.0, // Default height
       warehouse.width,
       warehouse.length
     );
@@ -255,7 +255,7 @@ export default function EditWarehouseLayout({
           ...updatedPosition,
           width: rack.position.width,
           height: rack.position.height,
-          orientation: rack.orientation,
+          orientation: rack.orientation, // Ensure orientation is included
         })
       );
 
