@@ -231,22 +231,19 @@ export default function EditWarehouseLayout({
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    // Debugging: Log the raw input values
     console.log("🔍 Raw input values for rack position:", { x, y });
 
     const updatedPosition = clampPosition(
       x,
       y,
-      rack.position.width, // Ensure width is preserved
-      rack.position.height, // Ensure height is preserved
+      rack.position.width,
+      rack.position.height,
       warehouse.width,
       warehouse.length
     );
 
-    // Debugging: Log the calculated position
     console.log("🔍 Calculated rack position:", updatedPosition);
 
-    // Validate position before sending to the backend
     if (isNaN(updatedPosition.x) || isNaN(updatedPosition.y)) {
       console.error("❌ Invalid rack position:", updatedPosition);
       return;
@@ -256,17 +253,32 @@ export default function EditWarehouseLayout({
       await dispatch(
         updateRackPositionThunk(warehouse.id, rack.id, {
           ...updatedPosition,
-          width: rack.position.width, // Include width
-          height: rack.position.height, // Include height
-          orientation: rack.orientation, // Rename to orientation
+          width: rack.position.width,
+          height: rack.position.height,
+          orientation: rack.orientation,
         })
       );
+
       console.log("✅ Rack position saved:", updatedPosition);
+
+      // Update the local Redux state to reflect the changes immediately
+      const updatedRacks = racks.map((r) =>
+        r.id === rack.id
+          ? { ...r, position: updatedPosition, orientation: rack.orientation }
+          : r
+      );
+      dispatch({ type: "rack/SET_RACKS", racks: updatedRacks });
     } catch (error) {
       console.error("❌ Error saving rack position:", error);
     }
 
-    setRackDragPreview(null); // Clear rack drag preview
+    setRackDragPreview(null);
+    setInitialRackPreview(null);
+  };
+
+  const handleRackClick = (rack) => {
+    console.log("🛠 Rack Info:", rack);
+    alert(`Rack Info:\nName: ${rack.name}\nOrientation: ${rack.orientation}\nPosition: (${rack.position.x}, ${rack.position.y})`);
   };
 
   if (!warehouse.width || !warehouse.length) {
@@ -382,7 +394,7 @@ export default function EditWarehouseLayout({
 
           {racks.map((rack, index) => {
             // Determine rack dimensions based on its orientation
-            const isHorizontal = rack.orientation === "horizontal"; // Rename to orientation
+            const isHorizontal = rack.orientation === "horizontal"; // Ensure orientation is used
             const rackWidth = isHorizontal ? rack.position.width : rack.position.height;
             const rackHeight = isHorizontal ? rack.position.height : rack.position.width;
           
@@ -393,6 +405,7 @@ export default function EditWarehouseLayout({
                 onDragStart={(e) => handleRackDragStart(e, rack)}
                 onDrag={(e) => handleRackDrag(e, rack)}
                 onDragEnd={(e) => handleRackDragEnd(e, rack)}
+                onClick={() => handleRackClick(rack)} // Add onClick handler
                 style={{
                   position: "absolute",
                   top: `${(rack.position.y / warehouse.length) * 100}%`,
@@ -405,6 +418,7 @@ export default function EditWarehouseLayout({
                   alignItems: "center",
                   justifyContent: "center",
                   overflow: "hidden",
+                  cursor: "pointer", // Indicate clickable
                 }}
               >
                 <span

@@ -7,7 +7,7 @@ rack_routes = Blueprint('racks', __name__)
 @rack_routes.route('/warehouse/<int:warehouse_id>', methods=['GET'])
 def get_racks_for_warehouse(warehouse_id):
     racks = Rack.query.filter_by(warehouse_id=warehouse_id).all()
-    return jsonify([rack.to_dict() for rack in racks])
+    return jsonify([rack.to_dict() for rack in racks])  # Ensure orientation is included in to_dict()
 
 @rack_routes.route('/warehouse/<int:warehouse_id>/add', methods=['POST'])
 def add_rack_to_warehouse(warehouse_id):
@@ -59,7 +59,11 @@ def update_rack_position(warehouse_id, rack_id):
     """
     data = request.get_json()
     new_position = data.get('position')
-    orientation = data.get('orientation', 'vertical')  # Default to vertical if not provided
+
+    # Ensure orientation is retrieved from the request
+    orientation = data.get('position', {}).get('orientation')
+    if orientation is None:
+        return jsonify({'error': 'Orientation is required'}), 400
 
     # Debugging: Log the received position data
     print(f"🔍 Received position data: {new_position}")
@@ -84,9 +88,6 @@ def update_rack_position(warehouse_id, rack_id):
         print(f"❌ Invalid position data: {e}")
         return jsonify({'error': 'Invalid position data', 'details': str(e)}), 400
 
-    # Debugging: Log validated position data
-    print(f"✅ Validated position data: {new_position}")
-
     rack = Rack.query.filter_by(id=rack_id, warehouse_id=warehouse_id).first()
     if not rack:
         return jsonify({'error': 'Rack not found'}), 404
@@ -98,12 +99,9 @@ def update_rack_position(warehouse_id, rack_id):
     # Validate the new position
     try:
         rack.position = new_position
-        rack.orientation = orientation  # Update orientation
+        rack.orientation = orientation  # Save the updated orientation
         if not warehouse.validate_rack_position(rack):
             print(f"❌ Rack position validation failed for position: {new_position}")
-            # Debugging: Log specific reasons for failure
-            print(f"🔍 Warehouse dimensions: width={warehouse.width}, length={warehouse.length}")
-            print(f"🔍 Rack dimensions: width={rack.position['width']}, height={rack.position['height']}")
             return jsonify({'error': 'Invalid rack position'}), 400
     except Exception as e:
         print(f"❌ Error validating rack position: {e}")
@@ -113,7 +111,6 @@ def update_rack_position(warehouse_id, rack_id):
         db.session.commit()
         return jsonify({'message': 'Rack position updated successfully', 'rack': rack.to_dict()}), 200
     except Exception as e:
-        # Debugging: Log the exception
         print(f"❌ Error updating rack position: {e}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500

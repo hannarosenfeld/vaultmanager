@@ -62,7 +62,7 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
     y: updatedPosition.y || 0,
     width: updatedPosition.width || 0,
     height: updatedPosition.height || 0,
-    orientation: updatedPosition.orientation || "vertical",
+    orientation: updatedPosition.orientation, // Ensure orientation is included
   };
 
   try {
@@ -71,12 +71,12 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ position: { ...position, orientation: position.orientation } }),
+      body: JSON.stringify({ position }),
     });
 
     if (response.ok) {
       const data = await response.json();
-      dispatch(updateRackPosition(rackId, position));
+      dispatch(updateRackPosition(rackId, position)); // Update Redux state immediately
       console.log('✅ Rack position updated successfully:', data);
     } else {
       const error = await response.json();

@@ -33,7 +33,7 @@ class Rack(db.Model):
             'warehouseId': self.warehouse_id,
             'location': self.location,
             'position': self.position,
-            'orientation': self.orientation,
+            'orientation': self.orientation,  # Ensure orientation is included
             'shelves': [shelf.to_dict() for shelf in self.shelves],
         }
 
