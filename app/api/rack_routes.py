@@ -13,7 +13,7 @@ def get_racks_for_warehouse(warehouse_id):
 def add_rack_to_warehouse(warehouse_id):
     data = request.get_json()
     position = data.get('position')  # Expecting x, y, width, height
-    direction = data.get('direction', 'vertical')  # Default to vertical if not provided
+    orientation = data.get('orientation', 'vertical')  # Default to vertical if not provided
     name = data.get('name', f"Rack in Warehouse {warehouse_id}")
     capacity = data.get('capacity', 100)
     location = data.get('location', f"Rack-{warehouse_id}-{position.get('x', 0)}-{position.get('y', 0)}")
@@ -32,7 +32,7 @@ def add_rack_to_warehouse(warehouse_id):
         capacity=capacity,
         warehouse_id=warehouse_id,
         position=position,
-        direction=direction,  # Save direction
+        orientation=orientation,  # Save orientation
         location=location  # Ensure location is set
     )
 
@@ -59,7 +59,7 @@ def update_rack_position(warehouse_id, rack_id):
     """
     data = request.get_json()
     new_position = data.get('position')
-    direction = data.get('direction', 'vertical')  # Default to vertical if not provided
+    orientation = data.get('orientation', 'vertical')  # Default to vertical if not provided
 
     # Debugging: Log the received position data
     print(f"🔍 Received position data: {new_position}")
@@ -98,7 +98,7 @@ def update_rack_position(warehouse_id, rack_id):
     # Validate the new position
     try:
         rack.position = new_position
-        rack.direction = direction  # Update direction
+        rack.orientation = orientation  # Update orientation
         if not warehouse.validate_rack_position(rack):
             print(f"❌ Rack position validation failed for position: {new_position}")
             # Debugging: Log specific reasons for failure

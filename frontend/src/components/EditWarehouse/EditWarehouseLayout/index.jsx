@@ -152,7 +152,7 @@ export default function EditWarehouseLayout({
         await dispatch(
           moveRackThunk(warehouse.id, rackData.id, {
             ...updatedPosition,
-            direction: rackData.direction, // Include direction
+            orientation: rackData.orientation, // Rename to orientation
           })
         );
         console.log("✅ Rack moved successfully:", updatedPosition);
@@ -162,7 +162,7 @@ export default function EditWarehouseLayout({
           name: rackData.name || "Unnamed Rack",
           capacity: 100,
           position: updatedPosition,
-          direction: rackData.direction, // Include direction
+          orientation: rackData.orientation, // Rename to orientation
         };
         await dispatch(addRackThunk(warehouse.id, newRack));
         console.log("✅ New rack added successfully:", newRack);
@@ -185,7 +185,7 @@ export default function EditWarehouseLayout({
         height: rack.position.height,
         x: rack.position.x,
         y: rack.position.y,
-        direction: rack.direction, // Include direction
+        orientation: rack.orientation, // Rename to orientation
       })
     );
     setInitialRackPreview(rack); // Set the initial rack preview
@@ -200,8 +200,8 @@ export default function EditWarehouseLayout({
       const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
       const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-      // Determine rack dimensions based on its direction
-      const isHorizontal = rack.direction === "horizontal";
+      // Determine rack dimensions based on its orientation
+      const isHorizontal = rack.orientation === "horizontal"; // Rename to orientation
       const rackWidth = isHorizontal ? rack.position.width : rack.position.height;
       const rackHeight = isHorizontal ? rack.position.height : rack.position.width;
 
@@ -258,7 +258,7 @@ export default function EditWarehouseLayout({
           ...updatedPosition,
           width: rack.position.width, // Include width
           height: rack.position.height, // Include height
-          direction: rack.direction, // Include direction
+          orientation: rack.orientation, // Rename to orientation
         })
       );
       console.log("✅ Rack position saved:", updatedPosition);
@@ -381,8 +381,8 @@ export default function EditWarehouseLayout({
           </div>
 
           {racks.map((rack, index) => {
-            // Determine rack dimensions based on its direction
-            const isHorizontal = rack.direction === "horizontal";
+            // Determine rack dimensions based on its orientation
+            const isHorizontal = rack.orientation === "horizontal"; // Rename to orientation
             const rackWidth = isHorizontal ? rack.position.width : rack.position.height;
             const rackHeight = isHorizontal ? rack.position.height : rack.position.width;
           

@@ -12,12 +12,12 @@ class Rack(db.Model):
     capacity = db.Column(db.Integer, nullable=False)
     warehouse_id = db.Column(
         db.Integer,
-        db.ForeignKey(add_prefix_for_prod('warehouses.id')),  # Use add_prefix_for_prod
+        db.ForeignKey(add_prefix_for_prod('warehouses.id')),
         nullable=False
     )
     location = db.Column(db.String(50), nullable=False)
-    position = db.Column(JSON, nullable=False, default={"x": 0.0, "y": 0.0})  # Use float for precision
-    direction = db.Column(db.String(10), nullable=False, default="vertical")  # Add direction field
+    position = db.Column(JSON, nullable=False, default={"x": 0.0, "y": 0.0})
+    orientation = db.Column(db.String(10), default="vertical")
 
     # Relationship with Warehouse
     warehouse = db.relationship('Warehouse', back_populates='racks')
@@ -31,9 +31,9 @@ class Rack(db.Model):
             'name': self.name,
             'capacity': self.capacity,
             'warehouseId': self.warehouse_id,
-            'location': self.location,  # Include location in the response
-            'position': self.position,  # Include position in the response
-            'direction': self.direction,  # Include direction in the response
+            'location': self.location,
+            'position': self.position,
+            'orientation': self.orientation,
             'shelves': [shelf.to_dict() for shelf in self.shelves],
         }
 

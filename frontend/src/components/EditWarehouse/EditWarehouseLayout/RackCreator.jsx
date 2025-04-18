@@ -12,10 +12,10 @@ export default function RackCreator() {
   ];
 
   const [selectedDimension, setSelectedDimension] = useState(rackDimensions[0]);
-  const [selectedDirection, setSelectedDirection] = useState(rackDirections[0]);
+  const [selectedOrientation, setSelectedOrientation] = useState(rackDirections[0]);
 
   const getRackStyle = () => {
-    const isHorizontal = selectedDirection.id === "horizontal";
+    const isHorizontal = selectedOrientation.id === "horizontal";
     const rackWidthFt = isHorizontal
       ? selectedDimension.width
       : selectedDimension.height;
@@ -111,9 +111,9 @@ export default function RackCreator() {
               <label className="block text-sm font-medium">Direction</label>
               <select
                 className="w-full p-2 border rounded"
-                value={selectedDirection.id}
+                value={selectedOrientation.id}
                 onChange={(e) =>
-                  setSelectedDirection(
+                  setSelectedOrientation(
                     rackDirections.find((dir) => dir.id === e.target.value)
                   )
                 }
@@ -140,7 +140,7 @@ export default function RackCreator() {
                     name: selectedDimension.name || "Unnamed Rack",
                     width: selectedDimension.width,
                     height: selectedDimension.height,
-                    direction: selectedDirection.id, // Include the direction
+                    orientation: selectedOrientation.id,
                   })
                 );
               }}

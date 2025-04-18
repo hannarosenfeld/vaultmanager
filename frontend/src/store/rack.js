@@ -46,7 +46,7 @@ export const addRackThunk = (warehouseId, newRack) => async (dispatch) => {
 
     if (response.ok) {
       const data = await response.json();
-      dispatch(addRack(data)); // Update Redux state immediately
+      dispatch(addRack(data));
       console.log('✅ Rack added successfully:', data);
     } else {
       console.error('❌ Error adding rack:', await response.json());
@@ -62,7 +62,7 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
     y: updatedPosition.y || 0,
     width: updatedPosition.width || 0,
     height: updatedPosition.height || 0,
-    direction: updatedPosition.direction || "vertical", // Default to vertical if not provided
+    orientation: updatedPosition.orientation || "vertical",
   };
 
   try {
@@ -71,12 +71,12 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ position }),
+      body: JSON.stringify({ position: { ...position, orientation: position.orientation } }),
     });
 
     if (response.ok) {
       const data = await response.json();
-      dispatch(updateRackPosition(rackId, position)); // Update Redux state immediately
+      dispatch(updateRackPosition(rackId, position));
       console.log('✅ Rack position updated successfully:', data);
     } else {
       const error = await response.json();
@@ -145,7 +145,7 @@ const rackReducer = (state = initialState, action) => {
         ...state,
         racks: state.racks.map((rack) =>
           rack.id === action.payload.rackId
-            ? { ...rack, position: action.payload.updatedPosition }
+            ? { ...rack, position: { ...rack.position, orientation: action.payload.updatedPosition.orientation } } // Rename to orientation
             : rack
         ),
       };
