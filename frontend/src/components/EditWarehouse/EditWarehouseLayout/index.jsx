@@ -114,12 +114,12 @@ export default function EditWarehouseLayout({
       console.error("❌ Warehouse grid element not found during drop.");
       return;
     }
-
+  
     const rect = warehouseEl.getBoundingClientRect();
-
+  
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
-
+  
     let rackData;
     try {
       rackData = JSON.parse(e.dataTransfer.getData("rack"));
@@ -127,9 +127,16 @@ export default function EditWarehouseLayout({
       console.error("❌ Error parsing rack data from drop event:", error);
       return; // Exit if rack data is invalid
     }
-
+  
     console.log("📦 Rack data from drop event:", rackData);
-
+  
+    // Validate rack dimensions
+    if (rackData.width === undefined || rackData.height === undefined) {
+      console.error("❌ Rack width or height is undefined. Drop is not allowed.");
+      alert("Rack dimensions are missing. Please try again.");
+      return; // Prevent the drop
+    }
+  
     const { x: clampedX, y: clampedY } = clampPosition(
       x,
       y,
@@ -138,14 +145,14 @@ export default function EditWarehouseLayout({
       warehouse.width,
       warehouse.length
     );
-
+  
     const updatedPosition = {
       x: clampedX,
       y: clampedY,
-      width: rackData.width || 1.0, // Default width
-      height: rackData.height || 1.0, // Default height
+      width: rackData.width,
+      height: rackData.height,
     };
-
+  
     try {
       if (rackData.id) {
         // Update existing rack position
@@ -170,7 +177,7 @@ export default function EditWarehouseLayout({
     } catch (error) {
       console.error("❌ Error handling rack drop:", error);
     }
-
+  
     setRackDragPreview(null); // Clear rack drag preview after drop
     setInitialRackPreview(null); // Clear initial rack preview
   };
@@ -236,8 +243,8 @@ export default function EditWarehouseLayout({
     const updatedPosition = clampPosition(
       x,
       y,
-      rack.position.width || 1.0, // Default width
-      rack.position.height || 1.0, // Default height
+      rack.position.width,
+      rack.position.height,
       warehouse.width,
       warehouse.length
     );

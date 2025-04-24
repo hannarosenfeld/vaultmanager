@@ -12,9 +12,13 @@ def get_racks_for_warehouse(warehouse_id):
 @rack_routes.route('/warehouse/<int:warehouse_id>/add', methods=['POST'])
 def add_rack_to_warehouse(warehouse_id):
     data = request.get_json()
+    print(f"🔍 Received data for adding rack: {data}")  # Debugging: Log received data
+
     position = data.get('position', {})
     position['width'] = position.get('width', 1.0)  # Default width
     position['height'] = position.get('height', 1.0)  # Default height
+    print(f"🔍 Processed position data: {position}")  # Debugging: Log processed position
+
     orientation = data.get('orientation', 'vertical')  # Default to vertical if not provided
     name = data.get('name', f"Rack in Warehouse {warehouse_id}")
     capacity = data.get('capacity', 100)
@@ -35,20 +39,27 @@ def add_rack_to_warehouse(warehouse_id):
         warehouse_id=warehouse_id,
         position=position,
         orientation=orientation,  # Save orientation
-        location=location  # Ensure location is set
+        location=location,  # Ensure location is set
+        width=position['width'],  # Explicitly set width
+        length=position['height'],  # Explicitly set length
     )
+
+    print(f"🔍 New rack before validation: {new_rack.to_dict()}")  # Debugging: Log rack data before validation
 
     # Debugging: Log rack position validation
     is_valid_position = warehouse.validate_rack_position(new_rack)
 
     if not is_valid_position:
+        print(f"❌ Rack position validation failed: {new_rack.to_dict()}")  # Debugging: Log failed validation
         return jsonify({'error': 'Invalid rack position'}), 400
 
     try:
         # Save the rack to the database
         db.session.add(new_rack)
         db.session.commit()
+        print(f"✅ Rack added successfully: {new_rack.to_dict()}")  # Debugging: Log rack data after saving
     except Exception as e:
+        print(f"❌ Error saving rack: {e}")  # Debugging: Log error details
         return jsonify({'error': 'Failed to save rack', 'details': str(e)}), 500
 
     return jsonify(new_rack.to_dict()), 201
@@ -60,9 +71,12 @@ def update_rack_position(warehouse_id, rack_id):
     Update the position of a rack in the warehouse.
     """
     data = request.get_json()
+    print(f"🔍 Received data for updating rack: {data}")  # Debugging: Log received data
+
     new_position = data.get('position', {})
     new_position['width'] = new_position.get('width', 1.0)  # Default width
     new_position['height'] = new_position.get('height', 1.0)  # Default height
+    print(f"🔍 Processed position data: {new_position}")  # Debugging: Log processed position
 
     # Ensure orientation is retrieved from the request
     orientation = new_position.get('orientation')
@@ -104,6 +118,10 @@ def update_rack_position(warehouse_id, rack_id):
     try:
         rack.position = new_position
         rack.orientation = orientation  # Save the updated orientation
+        rack.width = new_position['width']  # Explicitly update width
+        rack.length = new_position['height']  # Explicitly update length
+        print(f"🔍 Rack before validation: {rack.to_dict()}")  # Debugging: Log rack data before validation
+
         if not warehouse.validate_rack_position(rack):
             print(f"❌ Rack position validation failed for position: {new_position}")
             return jsonify({'error': 'Invalid rack position'}), 400
@@ -113,6 +131,7 @@ def update_rack_position(warehouse_id, rack_id):
 
     try:
         db.session.commit()
+        print(f"✅ Rack updated successfully: {rack.to_dict()}")  # Debugging: Log rack data after saving
         return jsonify({'message': 'Rack position updated successfully', 'rack': rack.to_dict()}), 200
     except Exception as e:
         print(f"❌ Error updating rack position: {e}")

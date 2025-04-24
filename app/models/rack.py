@@ -35,7 +35,7 @@ class Rack(db.Model):
             'warehouseId': self.warehouse_id,
             'location': self.location,
             'position': self.position,
-            'orientation': self.orientation,  # Ensure orientation is included
+            'orientation': self.orientation,
             'width': self.width,  # Include width in the dictionary
             'length': self.length,  # Include length in the dictionary
             'shelves': [shelf.to_dict() for shelf in self.shelves],
