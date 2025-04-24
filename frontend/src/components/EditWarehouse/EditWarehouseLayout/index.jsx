@@ -32,19 +32,20 @@ export default function EditWarehouseLayout({
   }, [warehouse.id, dispatch]);
 
   // Utility function to clamp coordinates
-  const clampPosition = (x, y, width, length, maxWidth, maxHeight) => {
+  const clampPosition = (x, y, width, length, maxWidth, maxHeight, orientation) => {
     // Ensure all values are valid numbers
     const validX = isNaN(x) || x === null ? 0 : x;
     const validY = isNaN(y) || y === null ? 0 : y;
     const validWidth = isNaN(width) || width === null ? 0 : width;
-    const validLength = isNaN(length) || length === null ? 0 : length; // Corrected from height
+    const validLength = isNaN(length) || length === null ? 0 : length;
 
-    // Debugging: Log the input values
-    console.log("🔍 clampPosition inputs:", { validX, validY, validWidth, validLength, maxWidth, maxHeight });
+    // Adjust dimensions based on orientation
+    const adjustedWidth = orientation === "horizontal" ? validWidth : validLength;
+    const adjustedLength = orientation === "horizontal" ? validLength : validWidth;
 
-    // Adjust clamping to ensure racks can be placed exactly at the top border
-    const clampedX = Math.max(0, Math.min(validX, maxWidth - validWidth));
-    const clampedY = Math.max(0, Math.min(validY, maxHeight - validLength)); // Corrected from height
+    // Adjust clamping to ensure racks can be placed flush against the edges
+    const clampedX = Math.max(0, Math.min(validX, maxWidth - adjustedWidth));
+    const clampedY = Math.max(0, Math.min(validY, maxHeight - adjustedLength));
 
     // Debugging: Log the clamped values
     console.log("✅ Clamped position:", { clampedX, clampedY });
@@ -143,7 +144,8 @@ export default function EditWarehouseLayout({
       rackData.width,
       rackData.length,
       warehouse.width,
-      warehouse.length
+      warehouse.length,
+      rackData.orientation // Pass orientation here
     );
   
     const updatedPosition = {
@@ -160,7 +162,7 @@ export default function EditWarehouseLayout({
         await dispatch(
           moveRackThunk(warehouse.id, rackData.id, {
             ...updatedPosition,
-            orientation: rackData.orientation, // Rename to orientation
+            orientation: rackData.orientation, // Ensure orientation is included
           })
         );
         console.log("✅ Rack moved successfully:", updatedPosition);
@@ -171,7 +173,7 @@ export default function EditWarehouseLayout({
           name: rackData.name || "Unnamed Rack",
           capacity: 100,
           position: updatedPosition,
-          orientation: rackData.orientation, // Rename to orientation
+          orientation: rackData.orientation, // Ensure orientation is included
         };
         await dispatch(addRackThunk(warehouse.id, newRack));
         console.log("✅ New rack added successfully:", newRack);
@@ -209,25 +211,22 @@ export default function EditWarehouseLayout({
       const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
       const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-      // Determine rack dimensions based on its orientation
-      const isHorizontal = rack.orientation === "horizontal"; // Rename to orientation
-      const rackWidth = isHorizontal ? rack.position.width : rack.position.length;
-      const rackLength = isHorizontal ? rack.position.length : rack.position.width; // Corrected from height
-
+      // Pass the orientation to clampPosition
       const { x: clampedX, y: clampedY } = clampPosition(
         x,
         y,
-        rackWidth,
-        rackLength,
+        rack.position.width,
+        rack.position.length,
         warehouse.width,
-        warehouse.length
+        warehouse.length,
+        rack.orientation // Pass orientation here
       );
 
       setRackDragPreview({
         x: clampedX,
         y: clampedY,
-        width: rackWidth,
-        height: rackLength,
+        width: rack.orientation === "horizontal" ? rack.position.width : rack.position.length,
+        height: rack.orientation === "horizontal" ? rack.position.length : rack.position.width,
       });
     }, 100),
     [warehouse]
