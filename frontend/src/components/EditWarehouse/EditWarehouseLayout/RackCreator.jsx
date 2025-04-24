@@ -2,8 +2,8 @@ import { useState } from "react";
 
 export default function RackCreator() {
   const rackDimensions = [
-    { id: "12x4", label: "12ft x 4ft", width: 12, height: 4 },
-    { id: "8x4", label: "8ft x 4ft", width: 8, height: 4 },
+    { id: "12x4", label: "12ft x 4ft", width: 12, length: 4 },
+    { id: "8x4", label: "8ft x 4ft", width: 8, length: 4 },
   ];
 
   const rackDirections = [
@@ -18,9 +18,9 @@ export default function RackCreator() {
     const isHorizontal = selectedOrientation.id === "horizontal";
     const rackWidthFt = isHorizontal
       ? selectedDimension.width
-      : selectedDimension.height;
+      : selectedDimension.length;
     const rackHeightFt = isHorizontal
-      ? selectedDimension.height
+      ? selectedDimension.length
       : selectedDimension.width;
 
     const scale = 10; // 1 ft = 10px
@@ -80,11 +80,11 @@ export default function RackCreator() {
                 <input
                   type="number"
                   className="w-full p-2 border rounded"
-                  value={selectedDimension.height}
+                  value={selectedDimension.length}
                   onChange={(e) =>
                     setSelectedDimension((prev) => ({
                       ...prev,
-                      height: parseFloat(e.target.value),
+                      length: parseFloat(e.target.value),
                     }))
                   }
                 />
@@ -139,7 +139,7 @@ export default function RackCreator() {
                   JSON.stringify({
                     name: selectedDimension.name || "Unnamed Rack",
                     width: selectedDimension.width,
-                    height: selectedDimension.height,
+                    length: selectedDimension.length,
                     orientation: selectedOrientation.id,
                   })
                 );

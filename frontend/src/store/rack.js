@@ -57,12 +57,14 @@ export const addRackThunk = (warehouseId, newRack) => async (dispatch) => {
 };
 
 export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (dispatch) => {
+  console.log('😂 Moving rack:', rackId, 'to position:', updatedPosition);
+  console.log('🍑 Orientation:', updatedPosition.orientation);
   const position = {
     x: updatedPosition.x || 0,
     y: updatedPosition.y || 0,
     width: updatedPosition.width || 0,
-    height: updatedPosition.height || 0,
-    orientation: updatedPosition.orientation, // Ensure orientation is included
+    length: updatedPosition.length || 0,
+    orientation: updatedPosition.orientation
   };
 
   try {
@@ -93,7 +95,7 @@ export const updateRackPositionThunk = (warehouseId, rackId, position) => async 
     x: position.x || 0,
     y: position.y || 0,
     width: position.width || 0,
-    height: position.height || 0,
+    length: position.length || 0, // Corrected from height
   };
 
   try {
@@ -145,7 +147,7 @@ const rackReducer = (state = initialState, action) => {
         ...state,
         racks: state.racks.map((rack) =>
           rack.id === action.payload.rackId
-            ? { ...rack, position: { ...rack.position, orientation: action.payload.updatedPosition.orientation } } // Rename to orientation
+            ? { ...rack, position: { ...rack.position, ...action.payload.updatedPosition } } // Ensure orientation is updated
             : rack
         ),
       };

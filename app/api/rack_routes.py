@@ -16,7 +16,7 @@ def add_rack_to_warehouse(warehouse_id):
 
     position = data.get('position', {})
     position['width'] = position.get('width', 1.0)  # Default width
-    position['height'] = position.get('height', 1.0)  # Default height
+    position['length'] = position.get('length', 1.0)  # Default length (corrected from height)
     print(f"🔍 Processed position data: {position}")  # Debugging: Log processed position
 
     orientation = data.get('orientation', 'vertical')  # Default to vertical if not provided
@@ -41,7 +41,7 @@ def add_rack_to_warehouse(warehouse_id):
         orientation=orientation,  # Save orientation
         location=location,  # Ensure location is set
         width=position['width'],  # Explicitly set width
-        length=position['height'],  # Explicitly set length
+        length=position['length'],  # Explicitly set length
     )
 
     print(f"🔍 New rack before validation: {new_rack.to_dict()}")  # Debugging: Log rack data before validation
@@ -75,11 +75,11 @@ def update_rack_position(warehouse_id, rack_id):
 
     new_position = data.get('position', {})
     new_position['width'] = new_position.get('width', 1.0)  # Default width
-    new_position['height'] = new_position.get('height', 1.0)  # Default height
+    new_position['length'] = new_position.get('length', 1.0)  # Default length
     print(f"🔍 Processed position data: {new_position}")  # Debugging: Log processed position
 
-    # Ensure orientation is retrieved from the request
-    orientation = new_position.get('orientation')
+    # Ensure orientation is retrieved from the position object
+    orientation = new_position.get('orientation')  # Corrected to extract from new_position
     if orientation is None:
         return jsonify({'error': 'Orientation is required'}), 400
 
@@ -94,9 +94,9 @@ def update_rack_position(warehouse_id, rack_id):
         x = new_position.get('x')
         y = new_position.get('y')
         width = new_position.get('width')
-        height = new_position.get('height')
+        length = new_position.get('length')
 
-        if any(value is None or not isinstance(value, (int, float)) for value in [x, y, width, height]):
+        if any(value is None or not isinstance(value, (int, float)) for value in [x, y, width, length]):
             raise ValueError("Position values must be valid numbers.")
 
         # Debugging: Log validated position data
@@ -119,7 +119,7 @@ def update_rack_position(warehouse_id, rack_id):
         rack.position = new_position
         rack.orientation = orientation  # Save the updated orientation
         rack.width = new_position['width']  # Explicitly update width
-        rack.length = new_position['height']  # Explicitly update length
+        rack.length = new_position['length']  # Explicitly update length
         print(f"🔍 Rack before validation: {rack.to_dict()}")  # Debugging: Log rack data before validation
 
         if not warehouse.validate_rack_position(rack):

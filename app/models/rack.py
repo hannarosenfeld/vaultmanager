@@ -45,10 +45,10 @@ class Rack(db.Model):
         """Check if the rack's position is within the warehouse bounds."""
         rack_x = self.position.get("x", 0)
         rack_y = self.position.get("y", 0)
-        rack_width = self.position.get("width", 0)
-        rack_height = self.position.get("height", 0)
+        rack_width = self.width
+        rack_length = self.length  # Corrected from height to length
 
         return (
             0 <= rack_x <= warehouse.width - rack_width and
-            0 <= rack_y <= warehouse.length - rack_height
+            0 <= rack_y <= warehouse.length - rack_length  # Corrected from height to length
         )

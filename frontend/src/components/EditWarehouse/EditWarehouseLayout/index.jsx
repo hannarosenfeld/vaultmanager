@@ -32,19 +32,19 @@ export default function EditWarehouseLayout({
   }, [warehouse.id, dispatch]);
 
   // Utility function to clamp coordinates
-  const clampPosition = (x, y, width, height, maxWidth, maxHeight) => {
+  const clampPosition = (x, y, width, length, maxWidth, maxHeight) => {
     // Ensure all values are valid numbers
     const validX = isNaN(x) || x === null ? 0 : x;
     const validY = isNaN(y) || y === null ? 0 : y;
     const validWidth = isNaN(width) || width === null ? 0 : width;
-    const validHeight = isNaN(height) || height === null ? 0 : height;
+    const validLength = isNaN(length) || length === null ? 0 : length; // Corrected from height
 
     // Debugging: Log the input values
-    console.log("🔍 clampPosition inputs:", { validX, validY, validWidth, validHeight, maxWidth, maxHeight });
+    console.log("🔍 clampPosition inputs:", { validX, validY, validWidth, validLength, maxWidth, maxHeight });
 
     // Adjust clamping to ensure racks can be placed exactly at the top border
     const clampedX = Math.max(0, Math.min(validX, maxWidth - validWidth));
-    const clampedY = Math.max(0, Math.min(validY, maxHeight - validHeight));
+    const clampedY = Math.max(0, Math.min(validY, maxHeight - validLength)); // Corrected from height
 
     // Debugging: Log the clamped values
     console.log("✅ Clamped position:", { clampedX, clampedY });
@@ -131,8 +131,8 @@ export default function EditWarehouseLayout({
     console.log("📦 Rack data from drop event:", rackData);
   
     // Validate rack dimensions
-    if (rackData.width === undefined || rackData.height === undefined) {
-      console.error("❌ Rack width or height is undefined. Drop is not allowed.");
+    if (rackData.width === undefined || rackData.length === undefined) {
+      console.error("❌ Rack width or length is undefined. Drop is not allowed.");
       alert("Rack dimensions are missing. Please try again.");
       return; // Prevent the drop
     }
@@ -141,7 +141,7 @@ export default function EditWarehouseLayout({
       x,
       y,
       rackData.width,
-      rackData.height,
+      rackData.length,
       warehouse.width,
       warehouse.length
     );
@@ -150,9 +150,10 @@ export default function EditWarehouseLayout({
       x: clampedX,
       y: clampedY,
       width: rackData.width,
-      height: rackData.height,
+      length: rackData.length,
     };
   
+    console.log("💖 rack.orientation", rackData.orientation);
     try {
       if (rackData.id) {
         // Update existing rack position
@@ -163,6 +164,7 @@ export default function EditWarehouseLayout({
           })
         );
         console.log("✅ Rack moved successfully:", updatedPosition);
+
       } else {
         // Add a new rack
         const newRack = {
@@ -189,7 +191,7 @@ export default function EditWarehouseLayout({
         id: rack.id,
         name: rack.name,
         width: rack.position.width,
-        height: rack.position.height,
+        length: rack.position.length,
         x: rack.position.x,
         y: rack.position.y,
         orientation: rack.orientation, // Rename to orientation
@@ -209,14 +211,14 @@ export default function EditWarehouseLayout({
 
       // Determine rack dimensions based on its orientation
       const isHorizontal = rack.orientation === "horizontal"; // Rename to orientation
-      const rackWidth = isHorizontal ? rack.position.width : rack.position.height;
-      const rackHeight = isHorizontal ? rack.position.height : rack.position.width;
+      const rackWidth = isHorizontal ? rack.position.width : rack.position.length;
+      const rackLength = isHorizontal ? rack.position.length : rack.position.width; // Corrected from height
 
       const { x: clampedX, y: clampedY } = clampPosition(
         x,
         y,
         rackWidth,
-        rackHeight,
+        rackLength,
         warehouse.width,
         warehouse.length
       );
@@ -225,7 +227,7 @@ export default function EditWarehouseLayout({
         x: clampedX,
         y: clampedY,
         width: rackWidth,
-        height: rackHeight,
+        height: rackLength,
       });
     }, 100),
     [warehouse]
@@ -244,7 +246,7 @@ export default function EditWarehouseLayout({
       x,
       y,
       rack.position.width,
-      rack.position.height,
+      rack.position.length,
       warehouse.width,
       warehouse.length
     );
@@ -261,7 +263,7 @@ export default function EditWarehouseLayout({
         updateRackPositionThunk(warehouse.id, rack.id, {
           ...updatedPosition,
           width: rack.position.width,
-          height: rack.position.height,
+          length: rack.position.length, // Corrected from height
           orientation: rack.orientation, // Ensure orientation is included
         })
       );
@@ -301,7 +303,7 @@ export default function EditWarehouseLayout({
         style={{ aspectRatio }}
       >
         <div
-          className={`warehouse-grid ${invalidDrop ? "bg-red-200" : ""}`}
+          class={`warehouse-grid ${invalidDrop ? "bg-red-200" : ""}`}
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleRackDrop}
           style={{
@@ -357,7 +359,7 @@ export default function EditWarehouseLayout({
                 left: "0%",
                 width: `${(initialRackPreview.width / warehouse.width) * 100}%`,
                 height: `${
-                  (initialRackPreview.height / warehouse.length) * 100
+                  (initialRackPreview.length / warehouse.length) * 100
                 }%`,
                 backgroundColor: "rgba(255, 165, 0, 0.2)",
                 border: "2px dashed orange",
@@ -402,8 +404,8 @@ export default function EditWarehouseLayout({
           {racks.map((rack, index) => {
             // Determine rack dimensions based on its orientation
             const isHorizontal = rack.orientation === "horizontal"; // Ensure orientation is used
-            const rackWidth = isHorizontal ? rack.position.width : rack.position.height;
-            const rackHeight = isHorizontal ? rack.position.height : rack.position.width;
+            const rackWidth = isHorizontal ? rack.position.width : rack.position.length;
+            const rackLength = isHorizontal ? rack.position.length : rack.position.width; // Corrected from height
           
             return (
               <div
@@ -418,7 +420,7 @@ export default function EditWarehouseLayout({
                   top: `${(rack.position.y / warehouse.length) * 100}%`,
                   left: `${(rack.position.x / warehouse.width) * 100}%`,
                   width: `${(rackWidth / warehouse.width) * 100}%`,
-                  height: `${(rackHeight / warehouse.length) * 100}%`,
+                  height: `${(rackLength / warehouse.length) * 100}%`,
                   backgroundColor: "rgba(0, 0, 255, 0.2)",
                   border: "1px solid blue",
                   display: "flex",
