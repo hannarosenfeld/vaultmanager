@@ -76,10 +76,15 @@ def update_rack_position(warehouse_id, rack_id):
     new_position = data.get('position', {})
     new_position['width'] = new_position.get('width', 1.0)  # Default width
     new_position['length'] = new_position.get('length', 1.0)  # Default length
+
+    # Ensure orientation is explicitly preserved
+    if 'orientation' not in new_position:
+        new_position['orientation'] = data.get('orientation', 'vertical')  # Default to vertical if missing
+
     print(f"🔍 Processed position data: {new_position}")  # Debugging: Log processed position
 
     # Ensure orientation is retrieved from the position object
-    orientation = new_position.get('orientation')  # Corrected to extract from new_position
+    orientation = new_position.get('orientation')
     if orientation is None:
         return jsonify({'error': 'Orientation is required'}), 400
 
