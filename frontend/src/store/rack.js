@@ -57,14 +57,9 @@ export const addRackThunk = (warehouseId, newRack) => async (dispatch) => {
 };
 
 export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (dispatch) => {
-  console.log('😂 Moving rack:', rackId, 'to position:', updatedPosition);
-  console.log('🍑 Orientation:', updatedPosition.orientation);
   const position = {
     x: updatedPosition.x || 0,
     y: updatedPosition.y || 0,
-    width: updatedPosition.width || 0,
-    length: updatedPosition.length || 0,
-    orientation: updatedPosition.orientation
   };
 
   try {
@@ -78,7 +73,7 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
 
     if (response.ok) {
       const data = await response.json();
-      dispatch(updateRackPosition(rackId, position)); // Update Redux state immediately
+      dispatch(updateRackPosition(rackId, position)); // Only update position
       console.log('✅ Rack position updated successfully:', data);
     } else {
       const error = await response.json();

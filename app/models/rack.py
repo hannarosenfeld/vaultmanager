@@ -16,10 +16,10 @@ class Rack(db.Model):
 
     )
     location = db.Column(db.String(50))
-    position = db.Column(JSON, default={"x": 0.0, "y": 0.0})
+    position = db.Column(JSON, default={"x": 0.0, "y": 0.0})  # Remove width and length from here
     orientation = db.Column(db.String(10), default="vertical")
-    width = db.Column(db.Float, default=1.0)  # Add width property
-    length = db.Column(db.Float, default=1.0)  # Add length property
+    width = db.Column(db.Float, nullable=False)  # Ensure width is required
+    length = db.Column(db.Float, nullable=False)  # Ensure length is required
 
     # Relationship with Warehouse
     warehouse = db.relationship('Warehouse', back_populates='racks')
@@ -36,8 +36,8 @@ class Rack(db.Model):
             'location': self.location,
             'position': self.position,
             'orientation': self.orientation,
-            'width': self.width,  # Include width in the dictionary
-            'length': self.length,  # Include length in the dictionary
+            'width': self.width,  # Include width
+            'length': self.length,  # Include length
             'shelves': [shelf.to_dict() for shelf in self.shelves],
         }
 

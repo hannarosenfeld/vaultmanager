@@ -9,14 +9,15 @@ def get_racks_for_warehouse(warehouse_id):
     racks = Rack.query.filter_by(warehouse_id=warehouse_id).all()
     return jsonify([rack.to_dict() for rack in racks])  # Ensure orientation is included in to_dict()
 
+
 @rack_routes.route('/warehouse/<int:warehouse_id>/add', methods=['POST'])
 def add_rack_to_warehouse(warehouse_id):
     data = request.get_json()
     print(f"🔍 Received data for adding rack: {data}")  # Debugging: Log received data
 
     position = data.get('position', {})
-    position['width'] = position.get('width', 1.0)  # Default width
-    position['length'] = position.get('length', 1.0)  # Default length (corrected from height)
+    position['width'] = data.get('width', 1.0)  # Extract width separately
+    position['length'] = data.get('length', 1.0)  # Extract length separately
     print(f"🔍 Processed position data: {position}")  # Debugging: Log processed position
 
     orientation = data.get('orientation', 'vertical')  # Default to vertical if not provided
@@ -40,8 +41,8 @@ def add_rack_to_warehouse(warehouse_id):
         position=position,
         orientation=orientation,  # Save orientation
         location=location,  # Ensure location is set
-        width=position['width'],  # Explicitly set width
-        length=position['length'],  # Explicitly set length
+        width=position['width'],  # Set width
+        length=position['length'],  # Set length
     )
 
     print(f"🔍 New rack before validation: {new_rack.to_dict()}")  # Debugging: Log rack data before validation
@@ -123,8 +124,6 @@ def update_rack_position(warehouse_id, rack_id):
     try:
         rack.position = new_position
         rack.orientation = orientation  # Save the updated orientation
-        rack.width = new_position['width']  # Explicitly update width
-        rack.length = new_position['length']  # Explicitly update length
         print(f"🔍 Rack before validation: {rack.to_dict()}")  # Debugging: Log rack data before validation
 
         if not warehouse.validate_rack_position(rack):

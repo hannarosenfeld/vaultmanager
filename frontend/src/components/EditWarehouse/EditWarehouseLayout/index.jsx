@@ -260,22 +260,12 @@ export default function EditWarehouseLayout({
     try {
       await dispatch(
         updateRackPositionThunk(warehouse.id, rack.id, {
-          ...updatedPosition,
-          width: rack.position.width,
-          length: rack.position.length, // Corrected from height
-          orientation: rack.orientation, // Ensure orientation is included
+          x: updatedPosition.x,
+          y: updatedPosition.y,
+          // Do not include width and length here to preserve them
         })
       );
-
       console.log("✅ Rack position saved:", updatedPosition);
-
-      // Update the local Redux state to reflect the changes immediately
-      const updatedRacks = racks.map((r) =>
-        r.id === rack.id
-          ? { ...r, position: updatedPosition, orientation: rack.orientation }
-          : r
-      );
-      dispatch({ type: "rack/SET_RACKS", racks: updatedRacks });
     } catch (error) {
       console.error("❌ Error saving rack position:", error);
     }
