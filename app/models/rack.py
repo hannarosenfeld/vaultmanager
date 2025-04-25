@@ -15,8 +15,7 @@ class Rack(db.Model):
         db.ForeignKey(add_prefix_for_prod('warehouses.id')),
 
     )
-    location = db.Column(db.String(50))
-    position = db.Column(JSON, default={"x": 0.0, "y": 0.0})  # Remove width and length from here
+    position = db.Column(JSON, default={"x": 0.0, "y": 0.0})  # Only store x and y here
     orientation = db.Column(db.String(10), default="vertical")
     width = db.Column(db.Float, nullable=False)  # Ensure width is required
     length = db.Column(db.Float, nullable=False)  # Ensure length is required
@@ -33,7 +32,6 @@ class Rack(db.Model):
             'name': self.name,
             'capacity': self.capacity,
             'warehouseId': self.warehouse_id,
-            'location': self.location,
             'position': self.position,
             'orientation': self.orientation,
             'width': self.width,  # Include width

@@ -183,7 +183,9 @@ def add_rack(warehouse_id):
         capacity=data.get("capacity"),
         warehouse_id=warehouse_id,
         position=data.get("position"),
-        location=data.get("location"),
+        orientation=data.get("orientation"),  # Ensure orientation is included
+        width=data.get("width"),  # Explicitly set width
+        length=data.get("length"),  # Explicitly set length
     )
 
     # Validate rack position

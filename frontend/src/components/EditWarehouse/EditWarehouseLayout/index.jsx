@@ -244,8 +244,8 @@ export default function EditWarehouseLayout({
     const updatedPosition = clampPosition(
       x,
       y,
-      rack.position.width,
-      rack.position.length,
+      rack.width, // Use rack.width directly
+      rack.length, // Use rack.length directly
       warehouse.width,
       warehouse.length
     );
@@ -262,7 +262,6 @@ export default function EditWarehouseLayout({
         updateRackPositionThunk(warehouse.id, rack.id, {
           x: updatedPosition.x,
           y: updatedPosition.y,
-          // Do not include width and length here to preserve them
         })
       );
       console.log("✅ Rack position saved:", updatedPosition);

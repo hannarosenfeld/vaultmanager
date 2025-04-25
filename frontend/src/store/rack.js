@@ -68,12 +68,12 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ position }),
+      body: JSON.stringify({ position }), // Only send position
     });
 
     if (response.ok) {
       const data = await response.json();
-      dispatch(updateRackPosition(rackId, position)); // Only update position
+      dispatch(updateRackPosition(rackId, position)); // Only update position in Redux
       console.log('✅ Rack position updated successfully:', data);
     } else {
       const error = await response.json();

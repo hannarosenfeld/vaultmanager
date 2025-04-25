@@ -23,7 +23,6 @@ def add_rack_to_warehouse(warehouse_id):
     orientation = data.get('orientation', 'vertical')  # Default to vertical if not provided
     name = data.get('name', f"Rack in Warehouse {warehouse_id}")
     capacity = data.get('capacity', 100)
-    location = data.get('location', f"Rack-{warehouse_id}-{position.get('x', 0)}-{position.get('y', 0)}")
 
     if not position:
         return jsonify({'error': 'Position is required'}), 400
@@ -40,7 +39,6 @@ def add_rack_to_warehouse(warehouse_id):
         warehouse_id=warehouse_id,
         position=position,
         orientation=orientation,  # Save orientation
-        location=location,  # Ensure location is set
         width=position['width'],  # Set width
         length=position['length'],  # Set length
     )
@@ -75,42 +73,11 @@ def update_rack_position(warehouse_id, rack_id):
     print(f"🔍 Received data for updating rack: {data}")  # Debugging: Log received data
 
     new_position = data.get('position', {})
-    new_position['width'] = new_position.get('width', 1.0)  # Default width
-    new_position['length'] = new_position.get('length', 1.0)  # Default length
+    x = new_position.get('x')
+    y = new_position.get('y')
 
-    # Ensure orientation is explicitly preserved
-    if 'orientation' not in new_position:
-        new_position['orientation'] = data.get('orientation', 'vertical')  # Default to vertical if missing
-
-    print(f"🔍 Processed position data: {new_position}")  # Debugging: Log processed position
-
-    # Ensure orientation is retrieved from the position object
-    orientation = new_position.get('orientation')
-    if orientation is None:
-        return jsonify({'error': 'Orientation is required'}), 400
-
-    # Debugging: Log the received position data
-    print(f"🔍 Received position data: {new_position}")
-
-    if not new_position:
-        return jsonify({'error': 'Position is required'}), 400
-
-    # Validate position data
-    try:
-        x = new_position.get('x')
-        y = new_position.get('y')
-        width = new_position.get('width')
-        length = new_position.get('length')
-
-        if any(value is None or not isinstance(value, (int, float)) for value in [x, y, width, length]):
-            raise ValueError("Position values must be valid numbers.")
-
-        # Debugging: Log validated position data
-        print(f"✅ Validated position data: {new_position}")
-
-    except Exception as e:
-        print(f"❌ Invalid position data: {e}")
-        return jsonify({'error': 'Invalid position data', 'details': str(e)}), 400
+    if x is None or y is None:
+        return jsonify({'error': 'Position (x, y) is required'}), 400
 
     rack = Rack.query.filter_by(id=rack_id, warehouse_id=warehouse_id).first()
     if not rack:
@@ -122,8 +89,7 @@ def update_rack_position(warehouse_id, rack_id):
 
     # Validate the new position
     try:
-        rack.position = new_position
-        rack.orientation = orientation  # Save the updated orientation
+        rack.position = {'x': x, 'y': y}  # Only update position
         print(f"🔍 Rack before validation: {rack.to_dict()}")  # Debugging: Log rack data before validation
 
         if not warehouse.validate_rack_position(rack):
