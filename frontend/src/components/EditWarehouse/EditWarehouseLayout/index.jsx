@@ -108,54 +108,50 @@ export default function EditWarehouseLayout({
     }
   };
 
-  const handleRackDrop = async (e) => {
-    const warehouseEl = e.target.closest(".warehouse-grid");
-    if (!warehouseEl) {
-      console.error("❌ Warehouse grid element not found during drop.");
-      return;
-    }
-  
-    const rect = warehouseEl.getBoundingClientRect();
-  
-    const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
-    const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
-  
-    let rackData;
+  const handleRackDrop = async (event) => {
+    event.preventDefault();
     try {
-      rackData = JSON.parse(e.dataTransfer.getData("rack"));
-    } catch (error) {
-      console.error("❌ Error parsing rack data from drop event:", error);
-      return; // Exit if rack data is invalid
-    }
-  
-    console.log("📦 Rack data from drop event:", rackData);
-  
-    // Validate rack dimensions
-    if (rackData.width === undefined || rackData.length === undefined) {
-      console.error("❌ Rack width or length is undefined. Drop is not allowed.");
-      alert("Rack dimensions are missing. Please try again.");
-      return; // Prevent the drop
-    }
-  
-    const { x: clampedX, y: clampedY } = clampPosition(
-      x,
-      y,
-      rackData.width,
-      rackData.length,
-      warehouse.width,
-      warehouse.length,
-      rackData.orientation // Pass orientation here
-    );
-  
-    const updatedPosition = {
-      x: clampedX,
-      y: clampedY,
-      width: rackData.width,
-      length: rackData.length,
-    };
-  
-    console.log("💖 rack.orientation", rackData.orientation);
-    try {
+      const rackData = JSON.parse(event.dataTransfer.getData("rack"));
+
+      // Debugging: Log the entire rackData object
+      console.log("📦 Rack data from drop event:", rackData);
+
+      // Validate width and length
+      if (!rackData.width || !rackData.length) {
+        console.error("❌ Rack width or length is undefined. Drop is not allowed.");
+        console.error("🔍 Full rack data:", rackData); // Log full rack data for debugging
+        return;
+      }
+
+      const warehouseEl = event.target.closest(".warehouse-grid");
+      if (!warehouseEl) {
+        console.error("❌ Warehouse grid element not found during drop.");
+        return;
+      }
+
+      const rect = warehouseEl.getBoundingClientRect();
+
+      const x = ((event.clientX - rect.left) / rect.width) * warehouse.width;
+      const y = ((event.clientY - rect.top) / rect.height) * warehouse.length;
+
+      const { x: clampedX, y: clampedY } = clampPosition(
+        x,
+        y,
+        rackData.width,
+        rackData.length,
+        warehouse.width,
+        warehouse.length,
+        rackData.orientation // Pass orientation here
+      );
+
+      const updatedPosition = {
+        x: clampedX,
+        y: clampedY,
+        width: rackData.width,
+        length: rackData.length,
+      };
+
+      console.log("💖 rack.orientation", rackData.orientation);
       if (rackData.id) {
         // Update existing rack position
         await dispatch(
@@ -165,7 +161,6 @@ export default function EditWarehouseLayout({
           })
         );
         console.log("✅ Rack moved successfully:", updatedPosition);
-
       } else {
         // Add a new rack
         const newRack = {
@@ -180,7 +175,7 @@ export default function EditWarehouseLayout({
     } catch (error) {
       console.error("❌ Error handling rack drop:", error);
     }
-  
+
     setRackDragPreview(null); // Clear rack drag preview after drop
   };
 
@@ -190,8 +185,8 @@ export default function EditWarehouseLayout({
       JSON.stringify({
         id: rack.id,
         name: rack.name,
-        width: rack.position.width,
-        length: rack.position.length,
+        width: rack.width, // Ensure width is included
+        length: rack.length, // Ensure length is included
         x: rack.position.x,
         y: rack.position.y,
         orientation: rack.orientation,
@@ -212,8 +207,8 @@ export default function EditWarehouseLayout({
       const { x: clampedX, y: clampedY } = clampPosition(
         x,
         y,
-        rack.position.width,
-        rack.position.length,
+        rack.width, // Use rack.width directly
+        rack.length, // Use rack.length directly
         warehouse.width,
         warehouse.length,
         rack.orientation // Pass orientation here
@@ -222,8 +217,8 @@ export default function EditWarehouseLayout({
       setRackDragPreview({
         x: clampedX,
         y: clampedY,
-        width: rack.orientation === "horizontal" ? rack.position.width : rack.position.length,
-        height: rack.orientation === "horizontal" ? rack.position.length : rack.position.width,
+        width: rack.orientation === "horizontal" ? rack.width : rack.length, // Correct width
+        height: rack.orientation === "horizontal" ? rack.length : rack.width, // Correct height
       });
     }, 100),
     [warehouse]
@@ -328,8 +323,8 @@ export default function EditWarehouseLayout({
                 left: `${(rackDragPreview.x / warehouse.width) * 100}%`,
                 width: `${(rackDragPreview.width / warehouse.width) * 100}%`,
                 height: `${(rackDragPreview.height / warehouse.length) * 100}%`,
-                backgroundColor: "rgba(0, 255, 0, 0.2)",
-                border: "2px dashed green",
+                backgroundColor: "rgba(0, 255, 0, 0.2)", // Green background
+                border: "2px dashed green", // Green border
                 pointerEvents: "none",
               }}
             />

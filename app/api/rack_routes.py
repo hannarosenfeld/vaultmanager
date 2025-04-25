@@ -32,15 +32,27 @@ def add_rack_to_warehouse(warehouse_id):
     if not warehouse:
         return jsonify({'error': 'Warehouse not found'}), 404
 
+    width = data.get('width')
+    length = data.get('length')
+
+    # Validate dimensions
+    if not width or not length:
+        print(f"❌ Rack dimensions are missing: width={width}, length={length}")  # Debugging: Log missing dimensions
+        return jsonify({'error': 'Rack dimensions are missing. Please try again.'}), 400
+
+    # Stop further processing if dimensions are invalid
+    if not isinstance(width, (int, float)) or not isinstance(length, (int, float)):
+        return jsonify({'error': 'Invalid dimensions provided. Please try again.'}), 400
+
     # Validate rack position
     new_rack = Rack(
         name=name,
         capacity=capacity,
         warehouse_id=warehouse_id,
         position=position,
-        orientation=orientation,  # Save orientation
-        width=position['width'],  # Save width
-        length=position['length'],  # Save length
+        orientation=orientation,
+        width=width,  # Ensure width is saved
+        length=length,  # Ensure length is saved
     )
 
     print(f"🔍 New rack before validation: {new_rack.to_dict()}")  # Debugging: Log rack data before validation

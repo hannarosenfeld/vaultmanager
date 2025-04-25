@@ -15,16 +15,15 @@ export default function RackCreator() {
   const [selectedOrientation, setSelectedOrientation] = useState(rackDirections[0]);
   const [previewPosition, setPreviewPosition] = useState(null);
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    setPreviewPosition({ x, y });
-  };
+  const handleDragStart = (e) => {
+    const rackData = {
+      name: selectedDimension.name || "Unnamed Rack",
+      width: selectedDimension.width || 1, // Ensure width is included
+      length: selectedDimension.length || 1, // Ensure length is included
+      orientation: selectedOrientation.id,
+    };
 
-  const handleDragEnd = () => {
-    setPreviewPosition(null); // Clear preview position after drag ends
+    e.dataTransfer.setData("rack", JSON.stringify(rackData));
   };
 
   const getRackStyle = () => {
@@ -54,8 +53,6 @@ export default function RackCreator() {
   return (
     <div
       className="w-full p-2 mb-4 mt-2"
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
     >
       <h3 className="text-md font-semibold mb-2 text-center">Add a Rack</h3>
 
@@ -148,35 +145,9 @@ export default function RackCreator() {
             className="w-1/3 bg-blue-50 rounded shadow flex items-center justify-center p-4 relative"
             style={{ width: "200px", height: "200px" }}
           >
-            {/* Green preview */}
-            {previewPosition && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: `${previewPosition.y}px`,
-                  left: `${previewPosition.x}px`,
-                  width: `${selectedDimension.width * 10}px`,
-                  height: `${selectedDimension.length * 10}px`,
-                  backgroundColor: "rgba(0, 255, 0, 0.3)",
-                  border: "1px dashed green",
-                  pointerEvents: "none",
-                }}
-              />
-            )}
-
             <div
               draggable
-              onDragStart={(e) => {
-                e.dataTransfer.setData(
-                  "rack",
-                  JSON.stringify({
-                    name: selectedDimension.name || "Unnamed Rack",
-                    width: selectedDimension.width,
-                    length: selectedDimension.length,
-                    orientation: selectedOrientation.id,
-                  })
-                );
-              }}
+              onDragStart={handleDragStart}
               style={getRackStyle()}
             >
               {selectedDimension.name || "Rack"}

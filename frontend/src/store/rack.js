@@ -64,6 +64,8 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
   const position = {
     x: updatedPosition.x || 0,
     y: updatedPosition.y || 0,
+    width: updatedPosition.width || 1, // Ensure width is included
+    length: updatedPosition.length || 1, // Ensure length is included
   };
 
   try {
@@ -72,12 +74,12 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ position }), // Only send position
+      body: JSON.stringify({ position }), // Send position with dimensions
     });
 
     if (response.ok) {
       const data = await response.json();
-      dispatch(updateRackPosition(rackId, position)); // Only update position in Redux
+      dispatch(updateRackPosition(rackId, position)); // Update position in Redux
       console.log('✅ Rack position updated successfully:', data);
     } else {
       const error = await response.json();
