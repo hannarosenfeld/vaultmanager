@@ -18,8 +18,7 @@ export default function EditWarehouseLayout({
   const [invalidDrop, setInvalidDrop] = useState(false); // Define invalidDrop with a default value
   const aspectRatio = warehouse.width / warehouse.length;
 
-  const [rackDragPreview, setRackDragPreview] = useState(null); // Add state for rack drag preview
-  const [initialRackPreview, setInitialRackPreview] = useState(null); // State for initial rack placement preview
+  const [rackDragPreview, setRackDragPreview] = useState(null); // State for rack drag preview
 
   const dispatch = useDispatch();
   const racks = useSelector((state) => state.rack.racks);
@@ -183,7 +182,6 @@ export default function EditWarehouseLayout({
     }
   
     setRackDragPreview(null); // Clear rack drag preview after drop
-    setInitialRackPreview(null); // Clear initial rack preview
   };
 
   const handleRackDragStart = (e, rack) => {
@@ -196,10 +194,9 @@ export default function EditWarehouseLayout({
         length: rack.position.length,
         x: rack.position.x,
         y: rack.position.y,
-        orientation: rack.orientation, // Rename to orientation
+        orientation: rack.orientation,
       })
     );
-    setInitialRackPreview(rack); // Set the initial rack preview
   };
 
   const handleRackDrag = useCallback(
@@ -269,8 +266,7 @@ export default function EditWarehouseLayout({
       console.error("❌ Error saving rack position:", error);
     }
 
-    setRackDragPreview(null);
-    setInitialRackPreview(null);
+    setRackDragPreview(null); // Clear rack drag preview after drag ends
   };
 
   const handleRackClick = (rack) => {
@@ -339,23 +335,6 @@ export default function EditWarehouseLayout({
             />
           )}
 
-          {initialRackPreview && (
-            <div
-              style={{
-                position: "absolute",
-                top: "0%", // Default preview position
-                left: "0%",
-                width: `${(initialRackPreview.width / warehouse.width) * 100}%`,
-                height: `${
-                  (initialRackPreview.length / warehouse.length) * 100
-                }%`,
-                backgroundColor: "rgba(255, 165, 0, 0.2)",
-                border: "2px dashed orange",
-                pointerEvents: "none",
-              }}
-            />
-          )}
-
           <div
             draggable
             onDragStart={handleDragStart}
@@ -392,8 +371,8 @@ export default function EditWarehouseLayout({
           {racks.map((rack, index) => {
             // Determine rack dimensions based on its orientation
             const isHorizontal = rack.orientation === "horizontal"; // Ensure orientation is used
-            const rackWidth = isHorizontal ? rack.position.width : rack.position.length;
-            const rackLength = isHorizontal ? rack.position.length : rack.position.width; // Corrected from height
+            const rackWidth = isHorizontal ? rack.width : rack.length; // Use rack.width and rack.length directly
+            const rackLength = isHorizontal ? rack.length : rack.width; // Corrected from height
           
             return (
               <div

@@ -16,8 +16,8 @@ def add_rack_to_warehouse(warehouse_id):
     print(f"🔍 Received data for adding rack: {data}")  # Debugging: Log received data
 
     position = data.get('position', {})
-    position['width'] = data.get('width', 1.0)  # Extract width separately
-    position['length'] = data.get('length', 1.0)  # Extract length separately
+    position['width'] = data.get('width', 1.0)  # Ensure width is extracted
+    position['length'] = data.get('length', 1.0)  # Ensure length is extracted
     print(f"🔍 Processed position data: {position}")  # Debugging: Log processed position
 
     orientation = data.get('orientation', 'vertical')  # Default to vertical if not provided
@@ -39,8 +39,8 @@ def add_rack_to_warehouse(warehouse_id):
         warehouse_id=warehouse_id,
         position=position,
         orientation=orientation,  # Save orientation
-        width=position['width'],  # Set width
-        length=position['length'],  # Set length
+        width=position['width'],  # Save width
+        length=position['length'],  # Save length
     )
 
     print(f"🔍 New rack before validation: {new_rack.to_dict()}")  # Debugging: Log rack data before validation

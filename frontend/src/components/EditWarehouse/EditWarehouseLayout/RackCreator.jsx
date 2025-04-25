@@ -13,6 +13,19 @@ export default function RackCreator() {
 
   const [selectedDimension, setSelectedDimension] = useState(rackDimensions[0]);
   const [selectedOrientation, setSelectedOrientation] = useState(rackDirections[0]);
+  const [previewPosition, setPreviewPosition] = useState(null);
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setPreviewPosition({ x, y });
+  };
+
+  const handleDragEnd = () => {
+    setPreviewPosition(null); // Clear preview position after drag ends
+  };
 
   const getRackStyle = () => {
     const isHorizontal = selectedOrientation.id === "horizontal";
@@ -39,7 +52,11 @@ export default function RackCreator() {
   };
 
   return (
-    <div className="w-full p-2 mb-4 mt-2">
+    <div
+      className="w-full p-2 mb-4 mt-2"
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+    >
       <h3 className="text-md font-semibold mb-2 text-center">Add a Rack</h3>
 
       <div className="flex flex-col md:flex-row w-full gap-4 items-start">
@@ -128,9 +145,25 @@ export default function RackCreator() {
           </div>
 
           <div
-            className="w-1/3 bg-blue-50 rounded shadow flex items-center justify-center p-4"
+            className="w-1/3 bg-blue-50 rounded shadow flex items-center justify-center p-4 relative"
             style={{ width: "200px", height: "200px" }}
           >
+            {/* Green preview */}
+            {previewPosition && (
+              <div
+                style={{
+                  position: "absolute",
+                  top: `${previewPosition.y}px`,
+                  left: `${previewPosition.x}px`,
+                  width: `${selectedDimension.width * 10}px`,
+                  height: `${selectedDimension.length * 10}px`,
+                  backgroundColor: "rgba(0, 255, 0, 0.3)",
+                  border: "1px dashed green",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+
             <div
               draggable
               onDragStart={(e) => {

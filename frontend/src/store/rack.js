@@ -41,7 +41,11 @@ export const addRackThunk = (warehouseId, newRack) => async (dispatch) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(newRack),
+      body: JSON.stringify({
+        ...newRack,
+        width: newRack.position.width, // Ensure width is included
+        length: newRack.position.length, // Ensure length is included
+      }),
     });
 
     if (response.ok) {
