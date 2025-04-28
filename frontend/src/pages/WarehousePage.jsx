@@ -15,6 +15,7 @@ function WarehousePage() {
   const [fieldsArr, setFieldsArr] = useState(null);
   const selectedField = useSelector((state) => state.warehouse.currentField);
   const [loading, setLoading] = useState(true);
+  const [isWarehouseView, setIsWarehouseView] = useState(true); // Toggle state
 
   function handleFieldClick(field) {
     if (field.id) dispatch(getCurrentFieldThunk(field));
@@ -46,25 +47,46 @@ function WarehousePage() {
   return (
     <div className="flex flex-col max-w-[100vw] p-4">
       <h1 className="text-xl font-bold mb-2 text-center">{warehouse.name}</h1>
-      <div className="h-[25vh]">
-        { selectedField ? (
-          <FieldInfo field={selectedField} />
-        ) : (
-          "Select a field to view its info"
-        )}
+      {/* Toggle switch */}
+      <div className="flex justify-center mb-4">
+        <button
+          className={`px-4 py-2 rounded-l ${isWarehouseView ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          onClick={() => setIsWarehouseView(true)}
+        >
+          Warehouse View
+        </button>
+        <button
+          className={`px-4 py-2 rounded-r ${!isWarehouseView ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          onClick={() => setIsWarehouseView(false)}
+        >
+          Rack View
+        </button>
       </div>
-      <div className="flex-grow max-w-full overflow-x-hidden">
-        {fieldsArr.length ? (
-          <FieldGrid
-            warehouse={warehouse}
-            handleFieldClick={handleFieldClick}
-            style={{ maxWidth: "65vw", margin: "0 auto" }}
-            currentField={selectedField?.id ? selectedField.id : null}
-          />
-        ) : (
-          "This warehouse does not have any fields"
-        )}
-      </div>
+      {isWarehouseView ? (
+        <>
+          <div className="h-[25vh]">
+            {selectedField ? (
+              <FieldInfo field={selectedField} />
+            ) : (
+              "Select a field to view its info"
+            )}
+          </div>
+          <div className="flex-grow max-w-full overflow-x-hidden">
+            {fieldsArr.length ? (
+              <FieldGrid
+                warehouse={warehouse}
+                handleFieldClick={handleFieldClick}
+                style={{ maxWidth: "65vw", margin: "0 auto" }}
+                currentField={selectedField?.id ? selectedField.id : null}
+              />
+            ) : (
+              "This warehouse does not have any fields"
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="text-center">Rack View is under construction</div>
+      )}
     </div>
   );
 }
