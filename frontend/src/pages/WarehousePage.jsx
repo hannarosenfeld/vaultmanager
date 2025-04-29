@@ -19,6 +19,8 @@ function WarehousePage() {
   const [isWarehouseView, setIsWarehouseView] = useState(true); // Toggle state
   const racks = useSelector((state) => state.rack.racks); // Fetch racks from Redux
   const [selectedRack, setSelectedRack] = useState(null); // State for selected rack
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+  const [selectedShelf, setSelectedShelf] = useState(null); // State for selected shelf
 
   function handleFieldClick(field) {
     if (field.id) dispatch(getCurrentFieldThunk(field));
@@ -26,6 +28,22 @@ function WarehousePage() {
 
   function handleRackClick(rack) {
     setSelectedRack(rack); // Set the clicked rack as selected
+  }
+
+  function handleAddPalletClick(shelf) {
+    setSelectedShelf(shelf); // Set the selected shelf
+    setIsModalOpen(true); // Open the modal
+  }
+
+  function closeModal() {
+    setIsModalOpen(false); // Close the modal
+    setSelectedShelf(null); // Clear the selected shelf
+  }
+
+  async function handleAddPallet(palletData) {
+    // Dispatch thunk to add pallet (to be implemented)
+    // Example: dispatch(addPalletThunk(selectedShelf.id, palletData));
+    closeModal();
   }
 
   useEffect(() => {
@@ -92,8 +110,16 @@ function WarehousePage() {
                       {index + 1}
                     </div>
                     <div className="flex-grow flex items-center">
-                      {/* Placeholder for shelf content */}
-                      {shelf.content || "Empty"}
+                      {shelf.content ? (
+                        shelf.content
+                      ) : (
+                        <button
+                          className="text-blue-500 underline"
+                          onClick={() => handleAddPalletClick(shelf)}
+                        >
+                          Add Pallet
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))
@@ -190,6 +216,56 @@ function WarehousePage() {
               })}
             </div>
           </div>
+          {/* Modal for adding pallet */}
+          {isModalOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+              <div className="bg-white p-4 rounded shadow-lg">
+                <h2 className="text-lg font-bold mb-2">Add Pallet</h2>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    const formData = new FormData(e.target);
+                    const palletData = Object.fromEntries(formData.entries());
+                    handleAddPallet(palletData);
+                  }}
+                >
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium">Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      className="border rounded w-full p-1"
+                      required
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium">Weight</label>
+                    <input
+                      type="number"
+                      name="weight"
+                      className="border rounded w-full p-1"
+                      required
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      className="px-4 py-2 bg-gray-300 rounded"
+                      onClick={closeModal}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-blue-500 text-white rounded"
+                    >
+                      Add
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <>

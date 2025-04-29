@@ -124,6 +124,28 @@ export const updateRackPositionThunk = (warehouseId, rackId, position) => async 
   }
 };
 
+export const addPalletThunk = (shelfId, palletData) => async (dispatch) => {
+  try {
+    const response = await fetch(`/api/pallets/shelf/${shelfId}/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(palletData),
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Pallet added successfully:', data);
+      // Optionally update Redux state if needed
+    } else {
+      console.error('❌ Error adding pallet:', await response.json());
+    }
+  } catch (error) {
+    console.error('❌ Error adding pallet:', error);
+  }
+};
+
 // Initial State
 const initialState = {
   racks: [],
