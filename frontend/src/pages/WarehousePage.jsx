@@ -267,7 +267,7 @@ function WarehousePage() {
                     handleAddPallet(palletData);
                   }}
                 >
-                  {/* <div className="mb-2">
+                  <div className="mb-2">
                     <label className="block text-sm font-medium">Name</label>
                     <input
                       type="text"
@@ -275,7 +275,7 @@ function WarehousePage() {
                       className="border rounded w-full p-1"
                       required
                     />
-                  </div> */}
+                  </div>
                   <div className="mb-2">
                     <label className="block text-sm font-medium">
                       Customer Name
