@@ -214,7 +214,10 @@ function WarehousePage() {
           </div>
           {/* Modal for adding pallet */}
           {isModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+            <div
+              className="fixed inset-0 flex items-center justify-center"
+              style={{ backgroundColor: "rgba(0, 0, 0, 0.85)" }} // Semi-black background
+            >
               <div className="bg-white p-4 rounded shadow-lg">
                 <h2 className="text-lg font-bold mb-2">Add Pallet</h2>
                 <form
