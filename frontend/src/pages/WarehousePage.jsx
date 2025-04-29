@@ -70,30 +70,7 @@ function WarehousePage() {
           Rack View
         </button>
       </div>
-      {isWarehouseView ? (
-        <>
-          {/* Warehouse View */}
-          <div className="h-[25vh]">
-            {selectedField ? (
-              <FieldInfo field={selectedField} />
-            ) : (
-              "Select a field to view its info"
-            )}
-          </div>
-          <div className="flex-grow max-w-full overflow-x-hidden">
-            {fieldsArr.length ? (
-              <FieldGrid
-                warehouse={warehouse}
-                handleFieldClick={handleFieldClick}
-                style={{ maxWidth: "65vw", margin: "0 auto" }}
-                currentField={selectedField?.id ? selectedField.id : null}
-              />
-            ) : (
-              "This warehouse does not have any fields"
-            )}
-          </div>
-        </>
-      ) : (
+      {!isWarehouseView ? (
         <>
           {/* Rack View */}
           <div className="relative w-full overflow-hidden bg-white" style={{ aspectRatio: warehouse.width / warehouse.length }}>
@@ -108,8 +85,38 @@ function WarehousePage() {
                 backgroundSize: `${(1 / warehouse.width) * 100}% ${(1 / warehouse.length) * 100}%`,
               }}
             >
+              {/* Render FieldGrid */}
+              {fieldsArr.length ? (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: `${(warehouse.fieldgridLocation.y / warehouse.length) * 100}%`,
+                    left: `${(warehouse.fieldgridLocation.x / warehouse.width) * 100}%`,
+                    width: `${((warehouse.cols * 5) / warehouse.width) * 100}%`, // Match VAULT_SIZE_FT scaling
+                    height: `${((warehouse.rows * 5) / warehouse.length) * 100}%`, // Match VAULT_SIZE_FT scaling
+                    backgroundColor: "rgba(0, 0, 255, 0.1)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    border: "1px solid rgba(0, 0, 255, 0.5)", // Add border for better visibility
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "1.5rem", // Fixed font size for better visibility
+                      fontWeight: "bold",
+                      color: "black",
+                    }}
+                  >
+                    VAULTS
+                  </span>
+                </div>
+              ) : (
+                "This warehouse does not have any fields"
+              )}
+
+              {/* Render Racks */}
               {racks.map((rack, index) => {
-                // Determine rack dimensions based on its orientation
                 const isHorizontal = rack.orientation === "horizontal";
                 const rackWidth = isHorizontal ? rack.width : rack.length;
                 const rackHeight = isHorizontal ? rack.length : rack.width;
@@ -135,6 +142,29 @@ function WarehousePage() {
                 );
               })}
             </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Warehouse View */}
+          <div className="h-[25vh]">
+            {selectedField ? (
+              <FieldInfo field={selectedField} />
+            ) : (
+              "Select a field to view its info"
+            )}
+          </div>
+          <div className="flex-grow max-w-full overflow-x-hidden">
+            {fieldsArr.length ? (
+              <FieldGrid
+                warehouse={warehouse}
+                handleFieldClick={handleFieldClick}
+                style={{ maxWidth: "65vw", margin: "0 auto" }}
+                currentField={selectedField?.id ? selectedField.id : null}
+              />
+            ) : (
+              "This warehouse does not have any fields"
+            )}
           </div>
         </>
       )}
