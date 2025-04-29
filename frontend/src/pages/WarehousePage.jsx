@@ -18,9 +18,14 @@ function WarehousePage() {
   const [loading, setLoading] = useState(true);
   const [isWarehouseView, setIsWarehouseView] = useState(true); // Toggle state
   const racks = useSelector((state) => state.rack.racks); // Fetch racks from Redux
+  const [selectedRack, setSelectedRack] = useState(null); // State for selected rack
 
   function handleFieldClick(field) {
     if (field.id) dispatch(getCurrentFieldThunk(field));
+  }
+
+  function handleRackClick(rack) {
+    setSelectedRack(rack); // Set the clicked rack as selected
   }
 
   useEffect(() => {
@@ -73,6 +78,41 @@ function WarehousePage() {
       {!isWarehouseView ? (
         <>
           {/* Rack View */}
+          <div className="h-[90%] grid grid-cols-[65%_35%]">
+            <div className="grid grid-rows-3 border-r border-gray-300">
+              {(selectedRack?.shelves.length ? selectedRack.shelves : Array(3).fill(null)).map((_, index) => (
+                <div
+                  key={index}
+                  className={`p-2 flex items-center justify-between ${
+                    index < 2 ? "border-b border-gray-300" : ""
+                  }`}
+                >
+                  <div className="text-sm w-[10%] flex items-center mr-4 lg:mr-0">
+                    Shelf {index + 1}
+                  </div>
+                  <div className="flex-grow flex items-center">
+                    {/* Placeholder for shelf content */}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-col items-center justify-evenly p-2">
+              {selectedRack ? (
+                <>
+                  <div className="font-semibold text-2xl md:text-3xl text-center">
+                    {selectedRack.name}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-4xl">
+                      inventory
+                    </span>
+                  </div>
+                </>
+              ) : (
+                <div className="text-center">Select a rack to view its info</div>
+              )}
+            </div>
+          </div>
           <div className="relative w-full overflow-hidden bg-white" style={{ aspectRatio: warehouse.width / warehouse.length }}>
             <div
               className="relative"
@@ -135,7 +175,9 @@ function WarehousePage() {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
+                      cursor: "pointer", // Add pointer cursor for clickable racks
                     }}
+                    onClick={() => handleRackClick(rack)} // Handle rack click
                   >
                     <span className="text-xs text-center">{rack.name}</span>
                   </div>
