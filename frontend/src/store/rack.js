@@ -135,11 +135,12 @@ export const addPalletThunk = (shelfId, palletData) => async (dispatch) => {
     });
 
     if (response.ok) {
-      const data = await response.json();
-      console.log('✅ Pallet added successfully:', data);
-      // Optionally update Redux state if needed
+      const updatedShelf = await response.json();
+      console.log('✅ Pallet added successfully:', updatedShelf);
+      return updatedShelf; // Return the updated shelf data
     } else {
-      console.error('❌ Error adding pallet:', await response.json());
+      const error = await response.json();
+      console.error('❌ Error adding pallet:', error);
     }
   } catch (error) {
     console.error('❌ Error adding pallet:', error);

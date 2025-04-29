@@ -27,5 +27,5 @@ class Shelf(db.Model):
             'name': self.name,
             'capacity': self.capacity,
             'rackId': self.rack_id,
-            # 'pallets': [pallet.to_dict() for pallet in self.pallets],
+            'pallets': [pallet.to_dict() for pallet in self.pallets],  # Include pallets
         }

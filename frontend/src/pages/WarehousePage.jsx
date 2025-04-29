@@ -6,7 +6,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import FieldGrid from "../components/Warehouse/FieldGrid";
 import FieldInfo from "../components/Warehouse/FieldInfo";
 import { getCurrentFieldThunk } from "../store/warehouse";
-import { fetchRacksThunk } from "../store/rack"; // Import the fetchRacksThunk
+import { fetchRacksThunk, addPalletThunk } from "../store/rack"; // Import the fetchRacksThunk
 import AddPalletButton from "../components/Warehouse/AddPalletButton";
 
 function WarehousePage() {
@@ -42,8 +42,15 @@ function WarehousePage() {
   }
 
   async function handleAddPallet(palletData) {
-    // Dispatch thunk to add pallet (to be implemented)
-    // Example: dispatch(addPalletThunk(selectedShelf.id, palletData));
+    const updatedShelf = await dispatch(addPalletThunk(selectedShelf.id, palletData)); // Dispatch thunk to add pallet
+    if (updatedShelf) {
+      setSelectedRack((prevRack) => ({
+        ...prevRack,
+        shelves: prevRack.shelves.map((shelf) =>
+          shelf.id === updatedShelf.id ? updatedShelf : shelf
+        ),
+      })); // Update the selected rack with the updated shelf
+    }
     closeModal();
   }
 
@@ -111,8 +118,8 @@ function WarehousePage() {
                       {index + 1}
                     </div>
                     <div className="flex-grow flex items-center">
-                      {shelf.content ? (
-                        shelf.content
+                      {shelf.pallets?.length ? (
+                        <span className="text-sm font-medium">{shelf.pallets[0].name}</span> // Show pallet name
                       ) : (
                         <AddPalletButton onClick={() => handleAddPalletClick(shelf)} />
                       )}
