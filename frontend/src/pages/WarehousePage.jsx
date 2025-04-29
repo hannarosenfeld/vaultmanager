@@ -7,6 +7,7 @@ import FieldGrid from "../components/Warehouse/FieldGrid";
 import FieldInfo from "../components/Warehouse/FieldInfo";
 import { getCurrentFieldThunk } from "../store/warehouse";
 import { fetchRacksThunk } from "../store/rack"; // Import the fetchRacksThunk
+import AddRackButton from "../components/Warehouse/AddRackButton";
 
 function WarehousePage() {
   const { warehouseName } = useParams();
@@ -113,12 +114,7 @@ function WarehousePage() {
                       {shelf.content ? (
                         shelf.content
                       ) : (
-                        <button
-                          className="text-blue-500 underline"
-                          onClick={() => handleAddPalletClick(shelf)}
-                        >
-                          Add Pallet
-                        </button>
+                        <AddRackButton onClick={() => handleAddPalletClick(shelf)} />
                       )}
                     </div>
                   </div>
