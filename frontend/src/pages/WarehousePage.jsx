@@ -42,7 +42,9 @@ function WarehousePage() {
   }
 
   async function handleAddPallet(palletData) {
-    const updatedShelf = await dispatch(addPalletThunk(selectedShelf.id, palletData)); // Dispatch thunk to add pallet
+    const updatedShelf = await dispatch(
+      addPalletThunk(selectedShelf.id, palletData)
+    ); // Dispatch thunk to add pallet
     if (updatedShelf) {
       setSelectedRack((prevRack) => ({
         ...prevRack,
@@ -89,13 +91,17 @@ function WarehousePage() {
       {/* Toggle switch */}
       <div className="flex justify-center mb-4">
         <button
-          className={`px-4 py-2 rounded-l ${isWarehouseView ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`px-4 py-2 rounded-l ${
+            isWarehouseView ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
           onClick={() => setIsWarehouseView(true)}
         >
           Warehouse View
         </button>
         <button
-          className={`px-4 py-2 rounded-r ${!isWarehouseView ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+          className={`px-4 py-2 rounded-r ${
+            !isWarehouseView ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
           onClick={() => setIsWarehouseView(false)}
         >
           Rack View
@@ -111,7 +117,9 @@ function WarehousePage() {
                   <div
                     key={index}
                     className={`p-2 flex items-center justify-between ${
-                      index < selectedRack.shelves.length - 1 ? "border-b border-gray-300" : ""
+                      index < selectedRack.shelves.length - 1
+                        ? "border-b border-gray-300"
+                        : ""
                     }`}
                   >
                     <div className="text-sm w-[10%] flex items-center mr-1 lg:mr-0">
@@ -119,15 +127,21 @@ function WarehousePage() {
                     </div>
                     <div className="flex-grow flex items-center">
                       {shelf.pallets?.length ? (
-                        <span className="text-sm font-medium">{shelf.pallets[0].name}</span> // Show pallet name
+                        <span className="text-sm font-medium">
+                          {shelf.pallets[0].name}
+                        </span> // Show pallet name
                       ) : (
-                        <AddPalletButton onClick={() => handleAddPalletClick(shelf)} />
+                        <AddPalletButton
+                          onClick={() => handleAddPalletClick(shelf)}
+                        />
                       )}
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="p-2 text-center text-gray-500">Rack has no shelves</div>
+                <div className="p-2 text-center text-gray-500">
+                  Rack has no shelves
+                </div>
               )}
             </div>
             <div className="flex flex-col items-center justify-evenly p-2">
@@ -143,11 +157,16 @@ function WarehousePage() {
                   </div>
                 </>
               ) : (
-                <div className="text-center">Select a rack to view its info</div>
+                <div className="text-center">
+                  Select a rack to view its info
+                </div>
               )}
             </div>
           </div>
-          <div className="relative w-full overflow-hidden bg-white" style={{ aspectRatio: warehouse.width / warehouse.length }}>
+          <div
+            className="relative w-full overflow-hidden bg-white"
+            style={{ aspectRatio: warehouse.width / warehouse.length }}
+          >
             <div
               className="relative"
               style={{
@@ -156,7 +175,9 @@ function WarehousePage() {
                 height: "100%",
                 backgroundImage:
                   "linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px)",
-                backgroundSize: `${(1 / warehouse.width) * 100}% ${(1 / warehouse.length) * 100}%`,
+                backgroundSize: `${(1 / warehouse.width) * 100}% ${
+                  (1 / warehouse.length) * 100
+                }%`,
               }}
             >
               {/* Render FieldGrid */}
@@ -164,10 +185,16 @@ function WarehousePage() {
                 <div
                   className="absolute flex items-center justify-center border border-blue-500 bg-blue-100"
                   style={{
-                    top: `${(warehouse.fieldgridLocation.y / warehouse.length) * 100}%`,
-                    left: `${(warehouse.fieldgridLocation.x / warehouse.width) * 100}%`,
+                    top: `${
+                      (warehouse.fieldgridLocation.y / warehouse.length) * 100
+                    }%`,
+                    left: `${
+                      (warehouse.fieldgridLocation.x / warehouse.width) * 100
+                    }%`,
                     width: `${((warehouse.cols * 5) / warehouse.width) * 100}%`, // Match VAULT_SIZE_FT scaling
-                    height: `${((warehouse.rows * 5) / warehouse.length) * 100}%`, // Match VAULT_SIZE_FT scaling
+                    height: `${
+                      ((warehouse.rows * 5) / warehouse.length) * 100
+                    }%`, // Match VAULT_SIZE_FT scaling
                   }}
                 >
                   <span className="text-md text-black">VAULTS</span>
@@ -203,7 +230,9 @@ function WarehousePage() {
                     <span
                       className="text-xs text-center"
                       style={{
-                        writingMode: isHorizontal ? "horizontal-tb" : "vertical-rl", // Adjust text orientation
+                        writingMode: isHorizontal
+                          ? "horizontal-tb"
+                          : "vertical-rl", // Adjust text orientation
                         textOverflow: "ellipsis",
                         overflow: "hidden",
                         whiteSpace: "nowrap",
@@ -212,7 +241,10 @@ function WarehousePage() {
                         fontSize: "0.75rem", // Smaller font size
                       }}
                     >
-                      {rack.name.length > 10 ? `${rack.name.slice(0, 10)}...` : rack.name} {/* Truncate after 10 chars */}
+                      {rack.name.length > 10
+                        ? `${rack.name.slice(0, 10)}...`
+                        : rack.name}{" "}
+                      {/* Truncate after 10 chars */}
                     </span>
                   </div>
                 );
@@ -235,7 +267,7 @@ function WarehousePage() {
                     handleAddPallet(palletData);
                   }}
                 >
-                  <div className="mb-2">
+                  {/* <div className="mb-2">
                     <label className="block text-sm font-medium">Name</label>
                     <input
                       type="text"
@@ -243,7 +275,30 @@ function WarehousePage() {
                       className="border rounded w-full p-1"
                       required
                     />
+                  </div> */}
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium">
+                      Customer Name
+                    </label>
+                    <input
+                      type="text"
+                      name="customer_name"
+                      className="border rounded w-full p-1"
+                      required
+                    />
                   </div>
+
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium">
+                      Pallet Number
+                    </label>
+                    <input
+                      type="text"
+                      name="pallet_number"
+                      className="border rounded w-full p-1"
+                    />
+                  </div>
+
                   <div className="mb-2">
                     <label className="block text-sm font-medium">Weight</label>
                     <input
@@ -253,23 +308,7 @@ function WarehousePage() {
                       required
                     />
                   </div>
-                  <div className="mb-2">
-                    <label className="block text-sm font-medium">Customer Name</label>
-                    <input
-                      type="text"
-                      name="customer_name"
-                      className="border rounded w-full p-1"
-                      required
-                    />
-                  </div>
-                  <div className="mb-2">
-                    <label className="block text-sm font-medium">Pallet Number</label>
-                    <input
-                      type="text"
-                      name="pallet_number"
-                      className="border rounded w-full p-1"
-                    />
-                  </div>
+
                   <div className="mb-2">
                     <label className="block text-sm font-medium">Notes</label>
                     <textarea
@@ -277,6 +316,7 @@ function WarehousePage() {
                       className="border rounded w-full p-1"
                     ></textarea>
                   </div>
+                  
                   <div className="flex justify-end gap-2">
                     <button
                       type="button"
