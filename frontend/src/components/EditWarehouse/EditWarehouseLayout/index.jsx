@@ -32,22 +32,11 @@ export default function EditWarehouseLayout({
 
   // Utility function to clamp coordinates
   const clampPosition = (x, y, width, length, maxWidth, maxHeight, orientation) => {
-    // Ensure all values are valid numbers
-    const validX = isNaN(x) || x === null ? 0 : x;
-    const validY = isNaN(y) || y === null ? 0 : y;
-    const validWidth = isNaN(width) || width === null ? 0 : width;
-    const validLength = isNaN(length) || length === null ? 0 : length;
+    const adjustedWidth = orientation === "horizontal" ? width : length;
+    const adjustedLength = orientation === "horizontal" ? length : width;
 
-    // Adjust dimensions based on orientation
-    const adjustedWidth = orientation === "horizontal" ? validWidth : validLength;
-    const adjustedLength = orientation === "horizontal" ? validLength : validWidth;
-
-    // Adjust clamping to ensure racks can be placed flush against the edges
-    const clampedX = Math.max(0, Math.min(validX, maxWidth - adjustedWidth));
-    const clampedY = Math.max(0, Math.min(validY, maxHeight - adjustedLength));
-
-    // Debugging: Log the clamped values
-    console.log("✅ Clamped position:", { clampedX, clampedY });
+    const clampedX = Math.max(0, Math.min(x, maxWidth - adjustedWidth));
+    const clampedY = Math.max(0, Math.min(y, maxHeight - adjustedLength));
 
     return { x: clampedX, y: clampedY };
   };
@@ -229,23 +218,15 @@ export default function EditWarehouseLayout({
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    console.log("🔍 Raw input values for rack position:", { x, y });
-
     const updatedPosition = clampPosition(
       x,
       y,
-      rack.width, // Use rack.width directly
-      rack.length, // Use rack.length directly
+      rack.width,
+      rack.length,
       warehouse.width,
-      warehouse.length
+      warehouse.length,
+      rack.orientation // Pass orientation here
     );
-
-    console.log("🔍 Calculated rack position:", updatedPosition);
-
-    if (isNaN(updatedPosition.x) || isNaN(updatedPosition.y)) {
-      console.error("❌ Invalid rack position:", updatedPosition);
-      return;
-    }
 
     try {
       await dispatch(
@@ -254,12 +235,11 @@ export default function EditWarehouseLayout({
           y: updatedPosition.y,
         })
       );
-      console.log("✅ Rack position saved:", updatedPosition);
     } catch (error) {
-      console.error("❌ Error saving rack position:", error);
+      console.error("Error updating rack position:", error);
     }
 
-    setRackDragPreview(null); // Clear rack drag preview after drag ends
+    setRackDragPreview(null);
   };
 
   const handleRackClick = (rack) => {
@@ -362,11 +342,10 @@ export default function EditWarehouseLayout({
           </div>
 
           {racks.map((rack, index) => {
-            // Determine rack dimensions based on its orientation
-            const isHorizontal = rack.orientation === "horizontal"; // Ensure orientation is used
-            const rackWidth = isHorizontal ? rack.width : rack.length; // Use rack.width and rack.length directly
-            const rackLength = isHorizontal ? rack.length : rack.width; // Corrected from height
-          
+            const isHorizontal = rack.orientation === "horizontal";
+            const rackWidth = isHorizontal ? rack.width : rack.length;
+            const rackHeight = isHorizontal ? rack.length : rack.width;
+
             return (
               <div
                 key={index}
@@ -380,26 +359,12 @@ export default function EditWarehouseLayout({
                   top: `${(rack.position.y / warehouse.length) * 100}%`,
                   left: `${(rack.position.x / warehouse.width) * 100}%`,
                   width: `${(rackWidth / warehouse.width) * 100}%`,
-                  height: `${(rackLength / warehouse.length) * 100}%`,
+                  height: `${(rackHeight / warehouse.length) * 100}%`,
                   backgroundColor: "rgba(0, 0, 255, 0.2)",
                   border: "1px solid blue",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  overflow: "hidden",
-                  cursor: "pointer", // Indicate clickable
                 }}
               >
-                <span
-                  className="text-xs text-center"
-                  style={{
-                    whiteSpace: "nowrap",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}
-                >
-                  {rack.name}
-                </span>
+                <span className="text-xs text-center">{rack.name}</span>
               </div>
             );
           })}

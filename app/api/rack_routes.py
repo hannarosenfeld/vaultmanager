@@ -16,11 +16,15 @@ def add_rack_to_warehouse(warehouse_id):
     print(f"🔍 Received data for adding rack: {data}")  # Debugging: Log received data
 
     position = data.get('position', {})
-    position['width'] = data.get('width', 1.0)  # Ensure width is extracted
-    position['length'] = data.get('length', 1.0)  # Ensure length is extracted
-    print(f"🔍 Processed position data: {position}")  # Debugging: Log processed position
+    orientation = data.get('orientation', 'vertical')
+    width = data.get('width')
+    length = data.get('length')
 
-    orientation = data.get('orientation', 'vertical')  # Default to vertical if not provided
+    if orientation == 'horizontal':
+        position['width'], position['length'] = width, length
+    else:
+        position['width'], position['length'] = length, width
+
     name = data.get('name', f"Rack in Warehouse {warehouse_id}")
     capacity = data.get('capacity', 100)
     num_shelves = data.get('num_shelves', 0)  # Get the number of shelves from the form
@@ -32,9 +36,6 @@ def add_rack_to_warehouse(warehouse_id):
     warehouse = Warehouse.query.get(warehouse_id)
     if not warehouse:
         return jsonify({'error': 'Warehouse not found'}), 404
-
-    width = data.get('width')
-    length = data.get('length')
 
     # Validate dimensions
     if not width or not length:
@@ -52,8 +53,8 @@ def add_rack_to_warehouse(warehouse_id):
         warehouse_id=warehouse_id,
         position=position,
         orientation=orientation,
-        width=width,  # Ensure width is saved
-        length=length,  # Ensure length is saved
+        width=width,
+        length=length,
     )
 
     print(f"🔍 New rack before validation: {new_rack.to_dict()}")  # Debugging: Log rack data before validation
