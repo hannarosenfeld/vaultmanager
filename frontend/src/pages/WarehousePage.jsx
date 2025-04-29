@@ -128,28 +128,15 @@ function WarehousePage() {
               {/* Render FieldGrid */}
               {fieldsArr.length ? (
                 <div
+                  className="absolute flex items-center justify-center border border-blue-500 bg-blue-100"
                   style={{
-                    position: "absolute",
                     top: `${(warehouse.fieldgridLocation.y / warehouse.length) * 100}%`,
                     left: `${(warehouse.fieldgridLocation.x / warehouse.width) * 100}%`,
                     width: `${((warehouse.cols * 5) / warehouse.width) * 100}%`, // Match VAULT_SIZE_FT scaling
                     height: `${((warehouse.rows * 5) / warehouse.length) * 100}%`, // Match VAULT_SIZE_FT scaling
-                    backgroundColor: "rgba(0, 0, 255, 0.1)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    border: "1px solid rgba(0, 0, 255, 0.5)", // Add border for better visibility
                   }}
                 >
-                  <span
-                    style={{
-                      fontSize: "1.5rem", // Fixed font size for better visibility
-                      fontWeight: "bold",
-                      color: "black",
-                    }}
-                  >
-                    VAULTS
-                  </span>
+                  <span className="text-md text-black">VAULTS</span>
                 </div>
               ) : (
                 "This warehouse does not have any fields"
