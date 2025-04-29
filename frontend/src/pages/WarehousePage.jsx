@@ -80,21 +80,26 @@ function WarehousePage() {
           {/* Rack View */}
           <div className="h-[90%] grid grid-cols-[65%_35%]">
             <div className="grid grid-rows-3 border-r border-gray-300">
-              {(selectedRack?.shelves.length ? selectedRack.shelves : Array(3).fill(null)).map((_, index) => (
-                <div
-                  key={index}
-                  className={`p-2 flex items-center justify-between ${
-                    index < 2 ? "border-b border-gray-300" : ""
-                  }`}
-                >
-                  <div className="text-sm w-[10%] flex items-center mr-4 lg:mr-0">
-                    Shelf {index + 1}
+              {selectedRack?.shelves?.length ? (
+                selectedRack.shelves.map((shelf, index) => (
+                  <div
+                    key={index}
+                    className={`p-2 flex items-center justify-between ${
+                      index < selectedRack.shelves.length - 1 ? "border-b border-gray-300" : ""
+                    }`}
+                  >
+                    <div className="text-sm w-[10%] flex items-center mr-1 lg:mr-0">
+                      {index + 1}
+                    </div>
+                    <div className="flex-grow flex items-center">
+                      {/* Placeholder for shelf content */}
+                      {shelf.content || "Empty"}
+                    </div>
                   </div>
-                  <div className="flex-grow flex items-center">
-                    {/* Placeholder for shelf content */}
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <div className="p-2 text-center text-gray-500">Rack has no shelves</div>
+              )}
             </div>
             <div className="flex flex-col items-center justify-evenly p-2">
               {selectedRack ? (
