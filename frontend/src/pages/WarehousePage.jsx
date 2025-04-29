@@ -179,7 +179,20 @@ function WarehousePage() {
                     }}
                     onClick={() => handleRackClick(rack)} // Handle rack click
                   >
-                    <span className="text-xs text-center">{rack.name}</span>
+                    <span
+                      className="text-xs text-center"
+                      style={{
+                        writingMode: isHorizontal ? "horizontal-tb" : "vertical-rl", // Adjust text orientation
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                        whiteSpace: "nowrap",
+                        maxWidth: "100%",
+                        maxHeight: "100%",
+                        fontSize: "0.75rem", // Smaller font size
+                      }}
+                    >
+                      {rack.name.length > 10 ? `${rack.name.slice(0, 10)}...` : rack.name} {/* Truncate after 10 chars */}
+                    </span>
                   </div>
                 );
               })}
