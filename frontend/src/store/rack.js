@@ -131,7 +131,12 @@ export const addPalletThunk = (shelfId, palletData) => async (dispatch) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(palletData),
+      body: JSON.stringify({
+        ...palletData,
+        customer_name: palletData.customer_name, // Ensure customer_name is included
+        pallet_number: palletData.pallet_number, // Ensure pallet_number is included
+        notes: palletData.notes, // Ensure notes are included
+      }),
     });
 
     if (response.ok) {

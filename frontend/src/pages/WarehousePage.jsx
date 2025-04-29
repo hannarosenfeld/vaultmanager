@@ -253,6 +253,30 @@ function WarehousePage() {
                       required
                     />
                   </div>
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium">Customer Name</label>
+                    <input
+                      type="text"
+                      name="customer_name"
+                      className="border rounded w-full p-1"
+                      required
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium">Pallet Number</label>
+                    <input
+                      type="text"
+                      name="pallet_number"
+                      className="border rounded w-full p-1"
+                    />
+                  </div>
+                  <div className="mb-2">
+                    <label className="block text-sm font-medium">Notes</label>
+                    <textarea
+                      name="notes"
+                      className="border rounded w-full p-1"
+                    ></textarea>
+                  </div>
                   <div className="flex justify-end gap-2">
                     <button
                       type="button"

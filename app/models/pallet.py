@@ -14,6 +14,9 @@ class Pallet(db.Model):
         db.ForeignKey(add_prefix_for_prod('shelves.id')),  # Use add_prefix_for_prod
         nullable=False
     )
+    customer_name = db.Column(db.String(100), nullable=False)  # New field
+    pallet_number = db.Column(db.String(50), nullable=True)    # New field
+    notes = db.Column(db.Text, nullable=True)                 # New field
     file_path = db.Column(db.String(255), nullable=True)
     note = db.Column(db.Text, nullable=True)
 
@@ -26,6 +29,9 @@ class Pallet(db.Model):
             'name': self.name,
             'weight': self.weight,
             'shelfId': self.shelf_id,
+            'customerName': self.customer_name,  # New field
+            'palletNumber': self.pallet_number,  # New field
+            'notes': self.notes,                # New field
             'filePath': self.file_path,
             'note': self.note,
         }

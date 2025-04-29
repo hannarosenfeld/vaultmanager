@@ -9,9 +9,12 @@ def add_pallet_to_shelf(shelf_id):
     data = request.get_json()
     name = data.get('name')
     weight = data.get('weight')
+    customer_name = data.get('customer_name')  # New field
+    pallet_number = data.get('pallet_number')  # New field
+    notes = data.get('notes')  # New field
 
-    if not name or not weight:
-        return jsonify({'error': 'Name and weight are required'}), 400
+    if not name or not weight or not customer_name:  # Ensure customer_name is required
+        return jsonify({'error': 'Name, weight, and customer name are required'}), 400
 
     shelf = Shelf.query.get(shelf_id)
     if not shelf:
@@ -21,7 +24,14 @@ def add_pallet_to_shelf(shelf_id):
         return jsonify({'error': 'Shelf capacity exceeded'}), 400
 
     try:
-        new_pallet = Pallet(name=name, weight=weight, shelf_id=shelf_id)
+        new_pallet = Pallet(
+            name=name,
+            weight=weight,
+            customer_name=customer_name,
+            pallet_number=pallet_number,
+            notes=notes,
+            shelf_id=shelf_id
+        )
         db.session.add(new_pallet)
         db.session.commit()
         return jsonify(shelf.to_dict()), 201  # Return the updated shelf data
