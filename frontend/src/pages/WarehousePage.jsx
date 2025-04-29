@@ -6,6 +6,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import FieldGrid from "../components/Warehouse/FieldGrid";
 import FieldInfo from "../components/Warehouse/FieldInfo";
 import { getCurrentFieldThunk } from "../store/warehouse";
+import { fetchRacksThunk } from "../store/rack"; // Import the fetchRacksThunk
 
 function WarehousePage() {
   const { warehouseName } = useParams();
@@ -16,12 +17,13 @@ function WarehousePage() {
   const selectedField = useSelector((state) => state.warehouse.currentField);
   const [loading, setLoading] = useState(true);
   const [isWarehouseView, setIsWarehouseView] = useState(true); // Toggle state
+  const racks = useSelector((state) => state.rack.racks); // Fetch racks from Redux
 
   function handleFieldClick(field) {
     if (field.id) dispatch(getCurrentFieldThunk(field));
   }
 
-  useEffect(() => {    
+  useEffect(() => {
     const foundWarehouse = Object.values(warehouses).find(
       (w) => w.name.toLowerCase().split(" ").join("-") === warehouseName
     );
@@ -35,6 +37,12 @@ function WarehousePage() {
       dispatch(setCurrentWarehouse(null));
     };
   }, [dispatch, warehouseName, warehouses]);
+
+  useEffect(() => {
+    if (warehouse?.id) {
+      dispatch(fetchRacksThunk(warehouse.id)); // Fetch racks for the warehouse
+    }
+  }, [dispatch, warehouse?.id]);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -64,6 +72,7 @@ function WarehousePage() {
       </div>
       {isWarehouseView ? (
         <>
+          {/* Warehouse View */}
           <div className="h-[25vh]">
             {selectedField ? (
               <FieldInfo field={selectedField} />
@@ -85,7 +94,49 @@ function WarehousePage() {
           </div>
         </>
       ) : (
-        <div className="text-center">Rack View is under construction</div>
+        <>
+          {/* Rack View */}
+          <div className="relative w-full overflow-hidden bg-white" style={{ aspectRatio: warehouse.width / warehouse.length }}>
+            <div
+              className="relative"
+              style={{
+                position: "relative",
+                width: "100%",
+                height: "100%",
+                backgroundImage:
+                  "linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px)",
+                backgroundSize: `${(1 / warehouse.width) * 100}% ${(1 / warehouse.length) * 100}%`,
+              }}
+            >
+              {racks.map((rack, index) => {
+                // Determine rack dimensions based on its orientation
+                const isHorizontal = rack.orientation === "horizontal";
+                const rackWidth = isHorizontal ? rack.width : rack.length;
+                const rackHeight = isHorizontal ? rack.length : rack.width;
+
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      position: "absolute",
+                      top: `${(rack.position.y / warehouse.length) * 100}%`,
+                      left: `${(rack.position.x / warehouse.width) * 100}%`,
+                      width: `${(rackWidth / warehouse.width) * 100}%`,
+                      height: `${(rackHeight / warehouse.length) * 100}%`,
+                      backgroundColor: "rgba(0, 0, 255, 0.2)",
+                      border: "1px solid blue",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <span className="text-xs text-center">{rack.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
