@@ -23,6 +23,7 @@ def add_rack_to_warehouse(warehouse_id):
     orientation = data.get('orientation', 'vertical')  # Default to vertical if not provided
     name = data.get('name', f"Rack in Warehouse {warehouse_id}")
     capacity = data.get('capacity', 100)
+    num_shelves = data.get('num_shelves', 0)  # Get the number of shelves from the form
 
     if not position:
         return jsonify({'error': 'Position is required'}), 400
@@ -67,11 +68,27 @@ def add_rack_to_warehouse(warehouse_id):
     try:
         # Save the rack to the database
         db.session.add(new_rack)
+        db.session.flush()  # Flush to get the rack ID before committing
+
+        # Format the rack name for shelf naming
+        formatted_rack_name = "-".join(new_rack.name.lower().split())
+        print(f"🔍 Formatted rack name for shelves: {formatted_rack_name}")  # Debugging: Log formatted name
+
+        # Create shelves and add them to the rack's shelves relationship
+        for i in range(1, num_shelves + 1):
+            shelf_name = f"{formatted_rack_name}-shelf-{i}"
+            new_shelf = Shelf(name=shelf_name, capacity=50, rack_id=new_rack.id)  # Default capacity of 50
+            new_rack.shelves.append(new_shelf)  # Append directly to the rack's shelves relationship
+            db.session.add(new_shelf)
+            print(f"✅ Shelf created: {new_shelf.to_dict()}")  # Debugging: Log shelf creation
+
         db.session.commit()
-        print(f"✅ Rack added successfully: {new_rack.to_dict()}")  # Debugging: Log rack data after saving
+
+        print(f"✅ Rack and shelves added successfully: {new_rack.to_dict()}")  # Debugging: Log rack data after saving
     except Exception as e:
-        print(f"❌ Error saving rack: {e}")  # Debugging: Log error details
-        return jsonify({'error': 'Failed to save rack', 'details': str(e)}), 500
+        print(f"❌ Error saving rack or shelves: {e}")  # Debugging: Log error details
+        db.session.rollback()
+        return jsonify({'error': 'Failed to save rack or shelves', 'details': str(e)}), 500
 
     return jsonify(new_rack.to_dict()), 201
 

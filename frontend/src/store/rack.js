@@ -45,6 +45,7 @@ export const addRackThunk = (warehouseId, newRack) => async (dispatch) => {
         ...newRack,
         width: newRack.position.width, // Ensure width is included
         length: newRack.position.length, // Ensure length is included
+        num_shelves: newRack.num_shelves, // Include the number of shelves
       }),
     });
 

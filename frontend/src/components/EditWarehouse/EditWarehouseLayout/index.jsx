@@ -151,7 +151,6 @@ export default function EditWarehouseLayout({
         length: rackData.length,
       };
 
-      console.log("💖 rack.orientation", rackData.orientation);
       if (rackData.id) {
         // Update existing rack position
         await dispatch(
@@ -160,17 +159,16 @@ export default function EditWarehouseLayout({
             orientation: rackData.orientation, // Ensure orientation is included
           })
         );
-        console.log("✅ Rack moved successfully:", updatedPosition);
       } else {
         // Add a new rack
         const newRack = {
           name: rackData.name || "Unnamed Rack",
           capacity: 100,
           position: updatedPosition,
-          orientation: rackData.orientation, // Ensure orientation is included
+          orientation: rackData.orientation,
+          num_shelves: rackData.num_shelves || 1, // Include the number of shelves
         };
         await dispatch(addRackThunk(warehouse.id, newRack));
-        console.log("✅ New rack added successfully:", newRack);
       }
     } catch (error) {
       console.error("❌ Error handling rack drop:", error);

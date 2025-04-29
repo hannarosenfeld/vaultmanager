@@ -13,7 +13,6 @@ export default function RackCreator() {
 
   const [selectedDimension, setSelectedDimension] = useState(rackDimensions[0]);
   const [selectedOrientation, setSelectedOrientation] = useState(rackDirections[0]);
-  const [previewPosition, setPreviewPosition] = useState(null);
 
   const handleDragStart = (e) => {
     const rackData = {
@@ -21,6 +20,7 @@ export default function RackCreator() {
       width: selectedDimension.width || 1, // Ensure width is included
       length: selectedDimension.length || 1, // Ensure length is included
       orientation: selectedOrientation.id,
+      num_shelves: selectedDimension.shelves || 1, // Include the number of shelves
     };
 
     e.dataTransfer.setData("rack", JSON.stringify(rackData));
