@@ -7,7 +7,7 @@ import FieldGrid from "../components/Warehouse/FieldGrid";
 import FieldInfo from "../components/Warehouse/FieldInfo";
 import { getCurrentFieldThunk } from "../store/warehouse";
 import { fetchRacksThunk } from "../store/rack"; // Import the fetchRacksThunk
-import AddRackButton from "../components/Warehouse/AddRackButton";
+import AddPalletButton from "../components/Warehouse/AddPalletButton";
 
 function WarehousePage() {
   const { warehouseName } = useParams();
@@ -114,7 +114,7 @@ function WarehousePage() {
                       {shelf.content ? (
                         shelf.content
                       ) : (
-                        <AddRackButton onClick={() => handleAddPalletClick(shelf)} />
+                        <AddPalletButton onClick={() => handleAddPalletClick(shelf)} />
                       )}
                     </div>
                   </div>
@@ -214,7 +214,7 @@ function WarehousePage() {
           </div>
           {/* Modal for adding pallet */}
           {isModalOpen && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+            <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center">
               <div className="bg-white p-4 rounded shadow-lg">
                 <h2 className="text-lg font-bold mb-2">Add Pallet</h2>
                 <form
