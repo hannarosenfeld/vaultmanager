@@ -211,6 +211,37 @@ export default function EditWarehouseLayout({
     [warehouse]
   );
 
+  const SNAP_THRESHOLD = 2; // Threshold in feet for snapping racks
+
+  const findClosestRack = (x, y, width, length, orientation, racks) => {
+    let closestRack = null;
+    let closestDistance = Infinity;
+
+    racks.forEach((rack) => {
+      const isHorizontal = rack.orientation === "horizontal";
+      const rackWidth = isHorizontal ? rack.width : rack.length;
+      const rackHeight = isHorizontal ? rack.length : rack.width;
+
+      const dx = Math.abs(x - rack.position.x);
+      const dy = Math.abs(y - rack.position.y);
+
+      // Check if the racks are close enough to snap
+      if (
+        dx <= SNAP_THRESHOLD &&
+        dy <= SNAP_THRESHOLD &&
+        orientation === rack.orientation // Only snap racks with the same orientation
+      ) {
+        const distance = Math.sqrt(dx ** 2 + dy ** 2);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestRack = rack;
+        }
+      }
+    });
+
+    return closestRack;
+  };
+
   const handleRackDragEnd = async (e, rack) => {
     const warehouseEl = e.target.closest(".warehouse-grid");
     const rect = warehouseEl.getBoundingClientRect();
@@ -218,15 +249,34 @@ export default function EditWarehouseLayout({
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    const updatedPosition = clampPosition(
+    let updatedPosition = clampPosition(
       x,
       y,
       rack.width,
       rack.length,
       warehouse.width,
       warehouse.length,
-      rack.orientation // Pass orientation here
+      rack.orientation
     );
+
+    // Check for snapping to the closest rack
+    const closestRack = findClosestRack(
+      updatedPosition.x,
+      updatedPosition.y,
+      rack.width,
+      rack.length,
+      rack.orientation,
+      racks
+    );
+
+    if (closestRack) {
+      // Snap the rack to align with the closest rack
+      if (rack.orientation === "horizontal") {
+        updatedPosition.y = closestRack.position.y; // Align vertically
+      } else {
+        updatedPosition.x = closestRack.position.x; // Align horizontally
+      }
+    }
 
     try {
       await dispatch(
