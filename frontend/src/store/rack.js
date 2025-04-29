@@ -126,16 +126,18 @@ export const updateRackPositionThunk = (warehouseId, rackId, position) => async 
 
 export const addPalletThunk = (shelfId, palletData) => async (dispatch) => {
   try {
+    console.log("📦 Sending pallet data to backend:", palletData); // Debugging: Log payload
     const response = await fetch(`/api/pallets/shelf/${shelfId}/add`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        ...palletData,
-        customer_name: palletData.customer_name, // Ensure customer_name is included
-        pallet_number: palletData.pallet_number, // Ensure pallet_number is included
-        notes: palletData.notes, // Ensure notes are included
+        name: palletData.name, // Explicitly include name
+        weight: palletData.weight, // Explicitly include weight
+        customer_name: palletData.customer_name, // Explicitly include customer_name
+        pallet_number: palletData.pallet_number, // Include pallet_number
+        notes: palletData.notes, // Include notes
       }),
     });
 
@@ -145,10 +147,10 @@ export const addPalletThunk = (shelfId, palletData) => async (dispatch) => {
       return updatedShelf; // Return the updated shelf data
     } else {
       const error = await response.json();
-      console.error('❌ Error adding pallet:', error);
+      console.error('❌ Error adding pallet:', error); // Debugging: Log backend error
     }
   } catch (error) {
-    console.error('❌ Error adding pallet:', error);
+    console.error('❌ Error adding pallet:', error); // Debugging: Log network error
   }
 };
 

@@ -267,18 +267,17 @@ function WarehousePage() {
                     e.preventDefault();
                     const formData = new FormData(e.target);
                     const palletData = Object.fromEntries(formData.entries());
+                    palletData.name = `${selectedRack?.name || "Unnamed Rack"}-${selectedShelf?.id || "Shelf"}`; // Set name explicitly
+                    palletData.weight = 0; // Explicitly set weight to 0
+                    if (!palletData.customer_name) {
+                      alert("Customer name is required.");
+                      return;
+                    }
+                    console.log("💖 Modified Pallet Data:", palletData); // Debugging: Log payload
                     handleAddPallet(palletData);
                   }}
                 >
-                  <div className="mb-2">
-                    <label className="block text-sm font-medium">Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      className="border rounded w-full p-1"
-                      required
-                    />
-                  </div>
+                  {/* Removed Weight Field */}
                   <div className="mb-2">
                     <label className="block text-sm font-medium">
                       Customer Name
@@ -299,16 +298,6 @@ function WarehousePage() {
                       type="text"
                       name="pallet_number"
                       className="border rounded w-full p-1"
-                    />
-                  </div>
-
-                  <div className="mb-2">
-                    <label className="block text-sm font-medium">Weight</label>
-                    <input
-                      type="number"
-                      name="weight"
-                      className="border rounded w-full p-1"
-                      required
                     />
                   </div>
 

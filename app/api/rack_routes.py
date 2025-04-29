@@ -137,3 +137,46 @@ def update_rack_position(warehouse_id, rack_id):
         print(f"❌ Error updating rack position: {e}")
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+
+@rack_routes.route('/pallets/shelf/<int:shelf_id>/add', methods=['POST'])
+def add_pallet_to_shelf(shelf_id):
+    data = request.get_json()
+    print(f"🔍 Received data for adding pallet: {data}")  # Debugging: Log received data
+
+    # Validate required fields
+    name = data.get('name')
+    weight = data.get('weight')
+    customer_name = data.get('customer_name')
+
+    # Log the values of the required fields for debugging
+    print(f"🔍 Validating fields: name={name}, weight={weight}, customer_name={customer_name}")
+
+    if not name or weight is None or not customer_name:
+        print(f"❌ Missing required fields: name={name}, weight={weight}, customer_name={customer_name}")  # Debugging
+        return jsonify({'error': 'Name, weight, and customer name are required'}), 400
+
+    # Validate shelf existence
+    shelf = Shelf.query.get(shelf_id)
+    if not shelf:
+        print(f"❌ Shelf not found for ID: {shelf_id}")  # Debugging
+        return jsonify({'error': 'Shelf not found'}), 404
+
+    try:
+        # Create and save the pallet
+        new_pallet = Pallet(
+            name=name,
+            weight=weight,
+            customer_name=customer_name,
+            pallet_number=data.get('pallet_number'),
+            notes=data.get('notes'),
+            shelf_id=shelf_id,
+        )
+        db.session.add(new_pallet)
+        db.session.commit()
+        print(f"✅ Pallet added successfully: {new_pallet.to_dict()}")  # Debugging: Log pallet data
+        return jsonify(new_pallet.to_dict()), 201
+    except Exception as e:
+        print(f"❌ Error adding pallet: {e}")  # Debugging: Log error details
+        db.session.rollback()
+        return jsonify({'error': 'Failed to add pallet', 'details': str(e)}), 500
