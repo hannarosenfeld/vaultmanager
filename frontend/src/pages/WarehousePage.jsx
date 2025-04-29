@@ -127,9 +127,12 @@ function WarehousePage() {
                     </div>
                     <div className="flex-grow flex items-center">
                       {shelf.pallets?.length ? (
-                        <span className="text-sm font-medium">
-                          {shelf.pallets[0].name}
-                        </span> // Show pallet name
+                        <div>
+                          <span className="text-sm font-medium">
+                            {shelf.pallets[0].customerName}
+                          </span>
+                          <span className="text-sm font-medium"> {shelf.pallets[0].palletNumber}</span>
+                        </div>
                       ) : (
                         <AddPalletButton
                           onClick={() => handleAddPalletClick(shelf)}
@@ -316,7 +319,7 @@ function WarehousePage() {
                       className="border rounded w-full p-1"
                     ></textarea>
                   </div>
-                  
+
                   <div className="flex justify-end gap-2">
                     <button
                       type="button"
