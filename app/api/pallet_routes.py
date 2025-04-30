@@ -36,7 +36,7 @@ def add_pallet_to_shelf(shelf_id):
         )
         db.session.add(new_pallet)
         db.session.commit()
-        return jsonify(new_pallet.shelf.to_dict()), 201  # Return updated shelf
+        return jsonify(shelf.to_dict()), 201  # Return updated shelf with all pallets
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to add pallet', 'details': str(e)}), 500
