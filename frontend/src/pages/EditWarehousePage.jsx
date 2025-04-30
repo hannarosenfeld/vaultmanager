@@ -2,9 +2,9 @@ import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import EditWarehouseModal from "../components/EditWarehouse/EditWarehouseModal";
-import ToggleBox from "../components/EditWarehouse/ToggleBox";
+
 import WarehouseView from "../components/EditWarehouse/WarehouseView";
-import RackView from "../components/EditWarehouse/RackView";
+
 import {
   setCurrentWarehouse,
   editFieldCapacityThunk,
@@ -76,7 +76,7 @@ export default function EditWarehousePage() {
   }
 
   return (
-    <div className="flex flex-col items-center h-full mt-3">
+    <div className="flex flex-col items-center h-full mt-3 mb-8">
       <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2>
       {warehouse.width && warehouse.length && (
         <>
@@ -92,18 +92,12 @@ export default function EditWarehousePage() {
       <br />
       <hr className="w-full h-px my-8 bg-black" />
 
-      <ToggleBox viewMode={viewMode} setViewMode={setViewMode} />
-
-      {viewMode === "Warehouse" ? (
+      <h2 className="mb-4 text-2xl font-bold">Edit Warehouse Fields</h2>
         <WarehouseView
           warehouse={warehouse}
           openModal={openModal}
           handleSubmit={handleSubmit}
         />
-      ) : (
-        <RackView warehouse={warehouse} />
-      )}
-
       {isModalOpen && (
         <EditWarehouseModal
           {...modalProps}
