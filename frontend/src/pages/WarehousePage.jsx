@@ -153,11 +153,6 @@ function WarehousePage() {
                   <div className="font-semibold text-2xl md:text-3xl text-center">
                     {selectedRack.name}
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-4xl">
-                      inventory
-                    </span>
-                  </div>
                 </>
               ) : (
                 <div className="text-center">
@@ -273,7 +268,6 @@ function WarehousePage() {
                       alert("Customer name is required.");
                       return;
                     }
-                    console.log("💖 Modified Pallet Data:", palletData); // Debugging: Log payload
                     handleAddPallet(palletData);
                   }}
                 >

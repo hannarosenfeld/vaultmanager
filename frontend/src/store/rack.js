@@ -81,10 +81,8 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
     if (response.ok) {
       const data = await response.json();
       dispatch(updateRackPosition(rackId, position)); // Update position in Redux
-      console.log('✅ Rack position updated successfully:', data);
     } else {
       const error = await response.json();
-      console.error('❌ Error updating rack position:', error);
     }
   } catch (error) {
     console.error('❌ Error updating rack position:', error);
@@ -111,22 +109,18 @@ export const updateRackPositionThunk = (warehouseId, rackId, position) => async 
 
     if (response.ok) {
       const data = await response.json();
-      console.log("✅ Rack position updated successfully:", data);
       return data;
     } else {
       const error = await response.json();
-      console.error("❌ Error updating rack position:", error);
       return error;
     }
   } catch (error) {
-    console.error("❌ Error updating rack position:", error);
     return error;
   }
 };
 
 export const addPalletThunk = (shelfId, palletData) => async (dispatch) => {
   try {
-    console.log("📦 Sending pallet data to backend:", palletData); // Debugging: Log payload
     const response = await fetch(`/api/pallets/shelf/${shelfId}/add`, {
       method: 'POST',
       headers: {
@@ -143,11 +137,9 @@ export const addPalletThunk = (shelfId, palletData) => async (dispatch) => {
 
     if (response.ok) {
       const updatedShelf = await response.json();
-      console.log('✅ Pallet added successfully:', updatedShelf);
       return updatedShelf; // Return the updated shelf data
     } else {
       const error = await response.json();
-      console.error('❌ Error adding pallet:', error); // Debugging: Log backend error
     }
   } catch (error) {
     console.error('❌ Error adding pallet:', error); // Debugging: Log network error
