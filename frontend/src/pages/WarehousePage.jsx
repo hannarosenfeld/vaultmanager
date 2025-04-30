@@ -7,8 +7,8 @@ import FieldGrid from "../components/Warehouse/FieldGrid";
 import FieldInfo from "../components/Warehouse/FieldInfo";
 import { getCurrentFieldThunk } from "../store/warehouse";
 import { fetchRacksThunk, addPalletThunk } from "../store/rack"; // Import the fetchRacksThunk
-import AddPalletButton from "../components/Warehouse/AddPalletButton";
 import RackView from "../components/Warehouse/RackView"; // Import the new RackView component
+import PalletForm from "../components/Warehouse/RackView/PalletForm"; // Import PalletForm
 
 function WarehousePage() {
   const { warehouseName } = useParams();
@@ -21,7 +21,7 @@ function WarehousePage() {
   const [isWarehouseView, setIsWarehouseView] = useState(true); // Toggle state
   const racks = useSelector((state) => state.rack.racks); // Fetch racks from Redux
   const [selectedRack, setSelectedRack] = useState(null); // State for selected rack
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
+  const [isPalletFormOpen, setPalletFormOpen] = useState(false); // Use this for PalletForm
   const [selectedShelf, setSelectedShelf] = useState(null); // State for selected shelf
 
   function handleFieldClick(field) {
@@ -33,28 +33,33 @@ function WarehousePage() {
   }
 
   function handleAddPalletClick(shelf) {
-    setSelectedShelf(shelf); // Set the selected shelf
-    setIsModalOpen(true); // Open the modal
+    setSelectedShelf(shelf.id); // Pass only the shelf ID
+    setPalletFormOpen(true); // Open the PalletForm modal
   }
 
-  function closeModal() {
-    setIsModalOpen(false); // Close the modal
+  function closePalletForm() {
+    setPalletFormOpen(false); // Close the PalletForm modal
     setSelectedShelf(null); // Clear the selected shelf
   }
 
   async function handleAddPallet(palletData) {
-    const updatedShelf = await dispatch(
-      addPalletThunk(selectedShelf.id, palletData)
-    ); // Dispatch thunk to add pallet
-    if (updatedShelf) {
-      setSelectedRack((prevRack) => ({
-        ...prevRack,
-        shelves: prevRack.shelves.map((shelf) =>
-          shelf.id === updatedShelf.id ? updatedShelf : shelf
-        ),
-      })); // Update the selected rack with the updated shelf
+    try {
+      const updatedShelf = await dispatch(
+        addPalletThunk({ shelfId: selectedShelf, ...palletData }) // Use the correct shelfId
+      ).unwrap();
+      if (updatedShelf) {
+        setSelectedRack((prevRack) => ({
+          ...prevRack,
+          shelves: prevRack.shelves.map((shelf) =>
+            shelf.id === updatedShelf.id ? updatedShelf : shelf
+          ),
+        }));
+      }
+    } catch (error) {
+      console.error("Failed to add pallet:", error);
+    } finally {
+      closePalletForm();
     }
-    closeModal();
   }
 
   useEffect(() => {
@@ -114,12 +119,12 @@ function WarehousePage() {
           racks={racks}
           selectedRack={selectedRack}
           setSelectedRack={setSelectedRack}
-          isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
+          isModalOpen={isPalletFormOpen}
+          setIsModalOpen={setPalletFormOpen}
           selectedShelf={selectedShelf}
           setSelectedShelf={setSelectedShelf}
           handleAddPallet={handleAddPallet}
-          closeModal={closeModal}
+          closeModal={closePalletForm}
         />
       ) : (
         <>
@@ -145,6 +150,12 @@ function WarehousePage() {
           </div>
         </>
       )}
+      {/* Styled PalletForm Modal */}
+      <PalletForm
+        isOpen={isPalletFormOpen}
+        onClose={closePalletForm}
+        onSubmit={handleAddPallet}
+      />
     </div>
   );
 }

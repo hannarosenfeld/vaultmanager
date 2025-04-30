@@ -1,5 +1,4 @@
-import React from "react";
-import AddPalletButton from "../AddPalletButton";
+import RackInfo from "./RackInfo"; // Import RackInfo component
 
 function RackView({
   warehouse,
@@ -18,58 +17,26 @@ function RackView({
   }
 
   function handleAddPalletClick(shelf) {
-    setSelectedShelf(shelf);
+    setSelectedShelf(shelf.id); // Pass only the shelf ID
     setIsModalOpen(true);
   }
 
   return (
     <>
       <div className="h-[90%] grid grid-cols-[65%_35%]">
-        <div className="grid grid-rows-3 border-r border-gray-300">
-          {selectedRack?.shelves?.length ? (
-            selectedRack.shelves.map((shelf, index) => (
-              <div
-                key={index}
-                className={`p-2 flex items-center justify-between ${
-                  index < selectedRack.shelves.length - 1
-                    ? "border-b border-gray-300"
-                    : ""
-                }`}
-              >
-                <div className="text-sm w-[10%] flex items-center mr-1 lg:mr-0">
-                  {index + 1}
-                </div>
-                <div className="flex-grow flex items-center">
-                  {shelf.pallets?.length ? (
-                    <div>
-                      <span className="text-sm font-medium">
-                        {shelf.pallets[0].customerName}
-                      </span>
-                      <span className="text-sm font-medium">
-                        {" "}
-                        {shelf.pallets[0].palletNumber}
-                      </span>
-                    </div>
-                  ) : (
-                    <AddPalletButton
-                      onClick={() => handleAddPalletClick(shelf)}
-                    />
-                  )}
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="p-2 text-center text-gray-500">
-              Rack has no shelves
-            </div>
-          )}
-        </div>
+        <RackInfo
+          selectedRack={selectedRack}
+          handleAddPalletClick={handleAddPalletClick}
+        />
         <div className="flex flex-col items-center justify-evenly p-2">
           {selectedRack ? (
             <>
               <div className="font-semibold text-2xl md:text-3xl text-center">
                 {selectedRack.name}
               </div>
+              {selectedShelf && (
+                <RackInfo shelf={selectedShelf} /> // Render RackInfo
+              )}
             </>
           ) : (
             <div className="text-center">Select a rack to view its info</div>

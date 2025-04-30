@@ -1,3 +1,6 @@
+import { createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+
 // Action Types
 const SET_RACKS = 'rack/SET_RACKS';
 const ADD_RACK = 'rack/ADD_RACK';
@@ -119,32 +122,22 @@ export const updateRackPositionThunk = (warehouseId, rackId, position) => async 
   }
 };
 
-export const addPalletThunk = (shelfId, palletData) => async (dispatch) => {
-  try {
-    const response = await fetch(`/api/pallets/shelf/${shelfId}/add`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: palletData.name, // Explicitly include name
-        weight: palletData.weight, // Explicitly include weight
-        customer_name: palletData.customer_name, // Explicitly include customer_name
-        pallet_number: palletData.pallet_number, // Include pallet_number
-        notes: palletData.notes, // Include notes
-      }),
-    });
-
-    if (response.ok) {
-      const updatedShelf = await response.json();
-      return updatedShelf; // Return the updated shelf data
-    } else {
-      const error = await response.json();
+// Add Pallet Thunk
+export const addPalletThunk = createAsyncThunk(
+  "rack/addPallet",
+  async ({ shelfId, customer_name, pallet_number, notes }, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`/api/pallets/shelf/${shelfId}/add`, {
+        customer_name,
+        pallet_number,
+        notes,
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data || "Failed to add pallet");
     }
-  } catch (error) {
-    console.error('❌ Error adding pallet:', error); // Debugging: Log network error
   }
-};
+);
 
 // Initial State
 const initialState = {
