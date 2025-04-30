@@ -43,20 +43,22 @@ function WarehousePage() {
   }
 
   async function handleAddPallet(palletData) {
+    console.log(`🔍 Adding pallet with data:`, palletData);
     try {
       const updatedShelf = await dispatch(
-        addPalletThunk({ shelfId: selectedShelf, ...palletData }) // Use the correct shelfId
+        addPalletThunk({ shelfId: selectedShelf, ...palletData })
       ).unwrap();
-      if (updatedShelf) {
-        setSelectedRack((prevRack) => ({
-          ...prevRack,
-          shelves: prevRack.shelves.map((shelf) =>
-            shelf.id === updatedShelf.id ? updatedShelf : shelf
-          ),
-        }));
-      }
+      console.log(`✅ Pallet added successfully. Updated shelf:`, updatedShelf);
+
+      // Update the selectedRack state with the updated shelf
+      setSelectedRack((prevRack) => ({
+        ...prevRack,
+        shelves: prevRack.shelves.map((shelf) =>
+          shelf.id === updatedShelf.id ? updatedShelf : shelf
+        ),
+      }));
     } catch (error) {
-      console.error("Failed to add pallet:", error);
+      console.error("❌ Failed to add pallet:", error);
     } finally {
       closePalletForm();
     }
@@ -79,7 +81,10 @@ function WarehousePage() {
 
   useEffect(() => {
     if (warehouse?.id) {
+      console.log(`🔍 Fetching racks for warehouseId: ${warehouse.id}`);
       dispatch(fetchRacksThunk(warehouse.id)); // Fetch racks for the warehouse
+    } else {
+      console.error("❌ Warehouse ID is undefined in useEffect.");
     }
   }, [dispatch, warehouse?.id]);
 

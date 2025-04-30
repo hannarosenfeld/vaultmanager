@@ -27,8 +27,8 @@ def add_pallet_to_shelf(shelf_id):
 
     try:
         new_pallet = Pallet(
-            name=name,  # Ensure the name is set
-            weight=weight,  # Ensure the weight is set
+            name=name,
+            weight=weight,
             customer_name=customer_name,
             pallet_number=pallet_number,
             notes=notes,
@@ -36,7 +36,7 @@ def add_pallet_to_shelf(shelf_id):
         )
         db.session.add(new_pallet)
         db.session.commit()
-        return jsonify(shelf.to_dict()), 201  # Return the updated shelf
+        return jsonify(new_pallet.shelf.to_dict()), 201  # Return updated shelf
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to add pallet', 'details': str(e)}), 500

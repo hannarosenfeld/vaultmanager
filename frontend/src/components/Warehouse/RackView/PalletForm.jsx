@@ -34,16 +34,19 @@ function PalletForm({ isOpen, onClose, onSubmit }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log(`🔍 Submitting pallet form with data:`, formData);
     try {
       const palletDataWithDefaults = {
         ...formData,
         name: `Pallet-${formData.customer_name}-${formData.pallet_number}`, // Generate a name
         weight: formData.weight || 0, // Default weight to 0 if not provided
       };
+      console.log(`🔍 Final pallet data to submit:`, palletDataWithDefaults);
       await onSubmit(palletDataWithDefaults);
+      console.log(`✅ Pallet form submitted successfully.`);
       onClose();
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("❌ Error submitting form:", error);
     }
   };
 

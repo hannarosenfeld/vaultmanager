@@ -23,17 +23,30 @@ export const updateRackPosition = (rackId, updatedPosition) => ({
 });
 
 // Thunks
-export const fetchRacksThunk = (warehouseId) => async (dispatch) => {
+export const fetchRacksThunk = (warehouseId) => async (dispatch, getState) => {
+  if (!warehouseId) {
+    const state = getState();
+    warehouseId = state.warehouse.currentWarehouse?.id;
+    if (!warehouseId) {
+      console.error("❌ fetchRacksThunk called with undefined warehouseId");
+      return;
+    }
+  }
+  console.log(`🔍 Fetching racks for warehouseId: ${warehouseId}`);
   try {
     const response = await fetch(`/api/warehouse/${warehouseId}/racks`);
+    console.log(`🔍 Response status: ${response.status}`);
     if (response.ok) {
       const data = await response.json();
+      console.log(`✅ Fetched racks data:`, data);
       dispatch(setRacks(data));
     } else {
-      console.error('❌ Error fetching racks:', await response.json());
+      const errorText = await response.text(); // Capture the full response text for debugging
+      console.error('❌ Error fetching racks:', errorText);
+      throw new Error(`Failed to fetch racks: ${errorText}`);
     }
   } catch (error) {
-    console.error('❌ Error fetching racks:', error);
+    console.error('❌ Error fetching racks:', error.message);
   }
 };
 
@@ -92,6 +105,28 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
   }
 };
 
+// Add Pallet Thunk
+export const addPalletThunk = createAsyncThunk(
+  "rack/addPallet",
+  async ({ shelfId, customer_name, pallet_number, notes }, { dispatch, rejectWithValue }) => {
+    console.log(`🔍 Adding pallet to shelfId: ${shelfId}`);
+    try {
+      const response = await axios.post(`/api/pallets/shelf/${shelfId}/add`, {
+        customer_name,
+        pallet_number,
+        notes,
+      });
+      console.log(`✅ Pallet added successfully. Response:`, response.data);
+      const updatedShelf = response.data;
+      dispatch(fetchRacksThunk(updatedShelf.warehouseId)); // Refresh racks
+      return updatedShelf;
+    } catch (error) {
+      console.error('❌ Error adding pallet:', error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || "Failed to add pallet");
+    }
+  }
+);
+
 export const updateRackPositionThunk = (warehouseId, rackId, position) => async (dispatch) => {
   // Ensure all required fields are included in the position object
   const validatedPosition = {
@@ -121,23 +156,6 @@ export const updateRackPositionThunk = (warehouseId, rackId, position) => async 
     return error;
   }
 };
-
-// Add Pallet Thunk
-export const addPalletThunk = createAsyncThunk(
-  "rack/addPallet",
-  async ({ shelfId, customer_name, pallet_number, notes }, { rejectWithValue }) => {
-    try {
-      const response = await axios.post(`/api/pallets/shelf/${shelfId}/add`, {
-        customer_name,
-        pallet_number,
-        notes,
-      });
-      return response.data;
-    } catch (error) {
-      return rejectWithValue(error.response?.data || "Failed to add pallet");
-    }
-  }
-);
 
 // Initial State
 const initialState = {

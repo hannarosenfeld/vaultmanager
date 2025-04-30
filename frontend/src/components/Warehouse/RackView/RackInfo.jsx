@@ -25,13 +25,8 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
             <div className="flex-grow flex items-center">
               {shelf.pallets?.length ? (
                 <div>
-                  <span className="text-sm font-medium">
-                    {shelf.pallets[0].customerName}
-                  </span>
-                  <span className="text-sm font-medium">
-                    {" "}
-                    {shelf.pallets[0].palletNumber}
-                  </span>
+                  <span className="text-sm font-medium">{shelf.pallets[0].customerName}</span>
+                  <span className="text-sm font-medium"> {shelf.pallets[0].palletNumber}</span>
                 </div>
               ) : (
                 <AddPalletButton onClick={() => handleAddPalletClick(shelf)} />

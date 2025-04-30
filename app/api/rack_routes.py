@@ -6,8 +6,12 @@ rack_routes = Blueprint('racks', __name__)
 
 @rack_routes.route('/warehouse/<int:warehouse_id>', methods=['GET'])
 def get_racks_for_warehouse(warehouse_id):
-    racks = Rack.query.filter_by(warehouse_id=warehouse_id).all()
-    return jsonify([rack.to_dict() for rack in racks])  # Ensure orientation is included in to_dict()
+    try:
+        racks = Rack.query.filter_by(warehouse_id=warehouse_id).all()
+        return jsonify([rack.to_dict() for rack in racks]), 200  # Ensure valid JSON response
+    except Exception as e:
+        print(f"❌ Error fetching racks for warehouse {warehouse_id}: {e}")
+        return jsonify({'error': 'Failed to fetch racks', 'details': str(e)}), 500
 
 
 @rack_routes.route('/warehouse/<int:warehouse_id>/add', methods=['POST'])
