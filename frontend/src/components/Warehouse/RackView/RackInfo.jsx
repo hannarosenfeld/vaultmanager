@@ -2,8 +2,13 @@ import React from "react";
 import AddPalletButton from "./AddPalletButton";
 
 function RackInfo({ selectedRack, handleAddPalletClick }) {
+  const rowCount = selectedRack?.shelves?.length || 3; // Default to 3 rows if no shelves
+
   return (
-    <div className="grid grid-rows-3 border-r border-gray-300">
+    <div
+      className={`grid grid-rows-${rowCount} border-r border-gray-300 mb-4`}
+      style={{ height: `calc(${rowCount} * 80px)` }} // Dynamically calculate height
+    >
       {selectedRack?.shelves?.length ? (
         selectedRack.shelves.map((shelf, index) => (
           <div
