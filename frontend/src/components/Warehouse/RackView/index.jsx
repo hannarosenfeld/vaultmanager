@@ -17,6 +17,10 @@ function RackView({
   }
 
   function handleAddPalletClick(shelf) {
+    if (shelf.pallets?.length >= 3) {
+      alert("This shelf already has the maximum number of pallets (3).");
+      return;
+    }
     setSelectedShelf(shelf.id); // Pass only the shelf ID
     setIsModalOpen(true);
   }
