@@ -211,35 +211,33 @@ export default function EditWarehouseLayout({
     [warehouse]
   );
 
-  const SNAP_THRESHOLD = 2; // Threshold in feet for snapping racks
+  const SNAP_THRESHOLD = 1; // Threshold in feet for snapping racks
 
-  const findClosestRack = (x, y, width, length, orientation, racks) => {
-    let closestRack = null;
-    let closestDistance = Infinity;
+  const isCloseToLockableSite = (draggedRack, targetRack) => {
+    const isHorizontal = targetRack.orientation === "horizontal";
+    const targetWidth = isHorizontal ? targetRack.width : targetRack.length;
+    const targetHeight = isHorizontal ? targetRack.length : targetRack.width;
 
-    racks.forEach((rack) => {
-      const isHorizontal = rack.orientation === "horizontal";
-      const rackWidth = isHorizontal ? rack.width : rack.length;
-      const rackHeight = isHorizontal ? rack.length : rack.width;
+    const draggedWidth = isHorizontal ? draggedRack.width : draggedRack.length;
+    const draggedHeight = isHorizontal ? draggedRack.length : draggedRack.width;
 
-      const dx = Math.abs(x - rack.position.x);
-      const dy = Math.abs(y - rack.position.y);
+    const dx = Math.abs(draggedRack.x - targetRack.position.x);
+    const dy = Math.abs(draggedRack.y - targetRack.position.y);
 
-      // Check if the racks are close enough to snap
-      if (
-        dx <= SNAP_THRESHOLD &&
+    // Check if the dragged rack is close to the lockable side of the target rack
+    if (isHorizontal) {
+      return (
         dy <= SNAP_THRESHOLD &&
-        orientation === rack.orientation // Only snap racks with the same orientation
-      ) {
-        const distance = Math.sqrt(dx ** 2 + dy ** 2);
-        if (distance < closestDistance) {
-          closestDistance = distance;
-          closestRack = rack;
-        }
-      }
-    });
-
-    return closestRack;
+        (Math.abs(draggedRack.x - (targetRack.position.x + targetWidth)) <= SNAP_THRESHOLD || // Right side
+          Math.abs(draggedRack.x + draggedWidth - targetRack.position.x) <= SNAP_THRESHOLD) // Left side
+      );
+    } else {
+      return (
+        dx <= SNAP_THRESHOLD &&
+        (Math.abs(draggedRack.y - (targetRack.position.y + targetHeight)) <= SNAP_THRESHOLD || // Bottom side
+          Math.abs(draggedRack.y + draggedHeight - targetRack.position.y) <= SNAP_THRESHOLD) // Top side
+      );
+    }
   };
 
   const handleRackDragEnd = async (e, rack) => {
@@ -259,22 +257,36 @@ export default function EditWarehouseLayout({
       rack.orientation
     );
 
-    // Check for snapping to the closest rack
-    const closestRack = findClosestRack(
-      updatedPosition.x,
-      updatedPosition.y,
-      rack.width,
-      rack.length,
-      rack.orientation,
-      racks
-    );
+    // Check all racks for a lockable site
+    for (const targetRack of racks) {
+      if (targetRack.id === rack.id) continue; // Skip the dragged rack itself
 
-    if (closestRack) {
-      // Snap the rack to align with the closest rack
-      if (rack.orientation === "horizontal") {
-        updatedPosition.y = closestRack.position.y; // Align vertically
-      } else {
-        updatedPosition.x = closestRack.position.x; // Align horizontally
+      const draggedRack = {
+        x: updatedPosition.x,
+        y: updatedPosition.y,
+        width: rack.width,
+        length: rack.length,
+        orientation: rack.orientation,
+      };
+
+      if (isCloseToLockableSite(draggedRack, targetRack)) {
+        // Lock the dragged rack to the target rack
+        if (rack.orientation === "horizontal") {
+          updatedPosition.y = targetRack.position.y; // Align vertically
+          if (Math.abs(updatedPosition.x - (targetRack.position.x + targetRack.width)) <= SNAP_THRESHOLD) {
+            updatedPosition.x = targetRack.position.x + targetRack.width; // Lock to the right
+          } else if (Math.abs(updatedPosition.x + rack.width - targetRack.position.x) <= SNAP_THRESHOLD) {
+            updatedPosition.x = targetRack.position.x - rack.width; // Lock to the left
+          }
+        } else {
+          updatedPosition.x = targetRack.position.x; // Align horizontally
+          if (Math.abs(updatedPosition.y - (targetRack.position.y + targetRack.length)) <= SNAP_THRESHOLD) {
+            updatedPosition.y = targetRack.position.y + targetRack.length; // Lock to the bottom
+          } else if (Math.abs(updatedPosition.y + rack.length - targetRack.position.y) <= SNAP_THRESHOLD) {
+            updatedPosition.y = targetRack.position.y - rack.length; // Lock to the top
+          }
+        }
+        break; // Stop checking once locked
       }
     }
 
