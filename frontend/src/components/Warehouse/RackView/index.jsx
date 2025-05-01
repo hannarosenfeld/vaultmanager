@@ -96,8 +96,13 @@ function RackView({
                   left: `${(rack.position.x / warehouse.width) * 100}%`,
                   width: `${(rackWidth / warehouse.width) * 100}%`,
                   height: `${(rackHeight / warehouse.length) * 100}%`,
-                  backgroundColor: "rgba(0, 0, 255, 0.2)",
-                  border: "1px solid blue",
+                  backgroundColor:
+                    selectedRack?.id === rack.id
+                      ? "rgba(255, 215, 0, 0.5)" // Golden background for active rack
+                      : "rgba(0, 0, 255, 0.2)", // Default background
+                  border: selectedRack?.id === rack.id
+                    ? "2px solid gold" // Golden border for active rack
+                    : "1px solid blue", // Default border
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
