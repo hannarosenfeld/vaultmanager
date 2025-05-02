@@ -7,6 +7,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { editPalletThunk } from "../../../store/rack"; // Import the editPalletThunk
+import { deletePalletThunk } from "../../../store/rack"; // Import the deletePalletThunk
 
 function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
   const dispatch = useDispatch();
@@ -66,6 +67,19 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
       onSubmit(updatedPallet); // Pass the updated pallet back to the parent
     } catch (error) {
       console.error("❌ Error submitting form:", error);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!initialData.id) return; // Ensure we are editing an existing pallet
+    try {
+      console.log(`🔍 Deleting pallet with ID: ${initialData.id}`);
+      await dispatch(deletePalletThunk(initialData.id)).unwrap();
+      console.log(`✅ Pallet deleted successfully.`);
+      onClose();
+      onSubmit(null); // Notify parent to update the UI
+    } catch (error) {
+      console.error("❌ Error deleting pallet:", error);
     }
   };
 
@@ -164,20 +178,31 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
                 />
               </div>
 
-              <div className="flex justify-end">
-                <button
-                  type="button"
-                  onClick={onClose}
-                  className="mr-2 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                >
-                  Submit
-                </button>
+              <div className="flex justify-between">
+                {initialData.id && ( // Show delete button only when editing
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                  >
+                    Delete
+                  </button>
+                )}
+                <div className="flex">
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="mr-2 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                  >
+                    Submit
+                  </button>
+                </div>
               </div>
             </form>
           </div>

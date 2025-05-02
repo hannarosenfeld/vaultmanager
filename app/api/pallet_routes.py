@@ -68,3 +68,17 @@ def edit_pallet(pallet_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': 'Failed to edit pallet', 'details': str(e)}), 500
+
+@pallet_routes.route('/<int:pallet_id>/delete', methods=['DELETE'])
+def delete_pallet(pallet_id):
+    pallet = Pallet.query.get(pallet_id)
+    if not pallet:
+        return jsonify({'error': 'Pallet not found'}), 404
+
+    try:
+        db.session.delete(pallet)
+        db.session.commit()
+        return jsonify({'message': 'Pallet deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete pallet', 'details': str(e)}), 500

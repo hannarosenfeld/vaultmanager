@@ -5,6 +5,7 @@ import axios from "axios";
 const SET_RACKS = 'rack/SET_RACKS';
 const ADD_RACK = 'rack/ADD_RACK';
 const UPDATE_RACK_POSITION = 'rack/UPDATE_RACK_POSITION';
+const DELETE_PALLET = "rack/DELETE_PALLET";
 
 // Action Creators
 export const setRacks = (racks) => ({
@@ -20,6 +21,11 @@ export const addRack = (rack) => ({
 export const updateRackPosition = (rackId, updatedPosition) => ({
   type: UPDATE_RACK_POSITION,
   payload: { rackId, updatedPosition },
+});
+
+export const deletePallet = (palletId) => ({
+  type: DELETE_PALLET,
+  payload: palletId,
 });
 
 // Thunks
@@ -148,6 +154,23 @@ export const editPalletThunk = createAsyncThunk(
   }
 );
 
+// Delete Pallet Thunk
+export const deletePalletThunk = createAsyncThunk(
+  "rack/deletePallet",
+  async (palletId, { dispatch, rejectWithValue }) => {
+    console.log(`🔍 Deleting pallet with ID: ${palletId}`);
+    try {
+      const response = await axios.delete(`/api/pallets/${palletId}/delete`);
+      console.log(`✅ Pallet deleted successfully.`);
+      dispatch(deletePallet(palletId)); // Update Redux store
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error deleting pallet:", error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || "Failed to delete pallet");
+    }
+  }
+);
+
 export const updateRackPositionThunk = (warehouseId, rackId, position) => async (dispatch) => {
   // Ensure all required fields are included in the position object
   const validatedPosition = {
@@ -206,6 +229,18 @@ const rackReducer = (state = initialState, action) => {
             ? { ...rack, position: { ...rack.position, ...action.payload.updatedPosition } } // Ensure orientation is updated
             : rack
         ),
+      };
+
+    case DELETE_PALLET:
+      return {
+        ...state,
+        racks: state.racks.map((rack) => ({
+          ...rack,
+          shelves: rack.shelves.map((shelf) => ({
+            ...shelf,
+            pallets: shelf.pallets.filter((pallet) => pallet.id !== action.payload),
+          })),
+        })),
       };
 
     default:

@@ -19,6 +19,15 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
   };
 
   const updatePalletInRack = (updatedPallet) => {
+    if (!updatedPallet) {
+      // Handle pallet deletion
+      selectedRack.shelves = selectedRack.shelves.map((shelf) => ({
+        ...shelf,
+        pallets: shelf.pallets.filter((pallet) => pallet.id !== selectedPallet.id),
+      }));
+      return;
+    }
+
     const updatedShelves = selectedRack.shelves.map((shelf) => {
       if (shelf.id === updatedPallet.shelfId) {
         return {
@@ -72,9 +81,7 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
                       </div>
                     </React.Fragment>
                   ))
-                ) : (
-                  <div className="text-gray-500 text-center">No pallets</div>
-                )}
+                ) : null}
                 {shelf.pallets?.length < 3 && (
                   <div className="flex flex-col items-center text-center w-[30%]">
                     <AddPalletButton
