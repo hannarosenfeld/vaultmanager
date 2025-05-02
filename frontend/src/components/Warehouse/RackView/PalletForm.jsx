@@ -4,7 +4,7 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { editPalletThunk } from "../../../store/rack"; // Import the editPalletThunk
 
@@ -17,15 +17,24 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
     weight: initialData.weight || 0,
   });
 
+  const prevInitialData = useRef(initialData);
+
   // Reset form data when the modal is opened
   useEffect(() => {
-    if (isOpen) {
+    if (
+      isOpen &&
+      (prevInitialData.current.customerName !== initialData.customerName ||
+        prevInitialData.current.palletNumber !== initialData.palletNumber ||
+        prevInitialData.current.notes !== initialData.notes ||
+        prevInitialData.current.weight !== initialData.weight)
+    ) {
       setFormData({
         customer_name: initialData.customerName || "",
         pallet_number: initialData.palletNumber || "",
         notes: initialData.notes || "",
         weight: initialData.weight || 0,
       });
+      prevInitialData.current = initialData; // Update the ref to the current initialData
     }
   }, [isOpen, initialData]);
 
