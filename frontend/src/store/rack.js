@@ -127,6 +127,27 @@ export const addPalletThunk = createAsyncThunk(
   }
 );
 
+// Edit Pallet Thunk
+export const editPalletThunk = createAsyncThunk(
+  "rack/editPallet",
+  async ({ palletId, customer_name, pallet_number, notes, weight }, { rejectWithValue }) => {
+    console.log(`🔍 Editing pallet with ID: ${palletId}`);
+    try {
+      const response = await axios.put(`/api/pallets/${palletId}/edit`, {
+        customer_name,
+        pallet_number,
+        notes,
+        weight,
+      });
+      console.log(`✅ Pallet edited successfully. Response:`, response.data);
+      return response.data;
+    } catch (error) {
+      console.error("❌ Error editing pallet:", error.response?.data || error.message);
+      return rejectWithValue(error.response?.data || "Failed to edit pallet");
+    }
+  }
+);
+
 export const updateRackPositionThunk = (warehouseId, rackId, position) => async (dispatch) => {
   // Ensure all required fields are included in the position object
   const validatedPosition = {

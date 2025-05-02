@@ -5,24 +5,29 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { editPalletThunk } from "../../../store/rack"; // Import the editPalletThunk
 
-function PalletForm({ isOpen, onClose, onSubmit }) {
+function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
-    customer_name: "",
-    pallet_number: "",
-    notes: "",
+    customer_name: initialData.customerName || "",
+    pallet_number: initialData.palletNumber || "",
+    notes: initialData.notes || "",
+    weight: initialData.weight || 0,
   });
 
   // Reset form data when the modal is opened
   useEffect(() => {
     if (isOpen) {
       setFormData({
-        customer_name: "",
-        pallet_number: "",
-        notes: "",
+        customer_name: initialData.customerName || "",
+        pallet_number: initialData.palletNumber || "",
+        notes: initialData.notes || "",
+        weight: initialData.weight || 0,
       });
     }
-  }, [isOpen]);
+  }, [isOpen, initialData]);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -36,15 +41,20 @@ function PalletForm({ isOpen, onClose, onSubmit }) {
     e.preventDefault();
     console.log(`🔍 Submitting pallet form with data:`, formData);
     try {
-      const palletDataWithDefaults = {
-        ...formData,
-        name: `Pallet-${formData.customer_name}-${formData.pallet_number}`, // Generate a name
-        weight: formData.weight || 0, // Default weight to 0 if not provided
-      };
-      console.log(`🔍 Final pallet data to submit:`, palletDataWithDefaults);
-      await onSubmit(palletDataWithDefaults);
-      console.log(`✅ Pallet form submitted successfully.`);
+      let updatedPallet;
+      if (initialData.id) {
+        // If editing, dispatch the editPalletThunk
+        updatedPallet = await dispatch(
+          editPalletThunk({ palletId: initialData.id, ...formData })
+        ).unwrap();
+        console.log(`✅ Pallet edited successfully.`);
+      } else {
+        // Otherwise, call the onSubmit callback for adding a new pallet
+        updatedPallet = await onSubmit(formData);
+        console.log(`✅ Pallet added successfully.`);
+      }
       onClose();
+      onSubmit(updatedPallet); // Pass the updated pallet back to the parent
     } catch (error) {
       console.error("❌ Error submitting form:", error);
     }
@@ -71,7 +81,7 @@ function PalletForm({ isOpen, onClose, onSubmit }) {
               as="h3"
               className="text-lg font-semibold text-gray-900 mb-5"
             >
-              Add Pallet
+              {initialData.id ? "Edit Pallet" : "Add Pallet"}
             </DialogTitle>
 
             <form onSubmit={handleSubmit}>

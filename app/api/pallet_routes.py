@@ -49,3 +49,22 @@ def get_pallets_for_shelf(shelf_id):
 
     pallets = [pallet.to_dict() for pallet in shelf.pallets]
     return jsonify(pallets), 200
+
+@pallet_routes.route('/<int:pallet_id>/edit', methods=['PUT'])
+def edit_pallet(pallet_id):
+    data = request.get_json()
+    pallet = Pallet.query.get(pallet_id)
+
+    if not pallet:
+        return jsonify({'error': 'Pallet not found'}), 404
+
+    try:
+        pallet.customer_name = data.get('customer_name', pallet.customer_name)
+        pallet.pallet_number = data.get('pallet_number', pallet.pallet_number)
+        pallet.notes = data.get('notes', pallet.notes)
+        pallet.weight = data.get('weight', pallet.weight)
+        db.session.commit()
+        return jsonify(pallet.to_dict()), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to edit pallet', 'details': str(e)}), 500

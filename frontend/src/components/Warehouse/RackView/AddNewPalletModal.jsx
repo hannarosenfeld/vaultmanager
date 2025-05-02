@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 function PalletModal({ pallet, isOpen, onClose, onSave }) {
   const [formData, setFormData] = useState({
