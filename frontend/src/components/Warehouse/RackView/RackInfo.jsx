@@ -4,6 +4,10 @@ import AddPalletButton from "./AddPalletButton";
 function RackInfo({ selectedRack, handleAddPalletClick }) {
   const rowCount = selectedRack?.shelves?.length || 3;
 
+  const handlePalletClick = (pallet) => {
+    console.log("Pallet clicked:", pallet);
+  };
+
   return (
     <div
       className={`grid grid-rows-${rowCount} border-r border-gray-300 mb-4`}
@@ -28,9 +32,14 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
                   <React.Fragment key={palletIndex}>
                     <div
                       className="flex flex-col items-center text-center w-[30%]"
+                      onClick={() => handlePalletClick(pallet)}
                     >
-                      <span className="text-xs font-medium text-center">{pallet.customerName}</span>
-                      <span className="text-xs font-medium text-center">{pallet.palletNumber}</span>
+                      <span className="text-xs font-medium text-center">
+                        {pallet.customerName}
+                      </span>
+                      <span className="text-xs font-medium text-center">
+                        {pallet.palletNumber}
+                      </span>
                     </div>
                   </React.Fragment>
                 ))
@@ -39,10 +48,10 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
               )}
               {shelf.pallets?.length < 3 && (
                 <div className="flex flex-col items-center text-center w-[30%]">
-                <AddPalletButton
-                  onClick={() => handleAddPalletClick(shelf)}
-                  disabled={shelf.pallets?.length >= 3} // Disable button if pallet limit is reached
-                />
+                  <AddPalletButton
+                    onClick={() => handleAddPalletClick(shelf)}
+                    disabled={shelf.pallets?.length >= 3} // Disable button if pallet limit is reached
+                  />
                 </div>
               )}
             </div>
