@@ -63,7 +63,7 @@
   "proxy": "http://127.0.0.1:5000",
   "devDependencies": {
     "daisyui": "^4.12.23",
-    "vite": "^4.3.9",
+    "vite": "^5.2.0",
     "vite-tsconfig-paths": "^5.1.4"
   }
 }
