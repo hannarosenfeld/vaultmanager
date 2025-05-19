@@ -33,9 +33,9 @@ function RackView({
     const maxCapacity = rack.shelves.length * 3; // Assuming each shelf can hold 3 pallets
     const fillPercentage = totalPallets / maxCapacity; // Correctly define fillPercentage
 
-    if (fillPercentage === 0) return "var(--green)"; // Green for empty
-    if (fillPercentage <= 0.5) return "var(--yellow)"; // Yellow for half full
-    return "var(--red)"; // Red for full or nearly full
+    if (fillPercentage < 0.5) return "var(--green)"; // Green for less than 50% full
+    if (fillPercentage < 1) return "var(--yellow)"; // Yellow for above 50% but not entirely full
+    return "var(--red)"; // Red for entirely full
   }
 
   return (
