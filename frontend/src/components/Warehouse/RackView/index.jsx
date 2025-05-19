@@ -25,6 +25,19 @@ function RackView({
     setIsModalOpen(true);
   }
 
+  function getRackColor(rack) {
+    const totalPallets = rack.shelves.reduce(
+      (sum, shelf) => sum + (shelf.pallets?.length || 0),
+      0
+    );
+    const maxCapacity = rack.shelves.length * 3; // Assuming each shelf can hold 3 pallets
+    const fillPercentage = totalPallets / maxCapacity; // Correctly define fillPercentage
+
+    if (fillPercentage === 0) return "var(--green)"; // Green for empty
+    if (fillPercentage <= 0.5) return "var(--yellow)"; // Yellow for half full
+    return "var(--red)"; // Red for full or nearly full
+  }
+
   return (
     <>
       <div className="h-[90%] grid grid-cols-[65%_35%]">
@@ -96,13 +109,10 @@ function RackView({
                   left: `${(rack.position.x / warehouse.width) * 100}%`,
                   width: `${(rackWidth / warehouse.width) * 100}%`,
                   height: `${(rackHeight / warehouse.length) * 100}%`,
-                  backgroundColor:
-                    selectedRack?.id === rack.id
-                      ? "rgba(255, 215, 0, 0.5)" // Golden background for active rack
-                      : "rgba(0, 0, 255, 0.2)", // Default background
+                  backgroundColor: getRackColor(rack), // Use only dynamic color based on capacity
                   border: selectedRack?.id === rack.id
-                    ? "2px solid gold" // Golden border for active rack
-                    : "1px solid blue", // Default border
+                    ? "2px solid blue" // Thicker blue border for active rack
+                    : "none", // No border for non-active racks
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",

@@ -21,6 +21,7 @@ export default function RackCreator() {
       length: selectedDimension.length || 1, // Ensure length is included
       orientation: selectedOrientation.id,
       num_shelves: selectedDimension.shelves || 1, // Include the number of shelves
+      shelf_capacity: selectedDimension.capacity || 1, // Include shelf capacity
     };
 
     e.dataTransfer.setData("rack", JSON.stringify(rackData));
@@ -105,20 +106,37 @@ export default function RackCreator() {
               </div>
             </div>
 
-            <div className="mb-2">
-              <label className="block text-sm font-medium">Shelves</label>
-              <input
-                type="number"
-                className="w-full p-2 border rounded"
-                min="1"
-                value={selectedDimension.shelves || 1}
-                onChange={(e) =>
-                  setSelectedDimension((prev) => ({
-                    ...prev,
-                    shelves: parseInt(e.target.value),
-                  }))
-                }
-              />
+            <div className="flex gap-2 mb-2">
+              <div className="flex-1">
+                <label className="block text-sm font-medium">Shelves</label>
+                <input
+                  type="number"
+                  className="w-full p-2 border rounded"
+                  min="1"
+                  value={selectedDimension.shelves || 1}
+                  onChange={(e) =>
+                    setSelectedDimension((prev) => ({
+                      ...prev,
+                      shelves: parseInt(e.target.value),
+                    }))
+                  }
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium">Shelf Capacity</label>
+                <input
+                  type="number"
+                  className="w-full p-2 border rounded"
+                  min="1"
+                  value={selectedDimension.capacity || 1}
+                  onChange={(e) =>
+                    setSelectedDimension((prev) => ({
+                      ...prev,
+                      capacity: parseInt(e.target.value),
+                    }))
+                  }
+                />
+              </div>
             </div>
 
             <div className="mb-2">

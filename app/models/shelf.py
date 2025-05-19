@@ -25,7 +25,7 @@ class Shelf(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'capacity': self.capacity,
+            'capacity': self.capacity,  # Include capacity field
             'rackId': self.rack_id,
             'pallets': [pallet.to_dict() for pallet in self.pallets],  # Include pallets
         }
