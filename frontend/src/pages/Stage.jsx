@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import StageToWareHouseModal from "../components/Stage/StageToWarehouseModal";
+import StageToWareHouseModal from "../components/Stage/StageToWareHouseModal";
 import ConfirmDeleteVaultModal from "../components/Stage/ConfirmDeleteVaultModal";
 import { deleteVaultThunk } from "../store/warehouse";
 
