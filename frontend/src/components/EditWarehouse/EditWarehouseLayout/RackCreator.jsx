@@ -85,7 +85,7 @@ export default function RackCreator() {
                   onChange={(e) =>
                     setSelectedDimension((prev) => ({
                       ...prev,
-                      width: parseFloat(e.target.value),
+                      width: e.target.value === "" ? "" : parseFloat(e.target.value),
                     }))
                   }
                 />
@@ -99,7 +99,7 @@ export default function RackCreator() {
                   onChange={(e) =>
                     setSelectedDimension((prev) => ({
                       ...prev,
-                      length: parseFloat(e.target.value),
+                      length: e.target.value === "" ? "" : parseFloat(e.target.value),
                     }))
                   }
                 />
@@ -113,11 +113,11 @@ export default function RackCreator() {
                   type="number"
                   className="w-full p-2 border rounded"
                   min="1"
-                  value={selectedDimension.shelves || 1}
+                  value={selectedDimension.shelves === undefined ? "" : selectedDimension.shelves}
                   onChange={(e) =>
                     setSelectedDimension((prev) => ({
                       ...prev,
-                      shelves: parseInt(e.target.value),
+                      shelves: e.target.value === "" ? undefined : parseInt(e.target.value),
                     }))
                   }
                 />
@@ -128,11 +128,11 @@ export default function RackCreator() {
                   type="number"
                   className="w-full p-2 border rounded"
                   min="1"
-                  value={selectedDimension.capacity || 1}
+                  value={selectedDimension.capacity === undefined ? "" : selectedDimension.capacity}
                   onChange={(e) =>
                     setSelectedDimension((prev) => ({
                       ...prev,
-                      capacity: parseInt(e.target.value),
+                      capacity: e.target.value === "" ? undefined : parseInt(e.target.value),
                     }))
                   }
                 />
