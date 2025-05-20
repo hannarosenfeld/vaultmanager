@@ -164,67 +164,66 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
                 ></textarea>
               </div>
 
-              <div className="mb-5">
-                <label
-                  htmlFor="weight"
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                >
-                  Weight
-                </label>
-                <input
-                  type="number"
-                  id="weight"
-                  value={formData.weight || ""}
-                  onChange={handleChange}
-                  className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
-                  placeholder="Weight (default: 0)"
-                />
+              <div className="mb-10 flex gap-4">
+                <div className="flex-1">
+                  <label
+                    htmlFor="weight"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Weight
+                  </label>
+                  <input
+                    type="number"
+                    id="weight"
+                    value={formData.weight || ""}
+                    onChange={handleChange}
+                    className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
+                    placeholder="Weight (default: 0)"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label
+                    htmlFor="pallet_spaces"
+                    className="block mb-2 text-sm font-medium text-gray-900"
+                  >
+                    Pallet Spaces
+                  </label>
+                  <input
+                    type="number"
+                    id="pallet_spaces"
+                    value={formData.pallet_spaces}
+                    onChange={handleChange}
+                    className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
+                    placeholder="Spaces (default: 1)"
+                    min="1"
+                    required
+                  />
+                </div>
               </div>
 
-              <div className="mb-5">
-                <label
-                  htmlFor="pallet_spaces"
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                >
-                  Pallet Spaces
-                </label>
-                <input
-                  type="number"
-                  id="pallet_spaces"
-                  value={formData.pallet_spaces}
-                  onChange={handleChange}
-                  className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
-                  placeholder="Number of pallet spaces (default: 1)"
-                  min="1"
-                  required
-                />
-              </div>
-
-              <div className="flex justify-between">
+              <div className="flex justify-end">
                 {initialData.id && ( // Show delete button only when editing
                   <button
                     type="button"
                     onClick={handleDelete}
-                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 mr-2"
                   >
                     Delete
                   </button>
                 )}
-                <div className="flex">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="mr-2 px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                  >
-                    Submit
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 mr-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                >
+                  Submit
+                </button>
               </div>
             </form>
           </div>
