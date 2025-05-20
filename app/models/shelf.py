@@ -1,4 +1,6 @@
 from app.models.db import db, environment, SCHEMA, add_prefix_for_prod  # Import directly from db.py
+from app.models.rack import Rack  # Import Rack model
+from sqlalchemy.orm import validates  # Import validates for validation logic
 
 class Shelf(db.Model):
     __tablename__ = 'shelves'
@@ -20,6 +22,14 @@ class Shelf(db.Model):
 
     # Relationship with Pallet
     pallets = db.relationship('Pallet', back_populates='shelf', cascade='all, delete-orphan')
+
+    @validates('rack_id')
+    def set_capacity_from_rack(self, key, rack_id):
+        """Set the shelf's capacity to match the rack's capacity."""
+        rack = db.session.query(Rack).get(rack_id)
+        if rack:
+            self.capacity = rack.capacity
+        return rack_id
 
     def to_dict(self):
         return {

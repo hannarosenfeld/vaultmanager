@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from app.models import Rack, Shelf, Warehouse, db
+from app.models import Rack, Shelf, Warehouse, db  # Ensure Rack is imported
 
 rack_routes = Blueprint('racks', __name__)
 
@@ -88,7 +88,7 @@ def add_rack_to_warehouse(warehouse_id):
         # Create shelves and add them to the rack's shelves relationship
         for i in range(1, num_shelves + 1):
             shelf_name = f"{formatted_rack_name}-shelf-{i}"
-            new_shelf = Shelf(name=shelf_name, capacity=50, rack_id=new_rack.id)  # Default capacity of 50
+            new_shelf = Shelf(name=shelf_name, rack_id=new_rack.id)  # Default capacity of 50
             new_rack.shelves.append(new_shelf)  # Append directly to the rack's shelves relationship
             db.session.add(new_shelf)
             print(f"✅ Shelf created: {new_shelf.to_dict()}")  # Debugging: Log shelf creation

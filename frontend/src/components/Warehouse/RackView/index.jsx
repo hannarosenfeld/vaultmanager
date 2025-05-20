@@ -27,15 +27,15 @@ function RackView({
 
   function getRackColor(rack) {
     const totalPallets = rack.shelves.reduce(
-      (sum, shelf) => sum + (shelf.pallets?.length || 0),
+      (sum, shelf) => sum + (shelf.pallets?.length || 0), // Count pallets on each shelf
       0
     );
-    const maxCapacity = rack.shelves.length * 3; // Assuming each shelf can hold 3 pallets
-    const fillPercentage = totalPallets / maxCapacity; // Correctly define fillPercentage
 
-    if (fillPercentage < 0.5) return "var(--green)"; // Green for less than 50% full
-    if (fillPercentage < 1) return "var(--yellow)"; // Yellow for above 50% but not entirely full
-    return "var(--red)"; // Red for entirely full
+    const fillPercentage = totalPallets / rack.capacity; // Use rack.capacity directly
+
+    if (fillPercentage >= 1) return "var(--red)"; // Red for entirely full
+    if (fillPercentage >= 0.5) return "var(--yellow)"; // Yellow for above 50% but not entirely full
+    return "var(--green)"; // Green for less than 50% full
   }
 
   return (

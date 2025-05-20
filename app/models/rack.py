@@ -30,12 +30,12 @@ class Rack(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'capacity': self.capacity,
+            'capacity': self.capacity,  # Ensure capacity is included
             'warehouseId': self.warehouse_id,
             'position': self.position,
             'orientation': self.orientation,
-            'width': self.width,  # Include width
-            'length': self.length,  # Include length
+            'width': self.width,
+            'length': self.length,
             'shelves': [shelf.to_dict() for shelf in self.shelves],
         }
 
