@@ -91,7 +91,6 @@ export default function EditWarehouseLayout({
 
     try {
       await dispatch(updateFieldGridThunk(warehouse.id, newPosition));
-      console.log("Field grid position saved:", newPosition);
     } catch (error) {
       console.error("Error saving field grid position:", error);
     }
@@ -101,9 +100,6 @@ export default function EditWarehouseLayout({
     event.preventDefault();
     try {
       const rackData = JSON.parse(event.dataTransfer.getData("rack"));
-
-      // Debugging: Log the capacity value
-      console.log("📦 Rack capacity from drop event:", rackData.capacity);
 
       // Validate capacity
       if (!rackData.capacity) {
@@ -304,7 +300,6 @@ export default function EditWarehouseLayout({
   };
 
   const handleRackClick = (rack) => {
-    console.log("🛠 Rack Info:", rack);
     alert(`Rack Info:\nName: ${rack.name}\nOrientation: ${rack.orientation}\nPosition: (${rack.position.x}, ${rack.position.y})`);
   };
 

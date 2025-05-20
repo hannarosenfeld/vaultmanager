@@ -8,7 +8,9 @@ rack_routes = Blueprint('racks', __name__)
 def get_racks_for_warehouse(warehouse_id):
     try:
         racks = Rack.query.filter_by(warehouse_id=warehouse_id).all()
-        return jsonify([rack.to_dict() for rack in racks]), 200  # Ensure valid JSON response
+        response = [rack.to_dict() for rack in racks]
+        print(f"🔍 API Response for racks: {response}")  # Debugging: Log API response
+        return jsonify(response), 200
     except Exception as e:
         print(f"❌ Error fetching racks for warehouse {warehouse_id}: {e}")
         return jsonify({'error': 'Failed to fetch racks', 'details': str(e)}), 500
@@ -66,8 +68,6 @@ def add_rack_to_warehouse(warehouse_id):
         width=width,
         length=length,
     )
-
-    print(f"🔍 New rack before validation: {new_rack.to_dict()}")  # Debugging: Log rack data before validation
 
     # Debugging: Log rack position validation
     is_valid_position = warehouse.validate_rack_position(new_rack)

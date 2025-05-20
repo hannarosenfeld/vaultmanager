@@ -17,8 +17,9 @@ function RackView({
   }
 
   function handleAddPalletClick(shelf) {
-    if (shelf.pallets?.length >= 3) {
-      alert("This shelf already has the maximum number of pallets (3).");
+    // Correctly check the shelf's capacity
+    if (shelf.pallets?.length >= shelf.capacity) {
+      alert(`This shelf already has the maximum number of pallets (${shelf.capacity}).`);
       return;
     }
     setSelectedShelf(shelf.id); // Pass only the shelf ID

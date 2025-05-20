@@ -82,11 +82,11 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
                     </React.Fragment>
                   ))
                 ) : null}
-                {shelf.pallets?.length < shelf.capacity && ( // Check if shelf is not full
+                {/* Only show the AddPalletButton if the shelf is not full */}
+                {shelf.pallets?.length < shelf.capacity && (
                   <div className="flex flex-col items-center text-center w-[30%]">
                     <AddPalletButton
                       onClick={() => handleAddPalletClick(shelf)}
-                      disabled={shelf.pallets?.length >= shelf.capacity} // Disable button if pallet limit is reached
                     />
                   </div>
                 )}
