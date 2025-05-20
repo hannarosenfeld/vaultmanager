@@ -23,6 +23,13 @@ def add_rack_to_warehouse(warehouse_id):
     orientation = data.get('orientation', 'vertical')
     width = data.get('width')
     length = data.get('length')
+    capacity = data.get('capacity', 100)  # Default to 100 if not provided
+
+    # Debugging: Log the capacity value
+    print(f"📦 Rack capacity received: {capacity}")
+
+    if not isinstance(capacity, int) or capacity <= 0:
+        return jsonify({'error': 'Invalid capacity value'}), 400
 
     if orientation == 'horizontal':
         position['width'], position['length'] = width, length
@@ -30,7 +37,6 @@ def add_rack_to_warehouse(warehouse_id):
         position['width'], position['length'] = length, width
 
     name = data.get('name', f"Rack in Warehouse {warehouse_id}")
-    capacity = data.get('capacity', 100)
     num_shelves = data.get('num_shelves', 0)  # Get the number of shelves from the form
 
     if not position:
@@ -53,7 +59,7 @@ def add_rack_to_warehouse(warehouse_id):
     # Validate rack position
     new_rack = Rack(
         name=name,
-        capacity=capacity,
+        capacity=capacity,  # Pass capacity to the Rack model
         warehouse_id=warehouse_id,
         position=position,
         orientation=orientation,

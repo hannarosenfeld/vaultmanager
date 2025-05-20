@@ -11,17 +11,23 @@ export default function RackCreator() {
     { id: "vertical", label: "Vertical", icon: "↕️" },
   ];
 
-  const [selectedDimension, setSelectedDimension] = useState(rackDimensions[0]);
+  const [selectedDimension, setSelectedDimension] = useState({
+    name: "",
+    width: 12,
+    length: 4,
+    shelves: 1,
+    capacity: 1, // Initialize capacity
+  });
   const [selectedOrientation, setSelectedOrientation] = useState(rackDirections[0]);
 
   const handleDragStart = (e) => {
     const rackData = {
       name: selectedDimension.name || "Unnamed Rack",
-      width: selectedDimension.width || 1, // Ensure width is included
-      length: selectedDimension.length || 1, // Ensure length is included
+      width: selectedDimension.width || 1,
+      length: selectedDimension.length || 1,
       orientation: selectedOrientation.id,
-      num_shelves: selectedDimension.shelves || 1, // Include the number of shelves
-      shelf_capacity: selectedDimension.capacity || 1, // Include shelf capacity
+      num_shelves: selectedDimension.shelves || 1,
+      capacity: selectedDimension.capacity || 1, // Pass capacity correctly
     };
 
     e.dataTransfer.setData("rack", JSON.stringify(rackData));

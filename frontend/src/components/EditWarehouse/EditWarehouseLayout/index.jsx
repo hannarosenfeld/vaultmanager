@@ -102,13 +102,12 @@ export default function EditWarehouseLayout({
     try {
       const rackData = JSON.parse(event.dataTransfer.getData("rack"));
 
-      // Debugging: Log the entire rackData object
-      console.log("📦 Rack data from drop event:", rackData);
+      // Debugging: Log the capacity value
+      console.log("📦 Rack capacity from drop event:", rackData.capacity);
 
-      // Validate width and length
-      if (!rackData.width || !rackData.length) {
-        console.error("❌ Rack width or length is undefined. Drop is not allowed.");
-        console.error("🔍 Full rack data:", rackData); // Log full rack data for debugging
+      // Validate capacity
+      if (!rackData.capacity) {
+        console.error("❌ Rack capacity is undefined. Drop is not allowed.");
         return;
       }
 
@@ -119,7 +118,6 @@ export default function EditWarehouseLayout({
       }
 
       const rect = warehouseEl.getBoundingClientRect();
-
       const x = ((event.clientX - rect.left) / rect.width) * warehouse.width;
       const y = ((event.clientY - rect.top) / rect.height) * warehouse.length;
 
@@ -130,7 +128,7 @@ export default function EditWarehouseLayout({
         rackData.length,
         warehouse.width,
         warehouse.length,
-        rackData.orientation // Pass orientation here
+        rackData.orientation
       );
 
       const updatedPosition = {
@@ -145,14 +143,14 @@ export default function EditWarehouseLayout({
         await dispatch(
           moveRackThunk(warehouse.id, rackData.id, {
             ...updatedPosition,
-            orientation: rackData.orientation, // Ensure orientation is included
+            orientation: rackData.orientation,
           })
         );
       } else {
         // Add a new rack
         const newRack = {
           name: rackData.name || "Unnamed Rack",
-          capacity: 100,
+          capacity: rackData.capacity || 100, // Pass capacity correctly
           position: updatedPosition,
           orientation: rackData.orientation,
           num_shelves: rackData.num_shelves || 1, // Include the number of shelves
