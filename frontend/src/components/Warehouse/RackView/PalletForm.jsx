@@ -16,6 +16,7 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
     pallet_number: initialData.palletNumber || "",
     notes: initialData.notes || "",
     weight: initialData.weight || 0,
+    pallet_spaces: initialData.palletSpaces || 1, // Default to 1 space
   });
 
   const prevInitialData = useRef(initialData);
@@ -27,13 +28,15 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
       (prevInitialData.current.customerName !== initialData.customerName ||
         prevInitialData.current.palletNumber !== initialData.palletNumber ||
         prevInitialData.current.notes !== initialData.notes ||
-        prevInitialData.current.weight !== initialData.weight)
+        prevInitialData.current.weight !== initialData.weight ||
+        prevInitialData.current.palletSpaces !== initialData.palletSpaces)
     ) {
       setFormData({
         customer_name: initialData.customerName || "",
         pallet_number: initialData.palletNumber || "",
         notes: initialData.notes || "",
         weight: initialData.weight || 0,
+        pallet_spaces: initialData.palletSpaces || 1, // Default to 1 space
       });
       prevInitialData.current = initialData; // Update the ref to the current initialData
     }
@@ -175,6 +178,25 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
                   onChange={handleChange}
                   className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
                   placeholder="Weight (default: 0)"
+                />
+              </div>
+
+              <div className="mb-5">
+                <label
+                  htmlFor="pallet_spaces"
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                >
+                  Pallet Spaces
+                </label>
+                <input
+                  type="number"
+                  id="pallet_spaces"
+                  value={formData.pallet_spaces}
+                  onChange={handleChange}
+                  className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
+                  placeholder="Number of pallet spaces (default: 1)"
+                  min="1"
+                  required
                 />
               </div>
 
