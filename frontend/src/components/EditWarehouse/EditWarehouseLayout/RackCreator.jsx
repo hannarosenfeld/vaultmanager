@@ -27,7 +27,7 @@ export default function RackCreator() {
       length: selectedDimension.length || 1,
       orientation: selectedOrientation.id,
       num_shelves: selectedDimension.shelves || 1,
-      capacity: selectedDimension.capacity || 1, // Pass capacity correctly
+      capacity: selectedDimension.capacity || 1, // Ensure capacity is included
     };
 
     e.dataTransfer.setData("rack", JSON.stringify(rackData));

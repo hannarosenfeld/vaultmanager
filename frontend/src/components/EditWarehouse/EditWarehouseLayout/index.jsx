@@ -170,11 +170,12 @@ export default function EditWarehouseLayout({
       JSON.stringify({
         id: rack.id,
         name: rack.name,
-        width: rack.width, // Ensure width is included
-        length: rack.length, // Ensure length is included
+        width: rack.width,
+        length: rack.length,
         x: rack.position.x,
         y: rack.position.y,
         orientation: rack.orientation,
+        capacity: rack.capacity, // Include capacity
       })
     );
   };
