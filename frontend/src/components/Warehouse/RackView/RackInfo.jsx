@@ -1,46 +1,14 @@
 import React, { useState } from "react";
 import AddPalletButton from "./AddPalletButton";
-import PalletForm from "./PalletForm"; // Import PalletForm
 
 function RackInfo({ selectedRack, handleAddPalletClick }) {
   const rowCount = selectedRack?.shelves?.length || 3;
 
-  const [isPalletModalOpen, setPalletModalOpen] = useState(false);
   const [selectedPallet, setSelectedPallet] = useState(null);
 
   const handlePalletClick = (pallet) => {
     setSelectedPallet(pallet);
     setPalletModalOpen(true);
-  };
-
-  const closePalletModal = () => {
-    setPalletModalOpen(false);
-    setSelectedPallet(null);
-  };
-
-  const updatePalletInRack = (updatedPallet) => {
-    if (!updatedPallet) {
-      // Handle pallet deletion
-      selectedRack.shelves = selectedRack.shelves.map((shelf) => ({
-        ...shelf,
-        pallets: shelf.pallets.filter((pallet) => pallet.id !== selectedPallet.id),
-      }));
-      return;
-    }
-
-    const updatedShelves = selectedRack.shelves.map((shelf) => {
-      if (shelf.id === updatedPallet.shelfId) {
-        return {
-          ...shelf,
-          pallets: shelf.pallets.map((pallet) =>
-            pallet.id === updatedPallet.id ? updatedPallet : pallet
-          ),
-        };
-      }
-      return shelf;
-    });
-
-    selectedRack.shelves = updatedShelves; // Update the selectedRack directly
   };
 
   return (
@@ -82,7 +50,6 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
                     </React.Fragment>
                   ))
                 ) : null}
-                {/* Only show the AddPalletButton if the shelf is not full */}
                 {shelf.pallets?.length < shelf.capacity && (
                   <div className="flex flex-col items-center text-center w-[30%]">
                     <AddPalletButton
@@ -97,37 +64,7 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
           <div></div>
         )}
       </div>
-      {isPalletModalOpen && (
-        <PalletForm
-          isOpen={isPalletModalOpen}
-          onClose={closePalletModal}
-          onSubmit={(updatedPallet) => {
-            updatePalletInRack(updatedPallet); // Update the pallet in the UI
-            closePalletModal();
-          }}
-          initialData={selectedPallet} // Pass selected pallet data
-        />
-      )}
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          const formData = new FormData(e.target);
-          const palletData = Object.fromEntries(formData.entries());
-
-          // Validate required fields
-          if (!palletData.customer_name || !palletData.pallet_number) {
-            alert("Customer name and pallet number are required.");
-            return;
-          }
-
-          palletData.name = `${selectedRack?.name || "Unnamed Rack"}-${selectedShelf?.id || "Shelf"}`;
-          palletData.weight = 0;
-
-          handleAddPallet(palletData);
-        }}
-      >
-        {/* ...existing code... */}
-      </form>
+     
     </>
   );
 }

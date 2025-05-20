@@ -51,18 +51,22 @@ function RackView({
           selectedRack={selectedRack}
           handleAddPalletClick={handleAddPalletClick}
         />
-        <div className="flex flex-col items-center justify-evenly p-2">
+        <div className="flex flex-col items-center justify-center p-2">
           {selectedRack ? (
             <>
-              <div className="font-semibold text-2xl md:text-3xl text-center">
-                {selectedRack.name}
+              <div className="font-semibold text-2xl md:text-3xl text-center mb-4">
+                {selectedRack.name} {/* Display rack name */}
               </div>
               {selectedShelf && (
-                <RackInfo shelf={selectedShelf} /> // Render RackInfo
+                <div className="text-sm text-center">
+                  Shelf {selectedShelf} {/* Optionally display selected shelf info */}
+                </div>
               )}
             </>
           ) : (
-            <div className="text-center">Select a rack to view its info</div>
+            <div className="text-center text-lg font-medium">
+              Select a rack to view its info {/* Centered text when no rack is selected */}
+            </div>
           )}
         </div>
       </div>
