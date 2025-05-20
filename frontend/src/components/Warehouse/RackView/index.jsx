@@ -53,19 +53,12 @@ function RackView({
         />
         <div className="flex flex-col items-center justify-center p-2">
           {selectedRack ? (
-            <>
-              <div className="font-semibold text-2xl md:text-3xl text-center mb-4">
-                {selectedRack.name} {/* Display rack name */}
-              </div>
-              {selectedShelf && (
-                <div className="text-sm text-center">
-                  Shelf {selectedShelf} {/* Optionally display selected shelf info */}
-                </div>
-              )}
-            </>
+            <div className="font-semibold text-2xl md:text-3xl text-center">
+              {selectedRack.name} {/* Display rack name when selected */}
+            </div>
           ) : (
             <div className="text-center text-lg font-medium">
-              Select a rack to view its info {/* Centered text when no rack is selected */}
+              Select a rack to view its info {/* Default text when no rack is selected */}
             </div>
           )}
         </div>
