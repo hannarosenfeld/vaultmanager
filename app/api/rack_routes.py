@@ -158,13 +158,14 @@ def add_pallet_to_shelf(shelf_id):
     name = data.get('name')
     weight = data.get('weight')
     customer_name = data.get('customer_name')
+    pallet_number = data.get('pallet_number')  # Ensure pallet_number is validated
 
     # Log the values of the required fields for debugging
-    print(f"🔍 Validating fields: name={name}, weight={weight}, customer_name={customer_name}")
+    print(f"🔍 Validating fields: name={name}, weight={weight}, customer_name={customer_name}, pallet_number={pallet_number}")
 
-    if not name or weight is None or not customer_name:
-        print(f"❌ Missing required fields: name={name}, weight={weight}, customer_name={customer_name}")  # Debugging
-        return jsonify({'error': 'Name, weight, and customer name are required'}), 400
+    if not name or weight is None or not customer_name or not pallet_number:
+        print(f"❌ Missing required fields: name={name}, weight={weight}, customer_name={customer_name}, pallet_number={pallet_number}")  # Debugging
+        return jsonify({'error': 'Customer name and pallet number are required'}), 400
 
     # Validate shelf existence
     shelf = Shelf.query.get(shelf_id)
@@ -178,7 +179,7 @@ def add_pallet_to_shelf(shelf_id):
             name=name,
             weight=weight,
             customer_name=customer_name,
-            pallet_number=data.get('pallet_number'),
+            pallet_number=pallet_number,
             notes=data.get('notes'),
             shelf_id=shelf_id,
         )

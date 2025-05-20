@@ -108,6 +108,26 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
           initialData={selectedPallet} // Pass selected pallet data
         />
       )}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const palletData = Object.fromEntries(formData.entries());
+
+          // Validate required fields
+          if (!palletData.customer_name || !palletData.pallet_number) {
+            alert("Customer name and pallet number are required.");
+            return;
+          }
+
+          palletData.name = `${selectedRack?.name || "Unnamed Rack"}-${selectedShelf?.id || "Shelf"}`;
+          palletData.weight = 0;
+
+          handleAddPallet(palletData);
+        }}
+      >
+        {/* ...existing code... */}
+      </form>
     </>
   );
 }
