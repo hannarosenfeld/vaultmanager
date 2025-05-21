@@ -6,12 +6,14 @@ import {
 } from "@headlessui/react";
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addPalletThunk, editPalletThunk } from "../../../store/rack"; // Import the editPalletThunk
+import { addPalletThunk, editPalletThunk, fetchRacksThunk } from "../../../store/rack"; // Import the editPalletThunk
 import { deletePalletThunk } from "../../../store/rack"; // Import the deletePalletThunk
 
 function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelfId }) {
   const dispatch = useDispatch();
   const currentRack = useSelector((state) => state.rack.currentRack);
+  const warehouseId = useSelector((state) => state.warehouse.currentWarehouse?.id);
+
   // Find the selected shelf from the current rack
   const selectedShelf = currentRack?.shelves?.find(shelf => shelf.id === selectedShelfId);
 
@@ -98,7 +100,6 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
         onClose();
         onSubmit(formData); // Notify parent to update the UI
       } else {
-        // Use the simple addPalletThunk
         await dispatch(
           addPalletThunk({
             shelf_id: selectedShelf.id,
@@ -109,6 +110,10 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
             shelf_spots: palletSpaces,
           })
         ).unwrap();
+        // Refresh racks after adding a pallet
+        if (warehouseId) {
+          await dispatch(fetchRacksThunk(warehouseId));
+        }
         onClose();
       }
     } catch (error) {
