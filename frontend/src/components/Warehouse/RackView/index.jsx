@@ -4,12 +4,13 @@ import RackInfo from "./RackInfo"; // Import RackInfo component
 
 function RackView({
   warehouse,
-  racks,
   setIsModalOpen,
   setSelectedShelf,
 }) {
   const dispatch = useDispatch();
-  const selectedRack = useSelector((state) => state.rack.currentRack);
+  const racks = useSelector((state) => state.rack.racks);
+  const selectedRackId = useSelector((state) => state.rack.currentRack?.id);
+  const selectedRack = racks.find(r => r.id === selectedRackId) || null;
 
   function handleRackClick(rack) {
     dispatch(setCurrentRack(rack));

@@ -52,6 +52,15 @@ export const fetchRacksThunk = (warehouseId) => async (dispatch, getState) => {
       const data = await response.json();
       console.log(`✅ Fetched racks data:`, data);
       dispatch(setRacks(data));
+      // Update currentRack if it was previously selected
+      const state = getState();
+      const prevCurrentRack = state.rack.currentRack;
+      if (prevCurrentRack) {
+        const updatedRack = data.find(r => r.id === prevCurrentRack.id);
+        if (updatedRack) {
+          dispatch(setCurrentRack(updatedRack));
+        }
+      }
     } else {
       const errorText = await response.text(); // Capture the full response text for debugging
       console.error('❌ Error fetching racks:', errorText);
@@ -120,7 +129,7 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
 // Add Pallet Thunk
 export const addPalletThunk = createAsyncThunk(
   "rack/addPallet",
-  async ({ shelfId, customer_name, pallet_number, notes }, { dispatch, rejectWithValue }) => {
+  async ({ shelfId, customer_name, pallet_number, notes }, { /*dispatch,*/ rejectWithValue }) => {
     console.log(`🔍 Adding pallet to shelfId: ${shelfId}`);
     try {
       const response = await axios.post(`/api/pallets/shelf/${shelfId}/add`, {
@@ -130,7 +139,7 @@ export const addPalletThunk = createAsyncThunk(
       });
       console.log(`✅ Pallet added successfully. Response:`, response.data);
       const updatedShelf = response.data;
-      dispatch(fetchRacksThunk(updatedShelf.warehouseId)); // Refresh racks
+      // Do not dispatch fetchRacksThunk here; parent handles it
       return updatedShelf;
     } catch (error) {
       console.error('❌ Error adding pallet:', error.response?.data || error.message);

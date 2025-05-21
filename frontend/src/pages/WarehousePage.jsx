@@ -41,7 +41,10 @@ function WarehousePage() {
       ).unwrap();
       console.log(`✅ Pallet added successfully. Updated shelf:`, updatedShelf);
 
-      // No need to update selectedRack here; Redux will update it via fetchRacksThunk
+      // Fetch racks again to update the UI with the new pallet
+      if (warehouse?.id) {
+        await dispatch(fetchRacksThunk(warehouse.id));
+      }
     } catch (error) {
       console.error("❌ Failed to add pallet:", error);
     } finally {

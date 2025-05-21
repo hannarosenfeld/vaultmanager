@@ -86,13 +86,15 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
           editPalletThunk({ palletId: initialData.id, ...formData })
         ).unwrap();
         console.log(`✅ Pallet edited successfully.`);
+        onClose();
+        onSubmit(updatedPallet); // Pass the updated pallet back to the parent
       } else {
         // Otherwise, call the onSubmit callback for adding a new pallet
-        updatedPallet = await onSubmit(formData);
+        await onSubmit(formData);
         console.log(`✅ Pallet added successfully.`);
+        onClose();
+        // Do not call onSubmit again here; parent will handle UI update
       }
-      onClose();
-      onSubmit(updatedPallet); // Pass the updated pallet back to the parent
     } catch (error) {
       console.error("❌ Error submitting form:", error);
     }
