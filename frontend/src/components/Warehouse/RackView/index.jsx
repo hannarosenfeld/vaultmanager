@@ -5,12 +5,8 @@ import RackInfo from "./RackInfo"; // Import RackInfo component
 function RackView({
   warehouse,
   racks,
-  isModalOpen,
   setIsModalOpen,
-  selectedShelf,
   setSelectedShelf,
-  handleAddPallet,
-  closeModal,
 }) {
   const dispatch = useDispatch();
   const selectedRack = useSelector((state) => state.rack.currentRack);
@@ -149,76 +145,7 @@ function RackView({
           })}
         </div>
       </div>
-      {isModalOpen && (
-        <div
-          className="fixed inset-0 flex items-center justify-center"
-          style={{ backgroundColor: "rgba(0, 0, 0, 0.85)" }}
-        >
-          <div className="bg-white p-4 rounded shadow-lg">
-            <h2 className="text-lg font-bold mb-2">Add Pallet</h2>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const formData = new FormData(e.target);
-                const palletData = Object.fromEntries(formData.entries());
-                palletData.name = `${selectedRack?.name || "Unnamed Rack"}-${
-                  selectedShelf?.id || "Shelf"
-                }`;
-                palletData.weight = 0;
-                if (!palletData.customer_name) {
-                  alert("Customer name is required.");
-                  return;
-                }
-                handleAddPallet(palletData);
-              }}
-            >
-              <div className="mb-2">
-                <label className="block text-sm font-medium">
-                  Customer Name
-                </label>
-                <input
-                  type="text"
-                  name="customer_name"
-                  className="border rounded w-full p-1"
-                  required
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block text-sm font-medium">
-                  Pallet Number
-                </label>
-                <input
-                  type="text"
-                  name="pallet_number"
-                  className="border rounded w-full p-1"
-                />
-              </div>
-              <div className="mb-2">
-                <label className="block text-sm font-medium">Notes</label>
-                <textarea
-                  name="notes"
-                  className="border rounded w-full p-1"
-                ></textarea>
-              </div>
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-gray-300 rounded"
-                  onClick={closeModal}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-blue-500 text-white rounded"
-                >
-                  Add
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+     
     </>
   );
 }
