@@ -19,7 +19,7 @@ class Pallet(db.Model):
     notes = db.Column(db.Text, nullable=True)              
     file_path = db.Column(db.String(255), nullable=True)
     note = db.Column(db.Text, nullable=True)
-    shelf_spots = db.Column(db.Integer, nullable=False)
+    shelf_spots = db.Column(db.Integer, nullable=True)
 
     # Relationship with Shelf
     shelf = db.relationship('Shelf', back_populates='pallets')
