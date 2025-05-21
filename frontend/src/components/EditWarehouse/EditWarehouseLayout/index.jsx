@@ -418,9 +418,23 @@ export default function EditWarehouseLayout({
                   height: `${(rackHeight / warehouse.length) * 100}%`,
                   backgroundColor: "rgba(0, 0, 255, 0.2)",
                   border: "1px solid blue",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
-                <span className="text-xs text-center">{rack.name}</span>
+                <span
+                  className="text-[0.55rem] text-center w-full"
+                  style={{
+                    display: "block",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                  title={rack.name}
+                >
+                  {rack.name.length > 10 ? rack.name.slice(0, 10) + "…" : rack.name}
+                </span>
               </div>
             );
           })}
