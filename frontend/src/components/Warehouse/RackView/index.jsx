@@ -1,4 +1,5 @@
 import RackInfo from "./RackInfo"; // Import RackInfo component
+import { setCurrentRackThunk } from "../../../store/warehouse";
 
 function RackView({
   warehouse,
