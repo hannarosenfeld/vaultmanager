@@ -6,7 +6,7 @@ import {
 } from "@headlessui/react";
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { editPalletThunk } from "../../../store/rack"; // Import the editPalletThunk
+import { addPalletThunk, editPalletThunk } from "../../../store/rack"; // Import the editPalletThunk
 import { deletePalletThunk } from "../../../store/rack"; // Import the deletePalletThunk
 
 function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelfId }) {
@@ -14,6 +14,7 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
   const currentRack = useSelector((state) => state.rack.currentRack);
   // Find the selected shelf from the current rack
   const selectedShelf = currentRack?.shelves?.find(shelf => shelf.id === selectedShelfId);
+
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     customer_name: initialData.customerName || "",
@@ -78,22 +79,37 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
     }
     setError("");
 
+    console.log("🍑 form data before dispatch: ", formData)
+
     try {
-      let updatedPallet;
       if (initialData.id) {
-        // If editing, dispatch the editPalletThunk
-        updatedPallet = await dispatch(
-          editPalletThunk({ palletId: initialData.id, ...formData })
+        // Editing an existing pallet
+        await dispatch(
+          editPalletThunk({
+            id: initialData.id,
+            customer_name: formData.customer_name,
+            pallet_number: formData.pallet_number,
+            notes: formData.notes,
+            weight: Number(formData.weight) || 0,
+            pallet_spaces: palletSpaces,
+          })
         ).unwrap();
-        console.log(`✅ Pallet edited successfully.`);
+        console.log(`✅ Pallet updated successfully.`);
         onClose();
-        onSubmit(updatedPallet); // Pass the updated pallet back to the parent
+        onSubmit(formData); // Notify parent to update the UI
       } else {
-        // Otherwise, call the onSubmit callback for adding a new pallet
-        await onSubmit(formData);
-        console.log(`✅ Pallet added successfully.`);
+        // Use the simple addPalletThunk
+        await dispatch(
+          addPalletThunk({
+            shelf_id: selectedShelf.id,
+            customer_name: formData.customer_name,
+            pallet_number: formData.pallet_number,
+            notes: formData.notes,
+            weight: Number(formData.weight) || 0,
+            shelf_spots: palletSpaces,
+          })
+        ).unwrap();
         onClose();
-        // Do not call onSubmit again here; parent will handle UI update
       }
     } catch (error) {
       console.error("❌ Error submitting form:", error);

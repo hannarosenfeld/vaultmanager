@@ -11,14 +11,15 @@ class Pallet(db.Model):
     weight = db.Column(db.Float, nullable=False)
     shelf_id = db.Column(
         db.Integer,
-        db.ForeignKey(add_prefix_for_prod('shelves.id')),  # Use add_prefix_for_prod
+        db.ForeignKey(add_prefix_for_prod('shelves.id')),
         nullable=False
     )
-    customer_name = db.Column(db.String(100), nullable=False)  # New field
-    pallet_number = db.Column(db.String(50), nullable=True)    # New field
-    notes = db.Column(db.Text, nullable=True)                 # New field
+    customer_name = db.Column(db.String(100), nullable=False)
+    pallet_number = db.Column(db.String(50), nullable=True)
+    notes = db.Column(db.Text, nullable=True)              
     file_path = db.Column(db.String(255), nullable=True)
     note = db.Column(db.Text, nullable=True)
+    shelf_spots = db.Column(db.Integer, nullable=False)
 
     # Relationship with Shelf
     shelf = db.relationship('Shelf', back_populates='pallets')
@@ -29,9 +30,10 @@ class Pallet(db.Model):
             'name': self.name,
             'weight': self.weight,
             'shelfId': self.shelf_id,
-            'customerName': self.customer_name,  # New field
-            'palletNumber': self.pallet_number,  # New field
-            'notes': self.notes,                # New field
+            'customerName': self.customer_name,
+            'palletNumber': self.pallet_number,
+            'notes': self.notes,               
             'filePath': self.file_path,
             'note': self.note,
+            'shelfSpots': self.shelf_spots,    
         }

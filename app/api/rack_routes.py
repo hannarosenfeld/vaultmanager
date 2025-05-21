@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from app.models import Rack, Shelf, Warehouse, db  # Ensure Rack is imported
+from app.models import Rack, Shelf, Warehouse, db, Pallet  # Ensure Pallet is imported
 
 rack_routes = Blueprint('racks', __name__)
 
@@ -151,43 +151,63 @@ def update_rack_position(warehouse_id, rack_id):
 
 @rack_routes.route('/pallets/shelf/<int:shelf_id>/add', methods=['POST'])
 def add_pallet_to_shelf(shelf_id):
+    # make sure we are properly creatging a pallet
     data = request.get_json()
-    print(f"🔍 Received data for adding pallet: {data}")  # Debugging: Log received data
-
-    # Validate required fields
-    name = data.get('name')
-    weight = data.get('weight')
+    # Required fields: shelf_id, customer_name, pallet_number, weight, shelf_spots
+    shelf_id = data.get('shelf_id')
     customer_name = data.get('customer_name')
-    pallet_number = data.get('pallet_number')  # Ensure pallet_number is validated
+    pallet_number = data.get('pallet_number')
+    notes = data.get('notes')
+    weight = data.get('weight', 0)
+    shelf_spots = data.get('shelf_spots', 1)
 
-    # Log the values of the required fields for debugging
-    print(f"🔍 Validating fields: name={name}, weight={weight}, customer_name={customer_name}, pallet_number={pallet_number}")
-
-    if not name or weight is None or not customer_name or not pallet_number:
-        print(f"❌ Missing required fields: name={name}, weight={weight}, customer_name={customer_name}, pallet_number={pallet_number}")  # Debugging
-        return jsonify({'error': 'Customer name and pallet number are required'}), 400
-
-    # Validate shelf existence
-    shelf = Shelf.query.get(shelf_id)
-    if not shelf:
-        print(f"❌ Shelf not found for ID: {shelf_id}")  # Debugging
-        return jsonify({'error': 'Shelf not found'}), 404
+    if not shelf_id or not customer_name or not pallet_number:
+        return jsonify({'error': 'Missing required fields'}), 400
 
     try:
-        # Create and save the pallet
         new_pallet = Pallet(
-            name=name,
+            name=f"Pallet-{shelf_id}-{pallet_number}",
             weight=weight,
+            shelf_id=shelf_id,
             customer_name=customer_name,
             pallet_number=pallet_number,
-            notes=data.get('notes'),
-            shelf_id=shelf_id,
+            notes=notes,
+            shelf_spots=shelf_spots,
         )
         db.session.add(new_pallet)
         db.session.commit()
-        print(f"✅ Pallet added successfully: {new_pallet.to_dict()}")  # Debugging: Log pallet data
         return jsonify(new_pallet.to_dict()), 201
     except Exception as e:
-        print(f"❌ Error adding pallet: {e}")  # Debugging: Log error details
         db.session.rollback()
-        return jsonify({'error': 'Failed to add pallet', 'details': str(e)}), 500
+        return jsonify({'error': str(e)}), 500
+
+@rack_routes.route('/pallets', methods=['POST'])
+def create_pallet():
+    data = request.get_json()
+    # Required fields: shelf_id, customer_name, pallet_number, weight, shelf_spots
+    shelf_id = data.get('shelf_id')
+    customer_name = data.get('customer_name')
+    pallet_number = data.get('pallet_number')
+    notes = data.get('notes')
+    weight = data.get('weight', 0)
+    shelf_spots = data.get('shelf_spots', 1)
+
+    if not shelf_id or not customer_name or not pallet_number:
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    try:
+        new_pallet = Pallet(
+            name=f"Pallet-{shelf_id}-{pallet_number}",
+            weight=weight,
+            shelf_id=shelf_id,
+            customer_name=customer_name,
+            pallet_number=pallet_number,
+            notes=notes,
+            shelf_spots=shelf_spots,
+        )
+        db.session.add(new_pallet)
+        db.session.commit()
+        return jsonify(new_pallet.to_dict()), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500

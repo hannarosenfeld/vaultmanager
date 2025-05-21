@@ -1,5 +1,4 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import axios from "axios";
 
 // Action Types
 const SET_RACKS = 'rack/SET_RACKS';
@@ -72,6 +71,7 @@ export const fetchRacksThunk = (warehouseId) => async (dispatch, getState) => {
 };
 
 export const addRackThunk = (warehouseId, newRack) => async (dispatch) => {
+
   try {
     const response = await fetch(`/api/racks/warehouse/${warehouseId}/add`, {
       method: 'POST',
@@ -126,27 +126,7 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
   }
 };
 
-// Add Pallet Thunk
-export const addPalletThunk = createAsyncThunk(
-  "rack/addPallet",
-  async ({ shelfId, customer_name, pallet_number, notes }, { /*dispatch,*/ rejectWithValue }) => {
-    console.log(`🔍 Adding pallet to shelfId: ${shelfId}`);
-    try {
-      const response = await axios.post(`/api/pallets/shelf/${shelfId}/add`, {
-        customer_name,
-        pallet_number,
-        notes,
-      });
-      console.log(`✅ Pallet added successfully. Response:`, response.data);
-      const updatedShelf = response.data;
-      // Do not dispatch fetchRacksThunk here; parent handles it
-      return updatedShelf;
-    } catch (error) {
-      console.error('❌ Error adding pallet:', error.response?.data || error.message);
-      return rejectWithValue(error.response?.data || "Failed to add pallet");
-    }
-  }
-);
+
 
 // Edit Pallet Thunk
 export const editPalletThunk = createAsyncThunk(
@@ -154,17 +134,29 @@ export const editPalletThunk = createAsyncThunk(
   async ({ palletId, customer_name, pallet_number, notes, weight }, { rejectWithValue }) => {
     console.log(`🔍 Editing pallet with ID: ${palletId}`);
     try {
-      const response = await axios.put(`/api/pallets/${palletId}/edit`, {
-        customer_name,
-        pallet_number,
-        notes,
-        weight,
+      const response = await fetch(`/api/pallets/${palletId}/edit`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          customer_name,
+          pallet_number,
+          notes,
+          weight,
+        }),
       });
-      console.log(`✅ Pallet edited successfully. Response:`, response.data);
-      return response.data;
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("❌ Error editing pallet:", errorData);
+        return rejectWithValue(errorData || "Failed to edit pallet");
+      }
+      const data = await response.json();
+      console.log(`✅ Pallet edited successfully. Response:`, data);
+      return data;
     } catch (error) {
-      console.error("❌ Error editing pallet:", error.response?.data || error.message);
-      return rejectWithValue(error.response?.data || "Failed to edit pallet");
+      console.error("❌ Error editing pallet:", error);
+      return rejectWithValue(error || "Failed to edit pallet");
     }
   }
 );
@@ -175,13 +167,21 @@ export const deletePalletThunk = createAsyncThunk(
   async (palletId, { dispatch, rejectWithValue }) => {
     console.log(`🔍 Deleting pallet with ID: ${palletId}`);
     try {
-      const response = await axios.delete(`/api/pallets/${palletId}/delete`);
+      const response = await fetch(`/api/pallets/${palletId}/delete`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("❌ Error deleting pallet:", errorData);
+        return rejectWithValue(errorData || "Failed to delete pallet");
+      }
+      const data = await response.json();
       console.log(`✅ Pallet deleted successfully.`);
-      dispatch(deletePallet(palletId)); // Update Redux store
-      return response.data;
+      dispatch(deletePallet(palletId));
+      return data;
     } catch (error) {
-      console.error("❌ Error deleting pallet:", error.response?.data || error.message);
-      return rejectWithValue(error.response?.data || "Failed to delete pallet");
+      console.error("❌ Error deleting pallet:", error);
+      return rejectWithValue(error || "Failed to delete pallet");
     }
   }
 );
@@ -215,6 +215,30 @@ export const updateRackPositionThunk = (warehouseId, rackId, position) => async 
     return error;
   }
 };
+
+// Add Pallet Thunk
+export const addPalletThunk = createAsyncThunk(
+  "rack/addPallet",
+  async (palletData, { rejectWithValue }) => {
+    try {
+      const response = await fetch("/api/racks/pallets", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(palletData),
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData || "Failed to add pallet");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error || "Failed to add pallet");
+    }
+  }
+);
 
 // Initial State
 const initialState = {
