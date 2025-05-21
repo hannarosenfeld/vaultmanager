@@ -140,6 +140,7 @@ export const updateFieldGrid = (warehouseId, fieldgridLocation) => ({
   payload: { warehouseId, fieldgridLocation },
 });
 
+
 export const getAllWarehousesThunk = () => async (dispatch) => {
   try {
     const response = await fetch("/api/warehouse/");
@@ -1007,7 +1008,6 @@ const warehouseReducer = (state = initialState, action) => {
           },
         },
       };
-
     default:
       return state;
   }

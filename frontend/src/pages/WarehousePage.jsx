@@ -6,7 +6,7 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import FieldGrid from "../components/Warehouse/FieldGrid";
 import FieldInfo from "../components/Warehouse/FieldInfo";
 import { getCurrentFieldThunk } from "../store/warehouse";
-import { fetchRacksThunk, addPalletThunk } from "../store/rack"; // Import the fetchRacksThunk
+import { fetchRacksThunk, addPalletThunk } from "../store/rack"; // Import fetchRacksThunk and addPalletThunk
 import RackView from "../components/Warehouse/RackView"; // Import the new RackView component
 import PalletForm from "../components/Warehouse/RackView/PalletForm"; // Import PalletForm
 
@@ -20,21 +20,11 @@ function WarehousePage() {
   const [loading, setLoading] = useState(true);
   const [isWarehouseView, setIsWarehouseView] = useState(true); // Toggle state
   const racks = useSelector((state) => state.rack.racks); // Fetch racks from Redux
-  const [selectedRack, setSelectedRack] = useState(null); // State for selected rack
   const [isPalletFormOpen, setPalletFormOpen] = useState(false); // Use this for PalletForm
   const [selectedShelf, setSelectedShelf] = useState(null); // State for selected shelf
 
   function handleFieldClick(field) {
     if (field.id) dispatch(getCurrentFieldThunk(field));
-  }
-
-  function handleRackClick(rack) {
-    setSelectedRack(rack); // Set the clicked rack as selected
-  }
-
-  function handleAddPalletClick(shelf) {
-    setSelectedShelf(shelf.id); // Pass only the shelf ID
-    setPalletFormOpen(true); // Open the PalletForm modal
   }
 
   function closePalletForm() {
@@ -50,13 +40,7 @@ function WarehousePage() {
       ).unwrap();
       console.log(`✅ Pallet added successfully. Updated shelf:`, updatedShelf);
 
-      // Update the selectedRack state with the updated shelf
-      setSelectedRack((prevRack) => ({
-        ...prevRack,
-        shelves: prevRack.shelves.map((shelf) =>
-          shelf.id === updatedShelf.id ? updatedShelf : shelf
-        ),
-      }));
+      // No need to update selectedRack here; Redux will update it via fetchRacksThunk
     } catch (error) {
       console.error("❌ Failed to add pallet:", error);
     } finally {
@@ -76,6 +60,7 @@ function WarehousePage() {
 
     return () => {
       dispatch(setCurrentWarehouse(null));
+      dispatch(setCurrentRack(null)); // Clear currentRack on unmount
     };
   }, [dispatch, warehouseName, warehouses]);
 
@@ -122,8 +107,6 @@ function WarehousePage() {
         <RackView
           warehouse={warehouse}
           racks={racks}
-          selectedRack={selectedRack}
-          setSelectedRack={setSelectedRack}
           isModalOpen={isPalletFormOpen}
           setIsModalOpen={setPalletFormOpen}
           selectedShelf={selectedShelf}

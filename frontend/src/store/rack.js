@@ -6,6 +6,7 @@ const SET_RACKS = 'rack/SET_RACKS';
 const ADD_RACK = 'rack/ADD_RACK';
 const UPDATE_RACK_POSITION = 'rack/UPDATE_RACK_POSITION';
 const DELETE_PALLET = "rack/DELETE_PALLET";
+const SET_CURRENT_RACK = "rack/SET_CURRENT_RACK"; // New action type
 
 // Action Creators
 export const setRacks = (racks) => ({
@@ -26,6 +27,11 @@ export const updateRackPosition = (rackId, updatedPosition) => ({
 export const deletePallet = (palletId) => ({
   type: DELETE_PALLET,
   payload: palletId,
+});
+
+export const setCurrentRack = (rack) => ({
+  type: SET_CURRENT_RACK,
+  payload: rack,
 });
 
 // Thunks
@@ -204,6 +210,7 @@ export const updateRackPositionThunk = (warehouseId, rackId, position) => async 
 // Initial State
 const initialState = {
   racks: [],
+  currentRack: null, // Add currentRack to state
 };
 
 // Reducer
@@ -241,6 +248,12 @@ const rackReducer = (state = initialState, action) => {
             pallets: shelf.pallets.filter((pallet) => pallet.id !== action.payload),
           })),
         })),
+      };
+
+    case SET_CURRENT_RACK:
+      return {
+        ...state,
+        currentRack: action.payload,
       };
 
     default:

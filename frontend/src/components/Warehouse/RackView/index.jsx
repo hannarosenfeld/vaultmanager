@@ -1,11 +1,10 @@
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentRack } from "../../../store/rack";
 import RackInfo from "./RackInfo"; // Import RackInfo component
-import { setCurrentRackThunk } from "../../../store/warehouse";
 
 function RackView({
   warehouse,
   racks,
-  selectedRack,
-  setSelectedRack,
   isModalOpen,
   setIsModalOpen,
   selectedShelf,
@@ -13,8 +12,11 @@ function RackView({
   handleAddPallet,
   closeModal,
 }) {
+  const dispatch = useDispatch();
+  const selectedRack = useSelector((state) => state.rack.currentRack);
+
   function handleRackClick(rack) {
-    setSelectedRack(rack);
+    dispatch(setCurrentRack(rack));
   }
 
   function handleAddPalletClick(shelf) {
