@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentWarehouse, setCurrentField } from "../store/warehouse";
+import { setCurrentRack } from "../store/rack"; // Import setCurrentRack
 import LoadingSpinner from "../components/LoadingSpinner";
 import FieldGrid from "../components/Warehouse/FieldGrid";
 import FieldInfo from "../components/Warehouse/FieldInfo";
@@ -143,6 +144,7 @@ function WarehousePage() {
         isOpen={isPalletFormOpen}
         onClose={closePalletForm}
         onSubmit={handleAddPallet}
+        selectedShelfId={selectedShelf} // <-- Ensure this line is present and correct
       />
     </div>
   );

@@ -5,12 +5,16 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { useState, useEffect, useRef } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { editPalletThunk } from "../../../store/rack"; // Import the editPalletThunk
 import { deletePalletThunk } from "../../../store/rack"; // Import the deletePalletThunk
 
-function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
+function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelfId }) {
   const dispatch = useDispatch();
+  const currentRack = useSelector((state) => state.rack.currentRack);
+  // Find the selected shelf from the current rack
+  const selectedShelf = currentRack?.shelves?.find(shelf => shelf.id === selectedShelfId);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     customer_name: initialData.customerName || "",
     pallet_number: initialData.palletNumber || "",
@@ -42,6 +46,13 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
     }
   }, [isOpen, initialData]);
 
+  // Clear error when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setError("");
+    }
+  }, [isOpen]);
+
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData({
@@ -52,7 +63,21 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(`🔍 Submitting pallet form with data:`, formData);
+    if (!selectedShelf) {
+      setError("Shelf not found. Please select a valid shelf.");
+      return;
+    }
+    const palletSpaces = Number(formData.pallet_spaces);
+    const availableSpaces = selectedShelf.capacity - (selectedShelf.pallets?.length || 0);
+
+    if (palletSpaces > availableSpaces) {
+      setError(
+        `Shelf does not have enough space for this. Please increase Shelf capacity. Shelf capacity is currently ${selectedShelf.capacity}`
+      );
+      return;
+    }
+    setError("");
+
     try {
       let updatedPallet;
       if (initialData.id) {
@@ -200,6 +225,8 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {} }) {
                   />
                 </div>
               </div>
+
+              {error && <div className="text-red-600 text-sm mb-4">{error}</div>}
 
               <div className="flex justify-end">
                 {initialData.id && ( // Show delete button only when editing
