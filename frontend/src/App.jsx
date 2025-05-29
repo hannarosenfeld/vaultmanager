@@ -39,24 +39,47 @@ function App() {
       {loading ? (
         <LoadingSpinner />
       ) : (
-        <div className="flex flex-col w-full sm:w-3/4 md:w-full lg:w-1/2 xl:w-[800px] mx-auto">
-          {sessionUser && <NavBar />}
-          <div className="flex-grow">
-            <Routes>
-              <Route path="/landing" element={<LandingPage />} />
-              <Route path="/login" element={sessionUser ? <Navigate to="/" /> : <LoginPage />} />
-              <Route path="/" element={sessionUser ? <HomePage warehouses={warehouses} /> : <Navigate to="/login" />} />
-              <Route path="/stage" element={sessionUser ? <Stage /> : <Navigate to="/login" />} />
-              <Route path="/warehouse/:warehouseName" element={sessionUser ? <WarehousePage warehouses={warehouses} /> : <Navigate to="/login" />} />
-              <Route path="/add-warehouse" element={sessionUser ? <AddWarehouse /> : <Navigate to="/login" />} />
-              <Route path="/edit/:warehouseName" element={sessionUser ? <EditWarehousePage /> : <Navigate to="/login" />} />
-              <Route path="/edit/vault/:vaultName" element={sessionUser ? <EditVaultPage /> : <Navigate to="/login" />} />
-              <Route path="/statistics" element={sessionUser ? <StatisticsPage /> : <Navigate to="/login" />} />
-              <Route path="/print-studio" element={sessionUser ? <PrintStudio /> : <Navigate to="/login" />} />
-              <Route path="*" element={<Navigate to={sessionUser ? "/" : "/login"} />} />              
-            </Routes>
-          </div>
-        </div>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              sessionUser ? (
+                <div className="flex flex-col w-full sm:w-3/4 md:w-full lg:w-1/2 xl:w-[800px] mx-auto">
+                  {<NavBar />}
+                  <div className="flex-grow">
+                    <Navigate to="/dashboard" />
+                  </div>
+                </div>
+              ) : (
+                <LandingPage />
+              )
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              sessionUser ? (
+                <div className="flex flex-col w-full sm:w-3/4 md:w-full lg:w-1/2 xl:w-[800px] mx-auto">
+                  {<NavBar />}
+                  <div className="flex-grow">
+                    <HomePage warehouses={warehouses} />
+                  </div>
+                </div>
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route path="/login" element={sessionUser ? <Navigate to="/dashboard" /> : <LoginPage />} />
+          <Route path="/stage" element={sessionUser ? <Stage /> : <Navigate to="/" />} />
+          <Route path="/warehouse/:warehouseName" element={sessionUser ? <WarehousePage warehouses={warehouses} /> : <Navigate to="/" />} />
+          <Route path="/add-warehouse" element={sessionUser ? <AddWarehouse /> : <Navigate to="/" />} />
+          <Route path="/edit/:warehouseName" element={sessionUser ? <EditWarehousePage /> : <Navigate to="/" />} />
+          <Route path="/edit/vault/:vaultName" element={sessionUser ? <EditVaultPage /> : <Navigate to="/" />} />
+          <Route path="/statistics" element={sessionUser ? <StatisticsPage /> : <Navigate to="/" />} />
+          <Route path="/print-studio" element={sessionUser ? <PrintStudio /> : <Navigate to="/" />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
       )}
     </Router>
   );
