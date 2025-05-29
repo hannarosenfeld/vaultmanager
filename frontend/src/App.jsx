@@ -15,6 +15,7 @@ import EditWarehousePage from "./pages/EditWarehousePage";
 import PrintStudio from "./pages/PrintStudio";
 import StatisticsPage from "./pages/StatisticsPage";
 import EditVaultPage from "./pages/EditVaultPage";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   const dispatch = useDispatch();
@@ -42,6 +43,7 @@ function App() {
           {sessionUser && <NavBar />}
           <div className="flex-grow">
             <Routes>
+              <Route path="/landing" element={<LandingPage />} />
               <Route path="/login" element={sessionUser ? <Navigate to="/" /> : <LoginPage />} />
               <Route path="/" element={sessionUser ? <HomePage warehouses={warehouses} /> : <Navigate to="/login" />} />
               <Route path="/stage" element={sessionUser ? <Stage /> : <Navigate to="/login" />} />
