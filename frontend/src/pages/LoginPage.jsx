@@ -25,14 +25,12 @@ const LoginPage = () => {
     <div className="flex min-h-screen items-center justify-center px-6 py-12 bg-gradient-to-br from-blue-50 via-white to-blue-100">
       <div className="w-full max-w-md space-y-8 bg-white rounded-3xl shadow-2xl p-12 border border-blue-100">
         <div className="flex flex-col items-center">
-          <div className="relative mb-3">
-            <div className="absolute inset-0 rounded-full bg-white/60 backdrop-blur-md shadow-lg" />
-            <img
-              className="relative h-24 w-24 object-contain rounded-full border-4 border-white shadow-xl"
-              src={naglee}
-              alt="Naglee Logo"
-            />
-          </div>
+          {/* Remove the circle background, just show the logo */}
+          <img
+            className="h-24 w-24 object-contain mb-3"
+            src={naglee}
+            alt="Naglee Logo"
+          />
           <h2 className="mt-2 text-center text-3xl font-extrabold tracking-tight text-primary drop-shadow-sm">
             Sign in to your account
           </h2>
