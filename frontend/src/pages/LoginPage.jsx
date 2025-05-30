@@ -22,17 +22,24 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-6 py-12 lg:px-8 bg-gradient-to-br from-blue-50 via-white to-blue-100">
-      <div className="w-full max-w-md space-y-8 bg-white rounded-2xl shadow-2xl p-10 border border-blue-100">
-        <div>
-          <img className="mx-auto h-24 w-auto mb-2" src={naglee} alt="Naglee Logo" />
-          <h2 className="mt-3 text-center text-2xl font-bold tracking-tight text-blue-800">
+    <div className="flex min-h-screen items-center justify-center px-6 py-12 bg-gradient-to-br from-blue-50 via-white to-blue-100">
+      <div className="w-full max-w-md space-y-8 bg-white rounded-3xl shadow-2xl p-12 border border-blue-100">
+        <div className="flex flex-col items-center">
+          <div className="relative mb-3">
+            <div className="absolute inset-0 rounded-full bg-white/60 backdrop-blur-md shadow-lg" />
+            <img
+              className="relative h-24 w-24 object-contain rounded-full border-4 border-white shadow-xl"
+              src={naglee}
+              alt="Naglee Logo"
+            />
+          </div>
+          <h2 className="mt-2 text-center text-3xl font-extrabold tracking-tight text-primary drop-shadow-sm">
             Sign in to your account
           </h2>
         </div>
         <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-          <form className="space-y-6" onSubmit={handleSubmit}>
-            <ul className="text-red-500">
+          <form className="space-y-7" onSubmit={handleSubmit}>
+            <ul className="text-red-500 text-sm mb-2">
               {errors.map((error, idx) => (
                 <li key={idx}>{error}</li>
               ))}
@@ -40,58 +47,48 @@ const LoginPage = () => {
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-medium text-gray-900"
+                className="block text-sm font-semibold text-charcoal mb-1"
               >
                 Email address
               </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 border border-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:outline-none sm:text-sm"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                />
-              </div>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="block w-full rounded-lg bg-background px-3 py-2 text-base text-charcoal border border-slate placeholder:text-slate focus:ring-2 focus:ring-accent focus:outline-none transition"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
-
             <div>
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-900"
-                >
-                  Password
-                </label>
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 border border-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-blue-200 focus:outline-none sm:text-sm"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                className="flex w-full justify-center rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition"
+              <label
+                htmlFor="password"
+                className="block text-sm font-semibold text-charcoal mb-1"
               >
-                Sign in
-              </button>
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="block w-full rounded-lg bg-background px-3 py-2 text-base text-charcoal border border-slate placeholder:text-slate focus:ring-2 focus:ring-accent focus:outline-none transition"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
+            <button
+              type="submit"
+              className="flex w-full justify-center rounded-lg bg-primary px-3 py-2 text-base font-semibold text-white shadow-md hover:bg-accent hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent transition"
+            >
+              Sign in
+            </button>
           </form>
-          <div className="mt-6 text-center">
-            <Link to="/" className="text-blue-600 hover:underline text-sm">
+          <div className="mt-8 text-center">
+            <Link to="/" className="text-accent hover:underline text-sm font-medium">
               &larr; Back to Landing Page
             </Link>
           </div>
