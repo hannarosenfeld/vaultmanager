@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary: #1A2A4F;      /* Navy Blue */
+  --color-accent: #5ED1D1;       /* Teal Blue */
+  --color-background: #F5F7FA;   /* White Smoke */
+  --color-charcoal: #2B2B2B;     /* Charcoal */
+  --color-slate: #6B7280;        /* Slate Gray */
+  --color-success: #10B981;      /* Emerald */
+  --color-warning: #F59E0B;      /* Amber */
+}
+
 :root {
   --white:#F4F4F4;
   --red:  #ea373d;
