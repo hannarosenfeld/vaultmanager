@@ -42,7 +42,7 @@
     "preview": "vite preview"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18"
   },
   "eslintConfig": {
     "extends": "react-app"
