@@ -38,47 +38,58 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
             margin: "0 auto",
           }}
         >
-          {sortedFields.map((field) => (
-            <div
-              className={`field bg-gray-200 ${
-                selectedField === field.id ? "border-2 border-blue-500" : ""
-              }`}
-              key={field.id}
-              style={{
-                filter: `${searchIds?.length && !searchIds.includes(field.id) ? "grayscale(100%)" : "none"}`,
-                opacity: `${searchIds?.length && !searchIds.includes(field.id) ? "0.5" : "1"}`,
-                display: field.type === "couchbox-B" ? "none" : "flex",
-                height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "5vh", // Double the height for couchbox-T
-                backgroundColor: `${
-                  (Object.keys(field.vaults).length === 3 && field.type === "vault") ||
-                  field.full ||
-                  (Object.keys(field.vaults).length === 4 && field.type === "couchbox-T") ||
-                  field.full
-                    ? "var(--red)"
-                    : (Object.keys(field.vaults).length === 3 &&
-                        field.type === "couchbox-T") ||
-                      field.full ||
-                      Object.keys(field.vaults).length === 2
-                    ? "var(--yellow)"
-                    : Object.keys(field.vaults).length === 1
-                    ? "var(--green)"
-                    : "var(--lightgrey)"
-                }`,
-                width: "100%",
-                zIndex: field.type === "couchbox-B" ? "100" : "auto",
-                alignItems: "center",
-                justifyContent: "center",
-                gridRow: field.type === "couchbox-T" ? "span 2" : "auto", // Span two rows for couchbox-T
-              }}
-              onClick={() => handleFieldSelect(field)}
-            >
-              {field.type !== "couchbox-B" && (
-                <div className="text-xs md:text-md text-center">
-                  {field.name}
-                </div>
-              )}
-            </div>
-          ))}
+          {sortedFields.map((field) => {
+            // Determine color style for this field
+            let backgroundColor = "";
+            const isVaultFull =
+              field.type === "vault" &&
+              (Object.keys(field.vaults).length === 3 || field.full === true);
+
+            if (isVaultFull) {
+              backgroundColor = "var(--color-full)";
+            } else if (field.full === true) {
+              backgroundColor = "var(--color-full)";
+            } else if (Object.keys(field.vaults).length === 3 && field.type === "vault") {
+              backgroundColor = "var(--color-warning)";
+            } else if (Object.keys(field.vaults).length === 4 && field.type === "couchbox-T") {
+              backgroundColor = "var(--color-warning)";
+            } else if (
+              (Object.keys(field.vaults).length === 3 && field.type === "couchbox-T") ||
+              Object.keys(field.vaults).length === 2
+            ) {
+              backgroundColor = "var(--color-accent)";
+            } else if (Object.keys(field.vaults).length === 1) {
+              backgroundColor = "var(--color-success)";
+            } else {
+              backgroundColor = "var(--color-emptyfield)";
+            }
+            return (
+              <div
+                className={[
+                  "field flex items-center justify-center w-full",
+                  selectedField === field.id ? "border-2" : "",
+                ].join(" ")}
+                key={field.id}
+                style={{
+                  backgroundColor,
+                  borderColor: selectedField === field.id ? "var(--color-primary)" : undefined,
+                  filter: `${searchIds?.length && !searchIds.includes(field.id) ? "grayscale(100%)" : "none"}`,
+                  opacity: `${searchIds?.length && !searchIds.includes(field.id) ? "0.5" : "1"}`,
+                  display: field.type === "couchbox-B" ? "none" : "flex",
+                  height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "5vh",
+                  zIndex: field.type === "couchbox-B" ? "100" : "auto",
+                  gridRow: field.type === "couchbox-T" ? "span 2" : "auto",
+                }}
+                onClick={() => handleFieldSelect(field)}
+              >
+                {field.type !== "couchbox-B" && (
+                  <div className="text-xs md:text-md text-center">
+                    {field.name}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : (
         "no fields"

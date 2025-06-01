@@ -2,23 +2,12 @@
 
 @theme {
   --color-primary: #1A2A4F;      /* Navy Blue */
-  --color-accent: #5ED1D1;       /* Teal Blue */
+  --color-accent: #2563eb;       /* Teal Blue changed to a more saturated blue */
   --color-background: #F5F7FA;   /* White Smoke */
   --color-charcoal: #2B2B2B;     /* Charcoal */
   --color-slate: #6B7280;        /* Slate Gray */
   --color-success: #10B981;      /* Emerald */
   --color-warning: #F59E0B;      /* Amber */
-}
-
-:root {
-  --white:#F4F4F4;
-  --red:  #ea373d;
-  --delete: #FF4136;
-  --teal: #2A9D8F;
-  --blue: #007bff;
-  --lightgrey: #CBCBCB;
-  --grey: #505050;
-  --black: #1A1A1D;
-  --yellow: #FFD166;
-  --green: #4BB543;
+  --color-emptyfield: #E0E7EF;   /* Light Blue for Empty Fields */
+  --color-full: #E53935;         /* Red for Full Fields */
 }

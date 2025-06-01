@@ -92,7 +92,7 @@ function WarehousePage() {
       <div className="flex justify-center mb-4">
         <button
           className={`px-4 py-2 rounded-l ${
-            isWarehouseView ? "bg-blue-500 text-white" : "bg-gray-200"
+            isWarehouseView ? "bg-primary text-white" : "bg-background text-primary border border-primary"
           }`}
           onClick={() => setIsWarehouseView(true)}
         >
@@ -100,7 +100,7 @@ function WarehousePage() {
         </button>
         <button
           className={`px-4 py-2 rounded-r ${
-            !isWarehouseView ? "bg-blue-500 text-white" : "bg-gray-200"
+            !isWarehouseView ? "bg-primary text-white" : "bg-background text-primary border border-primary"
           }`}
           onClick={() => setIsWarehouseView(false)}
         >
