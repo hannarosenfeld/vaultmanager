@@ -11,7 +11,7 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState([]);
 
-  if (sessionUser) return <Navigate to="/" />;
+  if (sessionUser) return <Navigate to="/dashboard" />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

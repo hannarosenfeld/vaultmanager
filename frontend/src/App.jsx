@@ -25,14 +25,16 @@ function App() {
 
   useEffect(() => {
     dispatch(authenticate()).then(() => {
-      if (Object.keys(warehouses).length === 0) {
-        dispatch(getAllWarehousesThunk()).then(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
+      setLoading(false);
       dispatch(getAllStagedVaultsThunk());
     });
   }, [dispatch]);
+
+  useEffect(() => {
+    if (sessionUser && Object.keys(warehouses).length === 0) {
+      dispatch(getAllWarehousesThunk());
+    }
+  }, [dispatch, sessionUser, warehouses]);
 
   return (
     <Router>
@@ -61,6 +63,7 @@ function App() {
         ) : (
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         )

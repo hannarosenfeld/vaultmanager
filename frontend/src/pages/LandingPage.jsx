@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function LandingPage() {
   const [form, setForm] = useState({
@@ -9,6 +9,7 @@ export default function LandingPage() {
     company: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -21,13 +22,14 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center">
-      <div className="w-full flex justify-end px-8 py-6 absolute top-0 left-0 z-20">
-        <Link
-          to="/login"
+      <div className="w-full flex justify-end px-8 py-6 fixed top-0 left-0 z-50">
+        <button
+          type="button"
+          onClick={() => navigate("/login")}
           className="text-primary font-semibold bg-white border border-primary rounded-full px-5 py-2 shadow hover:bg-primary hover:text-white transition"
         >
           Log In
-        </Link>
+        </button>
       </div>
       <header className="w-full bg-gradient-to-r from-primary to-accent py-16 shadow-lg">
         <div className="max-w-4xl mx-auto px-6 flex flex-col items-center text-center">
