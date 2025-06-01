@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Disclosure, Menu, MenuButton } from "@headlessui/react";
 import { Link, useLocation } from "react-router-dom";
 import NavDrawer from './NavDrawer';
-import logo from "../../assets/favicon_io/favicon-32x32.png";
+import logo from "../../assets/no_background_logo.png";
 import Searchbar from './Searchbar';
 
 export default function NavBar() {
