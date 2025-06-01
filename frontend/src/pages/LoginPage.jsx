@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Link } from "react-router-dom";
 import { login } from "../store/session";
-import naglee from "../assets/no_background_logo.png";
+import logo from "../assets/no_background_logo.png";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -28,8 +28,8 @@ const LoginPage = () => {
           {/* Remove the circle background, just show the logo */}
           <img
             className="h-24 w-24 object-contain mb-3"
-            src={naglee}
-            alt="Naglee Logo"
+            src={logo}
+            alt="Warehouse Manager Logo"
           />
           <h2 className="mt-2 text-center text-3xl font-extrabold tracking-tight text-primary drop-shadow-sm">
             Sign in to your account

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Disclosure, Menu, MenuButton } from "@headlessui/react";
 import { Link, useLocation } from "react-router-dom";
 import NavDrawer from './NavDrawer';
-import NagleeLogo from "../../assets/naglee.png";
+import logo from "../../assets/favicon_io/favicon-32x32.png";
 import Searchbar from './Searchbar';
 
 export default function NavBar() {
@@ -18,8 +18,8 @@ export default function NavBar() {
           <div className="flex items-center">
             <Link to="/">
               <img
-                alt="Your Company"
-                src={NagleeLogo}
+                alt="Warehouse Manager Logo"
+                src={logo}
                 className="w-[3em]"
               />
             </Link>
