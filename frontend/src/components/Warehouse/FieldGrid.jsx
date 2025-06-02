@@ -40,12 +40,15 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
         >
           {sortedFields.map((field) => {
             // Use field.capacity for logic
-            const capacity = field.capacity || 3;
+            const baseCapacity = field.capacity || 3;
+            const isCouchbox = field.type === "couchbox-T" || field.type === "couchbox";
+            const capacity = isCouchbox ? baseCapacity + 1 : baseCapacity;
             const vaultCount = Object.keys(field.vaults).length;
             let backgroundColor = "";
 
             if (
               (field.type === "vault" && (vaultCount === capacity || field.full === true)) ||
+              (isCouchbox && (vaultCount === capacity || field.full === true)) ||
               field.full === true
             ) {
               backgroundColor = "var(--color-full)";
