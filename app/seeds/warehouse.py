@@ -16,7 +16,7 @@ def seed_warehouse(users, fields, orders):
     warehouse.warehouse_fields = allFields
     warehouse.users = user_instances
     warehouse.orders = order_instances
-    warehouse.field_capacity = 2
+    warehouse.field_capacity = 3
 
     db.session.add(warehouse)
     db.session.commit()  # Commit the warehouse without adding racks or shelves
