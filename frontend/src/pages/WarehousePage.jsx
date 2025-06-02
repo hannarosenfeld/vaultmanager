@@ -77,6 +77,11 @@ function WarehousePage() {
     }
   }, [dispatch, warehouse?.id]);
 
+  // Show spinner if warehouses are not loaded yet
+  if (!warehouses || Object.keys(warehouses).length === 0) {
+    return <LoadingSpinner />;
+  }
+
   if (loading) {
     return <LoadingSpinner />;
   }

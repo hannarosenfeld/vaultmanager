@@ -8,6 +8,19 @@ export default function HomePage({ warehouses }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
+  // Show spinner if warehouses are not loaded yet
+  if (!warehouses || Object.keys(warehouses).length === 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <span className="sr-only">Loading...</span>
+        {/* You can use your LoadingSpinner component here if you want */}
+        <div className="flex justify-center items-center w-full h-full">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
+
   const openDeleteModal = (warehouse) => {
     setSelectedWarehouse(warehouse);
     setIsDeleteModalOpen(true);

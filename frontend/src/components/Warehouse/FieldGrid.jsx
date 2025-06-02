@@ -47,17 +47,13 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
             let backgroundColor = "";
 
             if (
-              (field.type === "vault" && (vaultCount === capacity || field.full === true)) ||
-              (isCouchbox && (vaultCount === capacity || field.full === true)) ||
-              field.full === true
+              (vaultCount === capacity || field.full === true)
             ) {
-              backgroundColor = "var(--color-full)";
-            } else if (vaultCount === capacity - 1) {
-              backgroundColor = "var(--color-warning)";
-            } else if (vaultCount === 1) {
-              backgroundColor = "var(--color-success)";
-            } else if (vaultCount > 1 && vaultCount < capacity - 1) {
-              backgroundColor = "var(--color-accent)";
+              backgroundColor = "var(--color-full)"; // red
+            } else if (vaultCount > capacity / 2) {
+              backgroundColor = "var(--color-warning)"; // yellow
+            } else if (vaultCount > 0) {
+              backgroundColor = "var(--color-success)"; // green
             } else {
               backgroundColor = "var(--color-emptyfield)";
             }
