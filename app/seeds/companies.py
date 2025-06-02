@@ -15,7 +15,25 @@ def seed_companies():
         address="1525 Grand Central Ave, Elmira, NY 14901",
         phone="6077334671"
     )
+    c2 = Company(
+        name="Acme Logistics",
+        address="123 Main St, Springfield, IL 62701",
+        phone="2175551234"
+    )
+    c3 = Company(
+        name="Blue Ridge Storage",
+        address="456 Blue Ridge Rd, Asheville, NC 28801",
+        phone="8285559876"
+    )
+    c4 = Company(
+        name="Metro Warehousing",
+        address="789 Metro Ave, New York, NY 10001",
+        phone="2125554321"
+    )
     db.session.add(c1)
+    db.session.add(c2)
+    db.session.add(c3)
+    db.session.add(c4)
     db.session.commit()
 
 def undo_companies():
