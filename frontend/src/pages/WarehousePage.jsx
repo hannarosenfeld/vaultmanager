@@ -123,7 +123,7 @@ function WarehousePage() {
           {/* Warehouse View */}
           <div className="h-[25vh]">
             {selectedField ? (
-              <FieldInfo field={selectedField} />
+              <FieldInfo field={selectedField} warehouse={warehouse}/>
             ) : (
               "Select a field to view its info"
             )}

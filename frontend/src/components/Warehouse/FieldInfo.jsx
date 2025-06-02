@@ -6,7 +6,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { moveVaultToWarehouseThunk, updateFieldTypeThunk, setFieldFullThunk } from "../../store/warehouse";
 
-export default function FieldInfo({ field, isStage, vaultId, onMove }) {
+export default function FieldInfo({ field, warehouse, isStage, vaultId, onMove }) {
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
@@ -15,11 +15,15 @@ export default function FieldInfo({ field, isStage, vaultId, onMove }) {
   const [fieldType, setFieldType] = useState(field.type || "vault");
   const [isFieldFull, setIsFieldFull] = useState(field.full);
 
-  const rowCount = fieldType === "couchbox" ? 4 : 3;
-
-  const positionOrder = ["T", "M2", "M", "B"].filter(
-    (pos) => pos !== "M2" || fieldType === "couchbox"
-  );
+  // Determine capacity and positionOrder
+  let capacity = warehouse?.capacity || 3;
+  // Bottom vault should be 1, top vault should be capacity (so reverse order)
+  let positionOrder = Array.from({ length: capacity }, (_, i) => (capacity - i).toString());
+  // If couchbox, add an extra position at the top
+  if (fieldType === "couchbox" || field.type === "couchbox-T") {
+    positionOrder = Array.from({ length: capacity + 1 }, (_, i) => (capacity + 1 - i).toString());
+    capacity = capacity + 1;
+  }
 
   useEffect(() => {
     setVaults(field.vaults);
@@ -31,18 +35,21 @@ export default function FieldInfo({ field, isStage, vaultId, onMove }) {
     setIsFieldFull(field.full);
   }, [field.vaults, field.type, field.full]);
 
+  // Map vaults by their numeric position (assume vault.position is 1-based string/number)
   const sortedVaults = useMemo(() => {
     return vaults
       ? [...Object.values(vaults)].sort(
-          (a, b) =>
-            positionOrder.indexOf(a.position) - positionOrder.indexOf(b.position)
+          (a, b) => Number(a.position) - Number(b.position)
         )
       : [];
   }, [vaults, positionOrder]);
 
+  // Fix: vaultMap should map positionOrder (which is descending) to vaults, but vault.position may be ascending (1,2,3)
+  // So, always map vault.position as string to vault, and use positionOrder as string keys
   const vaultMap = useMemo(() => {
+    // vault.position may be number or string, always convert to string for lookup
     return Object.fromEntries(
-      sortedVaults.map((vault) => [vault.position, vault])
+      sortedVaults.map((vault) => [String(vault.position), vault])
     );
   }, [sortedVaults]);
 
@@ -103,16 +110,16 @@ export default function FieldInfo({ field, isStage, vaultId, onMove }) {
 
   return (
     <div className="h-[90%] grid grid-cols-[65%_35%]">
-      <div className={`grid grid-rows-${rowCount} border-r border-gray-300`}>
+      <div className={`grid grid-rows-${capacity} border-r border-gray-300`}>
         {positionOrder.map((pos, index) => (
           <div
             key={pos}
             className={`p-2 flex items-center justify-between ${
-              index < rowCount - 1 ? "border-b border-gray-300" : ""
+              index < capacity - 1 ? "border-b border-gray-300" : ""
             }`}
           >
             <div className="text-sm w-[10%] flex items-center mr-4 lg:mr-0">
-              {field.type === "couchbox-T" && pos == "M" ? "M1" : pos}
+              {pos}
             </div>
             <div className="flex-grow flex items-center">
               {vaultMap[pos] ? (

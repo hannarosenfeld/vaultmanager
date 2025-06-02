@@ -7,7 +7,7 @@ def seed_vaults(customers):
         name='144',
         customer_id=2, 
         field_id=25, 
-        position='T', 
+        position='3',  # Use numeric string for position (top)
         order_id=1, 
         type="vault"
     )
@@ -15,7 +15,7 @@ def seed_vaults(customers):
         name='266',
         customer_id=3,
         field_id=25,
-        position='M',
+        position='2',  # Use numeric string for position (middle)
         order_id=2,
         type="vault"
     )
@@ -23,7 +23,7 @@ def seed_vaults(customers):
         name='176',   
         customer_id=1,
         field_id=25,
-        position='B',
+        position='1',  # Use numeric string for position (bottom)
         order_id=3,
         type="vault"
     )

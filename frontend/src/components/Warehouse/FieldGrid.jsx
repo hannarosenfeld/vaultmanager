@@ -39,30 +39,26 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
           }}
         >
           {sortedFields.map((field) => {
-            // Determine color style for this field
+            // Use field.capacity for logic
+            const capacity = field.capacity || 3;
+            const vaultCount = Object.keys(field.vaults).length;
             let backgroundColor = "";
-            const isVaultFull =
-              field.type === "vault" &&
-              (Object.keys(field.vaults).length === 3 || field.full === true);
 
-            if (isVaultFull) {
-              backgroundColor = "var(--color-full)";
-            } else if (field.full === true) {
-              backgroundColor = "var(--color-full)";
-            } else if (Object.keys(field.vaults).length === 3 && field.type === "vault") {
-              backgroundColor = "var(--color-warning)";
-            } else if (Object.keys(field.vaults).length === 4 && field.type === "couchbox-T") {
-              backgroundColor = "var(--color-warning)";
-            } else if (
-              (Object.keys(field.vaults).length === 3 && field.type === "couchbox-T") ||
-              Object.keys(field.vaults).length === 2
+            if (
+              (field.type === "vault" && (vaultCount === capacity || field.full === true)) ||
+              field.full === true
             ) {
-              backgroundColor = "var(--color-accent)";
-            } else if (Object.keys(field.vaults).length === 1) {
+              backgroundColor = "var(--color-full)";
+            } else if (vaultCount === capacity - 1) {
+              backgroundColor = "var(--color-warning)";
+            } else if (vaultCount === 1) {
               backgroundColor = "var(--color-success)";
+            } else if (vaultCount > 1 && vaultCount < capacity - 1) {
+              backgroundColor = "var(--color-accent)";
             } else {
               backgroundColor = "var(--color-emptyfield)";
             }
+
             return (
               <div
                 className={[
