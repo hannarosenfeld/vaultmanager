@@ -80,9 +80,6 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
       return;
     }
     setError("");
-
-    console.log("🍑 form data before dispatch: ", formData)
-
     try {
       if (initialData.id) {
         // Editing an existing pallet
@@ -96,9 +93,8 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
             pallet_spaces: palletSpaces,
           })
         ).unwrap();
-        console.log(`✅ Pallet updated successfully.`);
         onClose();
-        onSubmit(formData); // Notify parent to update the UI
+        onSubmit(formData);
       } else {
         await dispatch(
           addPalletThunk({
