@@ -6,6 +6,8 @@ import printReducer from './print';
 import rackReducer from './rack';
 import logger from 'redux-logger';
 
+const isDev = process.env.NODE_ENV !== "production";
+
 export default configureStore({
   reducer: {
     warehouse: warehouseReducer,
@@ -14,5 +16,8 @@ export default configureStore({
     print: printReducer,
     rack: rackReducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
+  middleware: (getDefaultMiddleware) =>
+    isDev
+      ? getDefaultMiddleware().concat(logger)
+      : getDefaultMiddleware(),
 });
