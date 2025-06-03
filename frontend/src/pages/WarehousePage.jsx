@@ -53,24 +53,18 @@ function WarehousePage() {
   }
 
   useEffect(() => {
-    const foundWarehouse = Object.values(warehouses).find(
-      (w) => w.name.toLowerCase().split(" ").join("-") === warehouseName
+    const foundWarehouse = Object.values(warehouses || {}).find(
+      (w) => w.name && w.name.toLowerCase().split(" ").join("-") === warehouseName
     );
     if (foundWarehouse) {
       dispatch(setCurrentWarehouse(foundWarehouse));
       // Defensive: ensure foundWarehouse.fields is an object or array
-      console.log("🏭 foundWarehouse:", foundWarehouse);
-      console.log("🏭 foundWarehouse.fields:", foundWarehouse.fields);
       if (foundWarehouse.fields && Object.keys(foundWarehouse.fields).length > 0) {
-        const fieldsArr = Object.values(foundWarehouse.fields);
-        console.log("🏭 Setting fieldsArr:", fieldsArr);
-        setFieldsArr(fieldsArr);
+        setFieldsArr(Object.values(foundWarehouse.fields));
       } else {
-        console.log("🏭 No fields found for warehouse");
         setFieldsArr([]);
       }
     } else {
-      console.log("🏭 No warehouse found for name:", warehouseName);
       setFieldsArr([]);
     }
     setLoading(false);
@@ -82,11 +76,10 @@ function WarehousePage() {
   }, [dispatch, warehouseName, warehouses]);
 
   useEffect(() => {
-    if (warehouse?.id) {
+    // Only run if warehouse is defined and has an id
+    if (warehouse && warehouse.id) {
       console.log(`🔍 Fetching racks for warehouseId: ${warehouse.id}`);
-      dispatch(fetchRacksThunk(warehouse.id)); // Fetch racks for the warehouse
-    } else {
-      console.error("❌ Warehouse ID is undefined in useEffect.");
+      dispatch(fetchRacksThunk(warehouse.id));
     }
   }, [dispatch, warehouse?.id]);
 
