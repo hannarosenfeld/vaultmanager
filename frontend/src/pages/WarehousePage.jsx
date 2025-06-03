@@ -16,7 +16,7 @@ function WarehousePage() {
   const dispatch = useDispatch();
   const warehouse = useSelector((state) => state.warehouse.currentWarehouse);
   const warehouses = useSelector((state) => state.warehouse.warehouses);
-  const [fieldsArr, setFieldsArr] = useState(null);
+  const [fieldsArr, setFieldsArr] = useState([]); // Initialize as empty array
   const selectedField = useSelector((state) => state.warehouse.currentField);
   const [loading, setLoading] = useState(true);
   const [isWarehouseView, setIsWarehouseView] = useState(true); // Toggle state
@@ -58,7 +58,20 @@ function WarehousePage() {
     );
     if (foundWarehouse) {
       dispatch(setCurrentWarehouse(foundWarehouse));
-      setFieldsArr(Object.values(foundWarehouse.fields));
+      // Defensive: ensure foundWarehouse.fields is an object or array
+      console.log("🏭 foundWarehouse:", foundWarehouse);
+      console.log("🏭 foundWarehouse.fields:", foundWarehouse.fields);
+      if (foundWarehouse.fields && Object.keys(foundWarehouse.fields).length > 0) {
+        const fieldsArr = Object.values(foundWarehouse.fields);
+        console.log("🏭 Setting fieldsArr:", fieldsArr);
+        setFieldsArr(fieldsArr);
+      } else {
+        console.log("🏭 No fields found for warehouse");
+        setFieldsArr([]);
+      }
+    } else {
+      console.log("🏭 No warehouse found for name:", warehouseName);
+      setFieldsArr([]);
     }
     setLoading(false);
 
@@ -134,7 +147,7 @@ function WarehousePage() {
             )}
           </div>
           <div className="flex-grow max-w-full overflow-x-hidden">
-            {fieldsArr.length ? (
+            {fieldsArr && fieldsArr.length ? (
               <FieldGrid
                 warehouse={warehouse}
                 handleFieldClick={handleFieldClick}

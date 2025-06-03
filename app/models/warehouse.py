@@ -2,6 +2,7 @@ from .db import db, environment, SCHEMA, add_prefix_for_prod
 from flask_login import UserMixin
 import json
 from sqlalchemy.dialects.postgresql import JSON  # Import JSON type for PostgreSQL
+from .field import Field  # <-- Add this import at the top of the file
 
 
 class Warehouse(db.Model):
@@ -69,6 +70,9 @@ class Warehouse(db.Model):
         return within_bounds and not overlaps_field_grid
 
     def to_dict(self):
+        print(f"🔍 to_dict for Warehouse {self.id}: warehouse_fields count = {len(self.warehouse_fields)}")
+        db_fields = Field.query.filter_by(warehouse_id=self.id).all()
+        print(f"    [to_dict] DB fields for warehouse {self.id}: {[f.id for f in db_fields]}")
         return {
             'id': self.id,
             'name': self.name,
@@ -76,11 +80,11 @@ class Warehouse(db.Model):
             'cols': self.cols,
             'fieldCapacity': self.field_capacity,
             'warehouseCapacity': self.rows * self.cols * self.field_capacity,
-            'fields': [field.to_dict() for field in self.warehouse_fields],
+            'fields': {field.id: field.to_dict() for field in self.warehouse_fields},
             'companyId': self.company_id,
             'companyName': self.company.name,
             'racks': [rack.to_dict() for rack in self.racks],
             'length': self.length,
             'width': self.width,
-            'fieldgridLocation': self.fieldgrid_location  # Include field grid location in the response
+            'fieldgridLocation': self.fieldgrid_location
         }

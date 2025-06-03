@@ -125,8 +125,7 @@ def add_warehouse():
                     name=field_name,
                     warehouse_id=warehouse_id,
                     full=False,
-                    type='vault',
-                    vaults=[]
+                    type='vault'
                 )
                 db.session.add(field)
                 db.session.commit()
@@ -230,20 +229,33 @@ def get_warehouses_by_company(company_id):
     print("🔍 [API] All warehouses in DB:")
     for w in all_warehouses:
         print(f"    id={w.id}, name={w.name}, company_id={w.company_id}")
+        print(f"    warehouse_fields: {[f.id for f in w.warehouse_fields]}")
+        db_fields = Field.query.filter_by(warehouse_id=w.id).all()
+        print(f"    DB fields for warehouse {w.id}: {[f.id for f in db_fields]}")
     warehouses = Warehouse.query.filter_by(company_id=company_id).all()
     print(f"🔍 [API] Warehouses found for company {company_id}: {warehouses}")
     if not warehouses:
         print("🔍 [API] No warehouses found for this company!")
-        return jsonify([]), 200  # <-- Always return 200 and an empty list
+        return jsonify([]), 200
 
     sorted_warehouses = []
     for warehouse in warehouses:
         warehouse_dict = warehouse.to_dict()
-        print(f"🔍 [API] Warehouse dict: {warehouse_dict}")
-        warehouse_dict['fields'] = {field['id']: field for field in sorted(warehouse_dict['fields'], key=lambda x: x['id'])}
+        print(f"🔍 [API] Warehouse dict (before fields): {warehouse_dict}")
+        print(f"🔍 [API] warehouse.warehouse_fields: {[f.id for f in warehouse.warehouse_fields]}")
+        for f in warehouse.warehouse_fields:
+            print(f"        Field id={f.id}, name={f.name}, warehouse_id={f.warehouse_id}")
+        # Print fields from DB directly for this warehouse
+        db_fields = Field.query.filter_by(warehouse_id=warehouse.id).all()
+        print(f"        DB fields for warehouse {warehouse.id}: {[f.id for f in db_fields]}")
+        # REMOVE this line, it is causing the error:
+        # warehouse_dict['fields'] = {field['id']: field for field in sorted(warehouse_dict['fields'], key=lambda x: x['id'])}
+        # The fields are already a dict from to_dict(), so just use as is.
         for field_id, field in warehouse_dict['fields'].items():
+            print(f"🔍 [API] Field {field_id} vaults: {field.get('vaults', [])}")
             field['vaults'] = {vault['id']: vault for vault in sorted(field['vaults'], key=lambda x: x['id'])}
         sorted_warehouses.append(warehouse_dict)
+        print(f"🔍 [API] Warehouse dict (after fields): {warehouse_dict}")
 
     print(f"🔍 [API] Returning sorted_warehouses: {sorted_warehouses}")
     return jsonify(sorted_warehouses)
