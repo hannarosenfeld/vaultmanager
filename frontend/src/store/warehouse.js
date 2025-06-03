@@ -141,20 +141,34 @@ export const updateFieldGrid = (warehouseId, fieldgridLocation) => ({
 });
 
 
-export const getAllWarehousesThunk = () => async (dispatch) => {
+export const getAllWarehousesThunk = (companyId) => async (dispatch) => {
+  console.log("getAllWarehousesThunk called with companyId:", companyId);
   try {
-    const response = await fetch("/api/warehouse/");
+    const response = await fetch(`/api/warehouse/company/${companyId}`);
+    console.log("Fetch response:", response);
     if (response.ok) {
       const data = await response.json();
+      console.log("Fetched warehouses data:", data);
+      if (Array.isArray(data)) {
+        data.forEach((w, i) => {
+          console.log(`Warehouse[${i}]: id=${w.id}, name=${w.name}, companyId=${w.companyId}`);
+        });
+      }
       dispatch(getAllWarehouses(data));
       return data;
     } else {
-      const errorData = await response.json();
-      console.error("Error fetching warehouses:", errorData.errors);
-      return errorData;
+      let errorText;
+      try {
+        errorText = await response.text();
+        console.error("Error response text:", errorText);
+      } catch (e) {
+        errorText = "Could not parse error text";
+      }
+      console.error("Error fetching warehouses:", errorText);
+      return { error: errorText };
     }
   } catch (error) {
-    console.error("Error fetching warehouses:", error);
+    console.error("Error fetching warehouses (catch):", error);
     return error;
   }
 };
@@ -538,6 +552,7 @@ const warehouseReducer = (state = initialState, action) => {
       };
 
     case GET_ALL_WAREHOUSES:
+      console.log("Reducer: GET_ALL_WAREHOUSES action received:", action.warehouses);
       const sortedWarehouses = action.warehouses.sort((a, b) => a.id - b.id);
       const newWarehouses = sortedWarehouses.reduce((acc, warehouse) => {
         const sortedFields = Object.values(warehouse.fields).sort(

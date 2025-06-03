@@ -221,3 +221,29 @@ def update_field_grid(warehouse_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+
+@warehouse_routes.route('/company/<int:company_id>', methods=['GET'])
+def get_warehouses_by_company(company_id):
+    print(f"🔍 [API] get_warehouses_by_company called with company_id: {company_id}")
+    all_warehouses = Warehouse.query.all()
+    print("🔍 [API] All warehouses in DB:")
+    for w in all_warehouses:
+        print(f"    id={w.id}, name={w.name}, company_id={w.company_id}")
+    warehouses = Warehouse.query.filter_by(company_id=company_id).all()
+    print(f"🔍 [API] Warehouses found for company {company_id}: {warehouses}")
+    if not warehouses:
+        print("🔍 [API] No warehouses found for this company!")
+        return jsonify([]), 200  # <-- Always return 200 and an empty list
+
+    sorted_warehouses = []
+    for warehouse in warehouses:
+        warehouse_dict = warehouse.to_dict()
+        print(f"🔍 [API] Warehouse dict: {warehouse_dict}")
+        warehouse_dict['fields'] = {field['id']: field for field in sorted(warehouse_dict['fields'], key=lambda x: x['id'])}
+        for field_id, field in warehouse_dict['fields'].items():
+            field['vaults'] = {vault['id']: vault for vault in sorted(field['vaults'], key=lambda x: x['id'])}
+        sorted_warehouses.append(warehouse_dict)
+
+    print(f"🔍 [API] Returning sorted_warehouses: {sorted_warehouses}")
+    return jsonify(sorted_warehouses)

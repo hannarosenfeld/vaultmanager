@@ -60,11 +60,14 @@ CORS(app)
 
 # Google Drive API setup
 SCOPES = ['https://www.googleapis.com/auth/drive.file']
+private_key = os.getenv("GOOGLE_CLOUD_PRIVATE_KEY")
+if private_key is None:
+    raise RuntimeError("GOOGLE_CLOUD_PRIVATE_KEY environment variable is not set")
 SERVICE_ACCOUNT_INFO = {
     "type": os.getenv("GOOGLE_CLOUD_TYPE"),
     "project_id": os.getenv("GOOGLE_CLOUD_PROJECT_ID"),
     "private_key_id": os.getenv("GOOGLE_CLOUD_PRIVATE_KEY_ID"),
-    "private_key": os.getenv("GOOGLE_CLOUD_PRIVATE_KEY").replace("\\n", "\n"),
+    "private_key": private_key.replace("\\n", "\n"),
     "client_email": os.getenv("GOOGLE_CLOUD_CLIENT_EMAIL"),
     "client_id": os.getenv("GOOGLE_CLOUD_CLIENT_ID"),
     "auth_uri": os.getenv("GOOGLE_CLOUD_AUTH_URI"),
