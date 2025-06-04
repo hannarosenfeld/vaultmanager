@@ -1,91 +1,136 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { updateWarehouseAfterStaging, DELETE_VAULT } from './warehouse';
 
-const GET_ALL_STAGED_VAULTS = "warehouse/GET_ALL_STAGED_VAULTS";
-const STAGE_VAULT = "warehouse/STAGE_VAULT";
-const REMOVE_VAULT_FROM_STAGE = "stage/REMOVE_VAULT_FROM_STAGE"; // New action type
+// Action Types
+const GET_ALL_STAGED_VAULTS = "stage/GET_ALL_STAGED_VAULTS";
+const STAGE_VAULT = "stage/STAGE_VAULT";
+const REMOVE_VAULT_FROM_STAGE = "stage/REMOVE_VAULT_FROM_STAGE";
+const SET_STAGE_LOADING = "stage/SET_STAGE_LOADING";
+const SET_STAGE_ERROR = "stage/SET_STAGE_ERROR";
 
-export const getAllStagedVaultsThunk = createAsyncThunk(
-  GET_ALL_STAGED_VAULTS,
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await fetch('/api/stage/vaults');
-      if (!response.ok) {
-        throw new Error('Failed to fetch staged vaults');
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
+// Action Creators
+export const getAllStagedVaults = (vaults) => ({
+  type: GET_ALL_STAGED_VAULTS,
+  vaults,
+});
 
-export const stageVaultThunk = createAsyncThunk(
-  STAGE_VAULT,
-  async (vaultId, { dispatch, rejectWithValue }) => {
-    try {
-      const response = await fetch(`/api/stage/vaults/${vaultId}`, {
-        method: 'POST',
-      });
-      if (!response.ok) {
-        throw new Error('Failed to stage vault');
-      }
-      const data = await response.json();
-      dispatch(updateWarehouseAfterStaging(data));
-      return data;
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
+export const stageVault = (vault) => ({
+  type: STAGE_VAULT,
+  vault,
+});
 
 export const removeVaultFromStage = (vaultId) => ({
   type: REMOVE_VAULT_FROM_STAGE,
-  payload: { vaultId },
+  vaultId,
 });
 
+export const setStageLoading = (loading) => ({
+  type: SET_STAGE_LOADING,
+  loading,
+});
+
+export const setStageError = (error) => ({
+  type: SET_STAGE_ERROR,
+  error,
+});
+
+
+export const getAllStagedVaultsThunk = (companyId) => async (dispatch, getState) => {
+  console.log("❤️ INTHUNK", companyId)
+  dispatch(setStageLoading(true));
+  dispatch(setStageError(null));
+  try {
+    const response = await fetch(`/api/stage/vaults/${companyId}`);
+    if (response.ok) {
+      const data = await response.json();
+      const vaultsArr = Object.values(data);
+      dispatch(getAllStagedVaults(vaultsArr));
+    } else {
+      const errorText = await response.text();
+      dispatch(setStageError(errorText));
+    }
+  } catch (error) {
+    dispatch(setStageError(error.message));
+  } finally {
+    dispatch(setStageLoading(false));
+  }
+};
+
+export const stageVaultThunk = (vaultId) => async (dispatch) => {
+  dispatch(setStageLoading(true));
+  dispatch(setStageError(null));
+  try {
+    const response = await fetch(`/api/stage/vaults/${vaultId}`, {
+      method: 'POST',
+    });
+    if (response.ok) {
+      const data = await response.json();
+      dispatch(stageVault(data));
+      dispatch(updateWarehouseAfterStaging(data));
+    } else {
+      const errorText = await response.text();
+      dispatch(setStageError(errorText));
+    }
+  } catch (error) {
+    dispatch(setStageError(error.message));
+  } finally {
+    dispatch(setStageLoading(false));
+  }
+};
+
+// Initial State
 const initialState = {
   stagedVaults: {},
   loading: false,
   error: null,
 };
 
-const stageSlice = createSlice({
-  name: 'stage',
-  initialState,
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(getAllStagedVaultsThunk.fulfilled, (state, action) => {
-        const newStagedVaults = action.payload.reduce((acc, vault) => {
-          acc[vault.id] = vault;
-          return acc;
-        }, {});
-        state.stagedVaults = newStagedVaults;
-      })
-      .addCase(stageVaultThunk.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(stageVaultThunk.fulfilled, (state, action) => {
-        state.loading = false;
-        state.stagedVaults[action.payload.id] = action.payload;
-      })
-      .addCase(stageVaultThunk.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(DELETE_VAULT, (state, action) => {
-        const { vaultId, deleteFrom } = action.payload;
-        if (deleteFrom === "stage") {
-          delete state.stagedVaults[vaultId];
-        }
-      })
-      .addCase(REMOVE_VAULT_FROM_STAGE, (state, action) => {
-        delete state.stagedVaults[action.payload.vaultId];
+// Reducer
+export default function stageReducer(state = initialState, action) {
+  switch (action.type) {
+    case GET_ALL_STAGED_VAULTS:
+      // action.vaults is an array
+      const stagedVaults = {};
+      action.vaults.forEach((vault) => {
+        stagedVaults[vault.id] = vault;
       });
-  },
-});
-
-export default stageSlice.reducer;
+      return {
+        ...state,
+        stagedVaults,
+      };
+    case STAGE_VAULT:
+      return {
+        ...state,
+        stagedVaults: {
+          ...state.stagedVaults,
+          [action.vault.id]: action.vault,
+        },
+      };
+    case REMOVE_VAULT_FROM_STAGE:
+      const { [action.vaultId]: _, ...remainingVaults } = state.stagedVaults;
+      return {
+        ...state,
+        stagedVaults: remainingVaults,
+      };
+    case SET_STAGE_LOADING:
+      return {
+        ...state,
+        loading: action.loading,
+      };
+    case SET_STAGE_ERROR:
+      return {
+        ...state,
+        error: action.error,
+      };
+    case DELETE_VAULT:
+      if (action.payload.deleteFrom === "stage") {
+        const { [action.payload.vaultId]: __, ...rest } = state.stagedVaults;
+        return {
+          ...state,
+          stagedVaults: rest,
+        };
+      }
+      return state;
+    default:
+      return state;
+  }
+}

@@ -21,6 +21,7 @@ import LandingPage from "./pages/LandingPage";
 function App() {
   const dispatch = useDispatch();
   const sessionUser = useSelector((state) => state.session.user);
+  const companyId = sessionUser?.companyId;
   const warehouses = useSelector((state) => state.warehouse.warehouses);
   const [loading, setLoading] = useState(true);
 
@@ -31,8 +32,9 @@ function App() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (sessionUser?.companyId) {
-      dispatch(getAllWarehousesThunk(sessionUser.companyId));
+    if (companyId) {
+      dispatch(getAllWarehousesThunk(companyId));
+      dispatch(getAllStagedVaultsThunk(companyId));
     }
   }, [dispatch, sessionUser]);
 

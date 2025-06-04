@@ -273,23 +273,12 @@ def get_all_vaults():
         
     return jsonify(vaults_with_warehouse)
 
-@vault_routes.route('/staged')
-# @login_required
-def all_vaults_staged():
-    """
-    Query for all vaults and returns them in a list of vault dictionaries
-    """
-    vaults = Vault.query.filter_by(field_id=None)
-    return { vault.id : vault.to_dict() for vault in vaults }
-
-
 @vault_routes.route('/<int:id>', methods=['GET', 'PUT'])
 # @login_required
 def manage_vault(id):
     """
     Query for a vault by id and manage it (GET, PUT)
     """
-    print("🍊 IN ROUTE")
     vault = Vault.query.get(id)
 
     if not vault:
