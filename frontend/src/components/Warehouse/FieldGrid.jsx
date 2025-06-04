@@ -11,7 +11,6 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
 
   useEffect(() => {
     if (warehouse.fields) {
-      console.log("🟩 FieldGrid warehouse.fields:", warehouse.fields);
       setSortedFields(sortWarehouseFields(warehouse.fields));
     }
   }, [warehouse]);

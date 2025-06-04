@@ -34,13 +34,10 @@ function WarehousePage() {
   }
 
   async function handleAddPallet(palletData) {
-    console.log(`🔍 Adding pallet with data:`, palletData);
     try {
       const updatedShelf = await dispatch(
         addPalletThunk({ shelfId: selectedShelf, ...palletData })
       ).unwrap();
-      console.log(`✅ Pallet added successfully. Updated shelf:`, updatedShelf);
-
       // Fetch racks again to update the UI with the new pallet
       if (warehouse?.id) {
         await dispatch(fetchRacksThunk(warehouse.id));

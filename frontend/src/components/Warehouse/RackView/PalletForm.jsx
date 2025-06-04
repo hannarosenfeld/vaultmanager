@@ -118,13 +118,11 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
   };
 
   const handleDelete = async () => {
-    if (!initialData.id) return; // Ensure we are editing an existing pallet
+    if (!initialData.id) return;
     try {
-      console.log(`🔍 Deleting pallet with ID: ${initialData.id}`);
       await dispatch(deletePalletThunk(initialData.id)).unwrap();
-      console.log(`✅ Pallet deleted successfully.`);
       onClose();
-      onSubmit(null); // Notify parent to update the UI
+      onSubmit(null);
     } catch (error) {
       console.error("❌ Error deleting pallet:", error);
     }

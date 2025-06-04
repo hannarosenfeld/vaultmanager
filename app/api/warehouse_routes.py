@@ -92,21 +92,20 @@ def add_warehouse():
     rows = data.get('rows')
     cols = data.get('cols')
     field_capacity = data.get('field_capacity')
-    length = data.get('length')  # New field for length in feet
-    width = data.get('width')    # New field for width in feet
+    length = data.get('length')
+    width = data.get('width')
 
     if not name or rows is None or cols is None or field_capacity is None or length is None or width is None:
         return jsonify({'error': 'Name, rows, cols, field capacity, length, and width are required'}), 400
 
     try:
-        # Create warehouse
         warehouse = Warehouse(
             name=name,
             rows=rows,
             cols=cols,
             field_capacity=field_capacity,
-            length=length,  # Save length
-            width=width,    # Save width
+            length=length,
+            width=width,
             company_id=company_id
         )
         db.session.add(warehouse)

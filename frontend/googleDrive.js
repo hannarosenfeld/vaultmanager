@@ -31,7 +31,6 @@ function getAccessToken(oAuth2Client) {
     access_type: 'offline',
     scope: SCOPES,
   });
-  console.log('Authorize this app by visiting this url:', authUrl);
   const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
@@ -43,7 +42,6 @@ function getAccessToken(oAuth2Client) {
       oAuth2Client.setCredentials(token);
       // Store the token to disk for later program executions
       fs.writeFileSync(TOKEN_PATH, JSON.stringify(token));
-      console.log('Token stored to', TOKEN_PATH);
     });
   });
 }
@@ -64,7 +62,6 @@ async function uploadFile(filePath) {
     media: media,
     fields: 'id',
   });
-  console.log('File Id:', response.data.id);
   return response.data;
 }
 

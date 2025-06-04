@@ -62,8 +62,6 @@ function Searchbar() {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Add your search logic here
-    console.log("Search:", search);
   };
 
   return (

@@ -4,17 +4,20 @@ import {
   DialogPanel,
   DialogTitle,
 } from "@headlessui/react";
-import { use, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { addVaultThunk } from "../../store/warehouse";
 
 export default function AddVaultModal({ onClose, fieldId, type, position }) {
   const dispatch = useDispatch();
-  const user = useState((state) => state.session.user);
-  const companyId = user?.company_id;
+  const user = useSelector((state) => state.session.user);
+  const companyId = user?.companyId;
   const [isEmpty, setIsEmpty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("vault");
+
+  console.log("❤️ user:", user)
+  console.log("🌸 compnayId:", companyId)
 
   const [formData, setFormData] = useState({
     customer: "",

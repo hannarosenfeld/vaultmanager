@@ -142,13 +142,10 @@ export const updateFieldGrid = (warehouseId, fieldgridLocation) => ({
 
 
 export const getAllWarehousesThunk = (companyId) => async (dispatch) => {
-  console.log("getAllWarehousesThunk called with companyId:", companyId);
   try {
     const response = await fetch(`/api/warehouse/company/${companyId}`);
-    console.log("Fetch response:", response);
     if (response.ok) {
       const data = await response.json();
-      console.log("Fetched warehouses data:", data);
       if (Array.isArray(data)) {
         data.forEach((w, i) => {
           console.log(`Warehouse[${i}]: id=${w.id}, name=${w.name}, companyId=${w.companyId}`);
@@ -362,7 +359,6 @@ export const addFieldsThunk = (formData) => async (dispatch) => {
       return data;
     } else {
       const err = await res.json();
-      console.log("Error adding new fields: ", err);
       return err;
     }
   } catch (error) {
@@ -522,48 +518,6 @@ export const updateFieldGridThunk = (warehouseId, fieldgridLocation) => async (d
   }
 };
 
-export const getRacksThunk = (warehouseId) => async (dispatch) => {
-  try {
-    const res = await fetch(`/api/racks/warehouse/${warehouseId}`);
-    if (res.ok) {
-      const data = await res.json();
-      // dispatch(someAction(data)); // Add your action here if needed
-      return data;
-    } else {
-      const err = await res.json();
-      console.error("Error fetching racks:", err);
-      return err;
-    }
-  } catch (error) {
-    console.error("Error fetching racks:", error);
-    return error;
-  }
-};
-
-export const addRackThunk = (warehouseId, rackData) => async (dispatch) => {
-  try {
-    const res = await fetch(`/api/racks/warehouse/${warehouseId}/add`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(rackData),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      // dispatch(someAction(data)); // Add your action here if needed
-      return data;
-    } else {
-      const err = await res.json();
-      console.error("Error adding rack:", err);
-      return err;
-    }
-  } catch (error) {
-    console.error("Error adding rack:", error);
-    return error;
-  }
-};
-
 const initialState = {
   warehouses: {},
   currentWarehouse: null,
@@ -594,7 +548,6 @@ const warehouseReducer = (state = initialState, action) => {
       };
 
     case GET_ALL_WAREHOUSES:
-      console.log("Reducer: GET_ALL_WAREHOUSES action received:", action.warehouses);
       const sortedWarehouses = action.warehouses.sort((a, b) => a.id - b.id);
       const newWarehouses = sortedWarehouses.reduce((acc, warehouse) => {
         const sortedFields = Object.values(warehouse.fields).sort(

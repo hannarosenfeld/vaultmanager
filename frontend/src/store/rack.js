@@ -43,15 +43,12 @@ export const fetchRacksThunk = (warehouseId) => async (dispatch, getState) => {
       return;
     }
   }
-  console.log(`🔍 Fetching racks for warehouseId: ${warehouseId}`);
   try {
-    const response = await fetch(`/api/warehouse/${warehouseId}/racks`);
-    console.log(`🔍 Response status: ${response.status}`);
+    const response = await fetch(`/api/racks/warehouse/${warehouseId}`);
     if (response.ok) {
       const data = await response.json();
-      console.log(`✅ Fetched racks data:`, data);
       dispatch(setRacks(data));
-      // Update currentRack if it was previously selected
+      // Optionally update currentRack if needed
       const state = getState();
       const prevCurrentRack = state.rack.currentRack;
       if (prevCurrentRack) {
@@ -61,7 +58,7 @@ export const fetchRacksThunk = (warehouseId) => async (dispatch, getState) => {
         }
       }
     } else {
-      const errorText = await response.text(); // Capture the full response text for debugging
+      const errorText = await response.text();
       console.error('❌ Error fetching racks:', errorText);
       throw new Error(`Failed to fetch racks: ${errorText}`);
     }
@@ -71,7 +68,6 @@ export const fetchRacksThunk = (warehouseId) => async (dispatch, getState) => {
 };
 
 export const addRackThunk = (warehouseId, newRack) => async (dispatch) => {
-
   try {
     const response = await fetch(`/api/racks/warehouse/${warehouseId}/add`, {
       method: 'POST',
@@ -80,16 +76,15 @@ export const addRackThunk = (warehouseId, newRack) => async (dispatch) => {
       },
       body: JSON.stringify({
         ...newRack,
-        width: newRack.position.width, // Ensure width is included
-        length: newRack.position.length, // Ensure length is included
-        num_shelves: newRack.num_shelves, // Include the number of shelves
+        width: newRack.position.width,
+        length: newRack.position.length,
+        num_shelves: newRack.num_shelves,
       }),
     });
 
     if (response.ok) {
       const data = await response.json();
       dispatch(addRack(data));
-      console.log('✅ Rack added successfully:', data);
     } else {
       console.error('❌ Error adding rack:', await response.json());
     }
@@ -132,7 +127,6 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
 export const editPalletThunk = createAsyncThunk(
   "rack/editPallet",
   async ({ palletId, customer_name, pallet_number, notes, weight }, { rejectWithValue }) => {
-    console.log(`🔍 Editing pallet with ID: ${palletId}`);
     try {
       const response = await fetch(`/api/pallets/${palletId}/edit`, {
         method: "PUT",
@@ -152,7 +146,6 @@ export const editPalletThunk = createAsyncThunk(
         return rejectWithValue(errorData || "Failed to edit pallet");
       }
       const data = await response.json();
-      console.log(`✅ Pallet edited successfully. Response:`, data);
       return data;
     } catch (error) {
       console.error("❌ Error editing pallet:", error);
@@ -165,7 +158,6 @@ export const editPalletThunk = createAsyncThunk(
 export const deletePalletThunk = createAsyncThunk(
   "rack/deletePallet",
   async (palletId, { dispatch, rejectWithValue }) => {
-    console.log(`🔍 Deleting pallet with ID: ${palletId}`);
     try {
       const response = await fetch(`/api/pallets/${palletId}/delete`, {
         method: "DELETE",
@@ -176,7 +168,6 @@ export const deletePalletThunk = createAsyncThunk(
         return rejectWithValue(errorData || "Failed to delete pallet");
       }
       const data = await response.json();
-      console.log(`✅ Pallet deleted successfully.`);
       dispatch(deletePallet(palletId));
       return data;
     } catch (error) {

@@ -116,12 +116,15 @@ def add_vault():
     
     try:
         if form.validate_on_submit():
-            print("Form data:", form.data)
+            print("❤️ Form data:", form.data)
             customer_name = form.data['customer_name'].upper()
             order_name = form.data['order_name']
 
             existent_customer = Customer.query.filter_by(name=customer_name).first() if customer_name else None
             existent_order = Order.query.filter_by(name=order_name).first() if order_name else None
+
+            # Get company_id directly from request.form
+            company_id = request.form.get('company_id')
 
             new_vault = Vault(
                 name=None if customer_name in ("EMPTY T2", "EMPTY LIFTVAN") else form.data['vault_id'],
@@ -132,6 +135,7 @@ def add_vault():
                 note=form.data['note'],
                 empty=form.data['empty'],
                 type=form.data['type'],
+                company_id=company_id if company_id else None,
             )
             
             db.session.add(new_vault)
