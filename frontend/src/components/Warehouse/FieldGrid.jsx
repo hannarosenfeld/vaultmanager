@@ -12,6 +12,7 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
   useEffect(() => {
     if (warehouse.fields) {
       setSortedFields(sortWarehouseFields(warehouse.fields));
+      console.log("🐳 sorted fields: ", sortedFields)
     }
   }, [warehouse]);
 
@@ -24,6 +25,7 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
     setSelectedField(field.id);
     dispatch(setCurrentField(field));
     handleFieldClick(field);
+    console.log("🐹 Field selected:", field);
   };
 
   return (

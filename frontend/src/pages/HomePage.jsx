@@ -8,6 +8,9 @@ export default function HomePage({ warehouses, loading }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
+  console.log("🏠 IN HOMEPAGE");
+  console.log("🏠 warehouses", warehouses);
+
   // Show spinner if loading is true
   if (loading) {
     return (

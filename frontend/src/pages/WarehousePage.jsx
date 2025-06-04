@@ -24,6 +24,9 @@ function WarehousePage() {
   const [isPalletFormOpen, setPalletFormOpen] = useState(false); // Use this for PalletForm
   const [selectedShelf, setSelectedShelf] = useState(null); // State for selected shelf
 
+  console.log("🏠 IN WAREHOUSE PAGE");
+  console.log("🏠 warehouses", warehouses);
+
   function handleFieldClick(field) {
     if (field.id) dispatch(getCurrentFieldThunk(field));
   }
