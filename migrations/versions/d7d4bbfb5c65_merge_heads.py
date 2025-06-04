@@ -1,7 +1,7 @@
 """merge heads
 
 Revision ID: d7d4bbfb5c65
-Revises: 6a553d8d2b32, 20240603_add_company_id_to_vault
+Revises: 6a553d8d2b32
 Create Date: 2025-06-03 13:32:42.126494
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'd7d4bbfb5c65'
-down_revision = ('6a553d8d2b32', '20240603_add_company_id_to_vault')
+down_revision = '6a553d8d2b32'
 branch_labels = None
 depends_on = None
 
