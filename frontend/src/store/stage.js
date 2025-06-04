@@ -35,11 +35,10 @@ export const setStageError = (error) => ({
 
 
 export const getAllStagedVaultsThunk = (companyId) => async (dispatch, getState) => {
-  console.log("❤️ INTHUNK", companyId)
   dispatch(setStageLoading(true));
   dispatch(setStageError(null));
   try {
-    const response = await fetch(`/api/stage/vaults/${companyId}`);
+    const response = await fetch(`/api/stage/vaults`);
     if (response.ok) {
       const data = await response.json();
       const vaultsArr = Object.values(data);
@@ -54,6 +53,27 @@ export const getAllStagedVaultsThunk = (companyId) => async (dispatch, getState)
     dispatch(setStageLoading(false));
   }
 };
+
+// export const getAllStagedVaultsThunk = (companyId) => async (dispatch, getState) => {
+//   console.log("❤️ INTHUNK", companyId)
+//   dispatch(setStageLoading(true));
+//   dispatch(setStageError(null));
+//   try {
+//     const response = await fetch(`/api/stage/vaults/${companyId}`);
+//     if (response.ok) {
+//       const data = await response.json();
+//       const vaultsArr = Object.values(data);
+//       dispatch(getAllStagedVaults(vaultsArr));
+//     } else {
+//       const errorText = await response.text();
+//       dispatch(setStageError(errorText));
+//     }
+//   } catch (error) {
+//     dispatch(setStageError(error.message));
+//   } finally {
+//     dispatch(setStageLoading(false));
+//   }
+// };
 
 export const stageVaultThunk = (vaultId) => async (dispatch) => {
   dispatch(setStageLoading(true));

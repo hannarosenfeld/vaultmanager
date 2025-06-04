@@ -22,13 +22,13 @@ def upgrade():
         batch_op.add_column(sa.Column('company_id', sa.Integer(), nullable=True))
         batch_op.create_foreign_key('fk_vaults_company_id', 'companies', ['company_id'], ['id'])
 
-    # Backfill company_id using warehouse's company_id
-    op.execute("""
-        UPDATE vaults
-        SET company_id = warehouses.company_id
-        FROM warehouses
-        WHERE vaults.warehouse_id = warehouses.id AND vaults.company_id IS NULL;
-    """)
+    # # Backfill company_id using warehouse's company_id
+    # op.execute("""
+    #     UPDATE vaults
+    #     SET company_id = warehouses.company_id
+    #     FROM warehouses
+    #     WHERE vaults.warehouse_id = warehouses.id AND vaults.company_id IS NULL;
+    # """)
         
     # ### end Alembic commands ###
 

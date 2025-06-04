@@ -30,13 +30,24 @@ def stage_vault(vault_id):
         return jsonify({"error": str(e)}), 500
 
 
-@stage_routes.route('/vaults/<int:company_id>', methods=['GET'])
-def get_all_staged_vaults(company_id):
+@stage_routes.route('/vaults', methods=['GET'])
+def get_all_staged_vaults():
     try:
         staged_vaults = Vault.query.filter(
-            Vault.field_id == None,
-            Vault.company_id == company_id
+            Vault.field_id == None
         ).all()
         return jsonify([vault.to_dict() for vault in staged_vaults]), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)}), 500        
+
+
+# @stage_routes.route('/vaults/<int:company_id>', methods=['GET'])
+# def get_all_staged_vaults(company_id):
+#     try:
+#         staged_vaults = Vault.query.filter(
+#             Vault.field_id == None,
+#             Vault.company_id == company_id
+#         ).all()
+#         return jsonify([vault.to_dict() for vault in staged_vaults]), 200
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 500
