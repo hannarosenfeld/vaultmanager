@@ -25,7 +25,6 @@ export default function ViewAndEditVaultModal({ toggleModal, vault }) {
   const handleSave = () => {
     // Save the updated vault information
     // This could involve making an API call or updating the parent component's state
-    console.log("Saved vault:", editableVault);
     toggleModal();
   };
 

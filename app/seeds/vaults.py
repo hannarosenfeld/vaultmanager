@@ -7,25 +7,28 @@ def seed_vaults(customers):
         name='144',
         customer_id=2, 
         field_id=25, 
-        position='3',  # Use numeric string for position (top)
+        position='3',
         order_id=1, 
-        type="vault"
+        type="vault",
+        company_id=1
     )
     v2 = Vault(
         name='266',
         customer_id=3,
         field_id=25,
-        position='2',  # Use numeric string for position (middle)
+        position='2',
         order_id=2,
-        type="vault"
+        type="vault",
+        company_id=1
     )
     v3 = Vault(
         name='176',   
         customer_id=1,
         field_id=25,
-        position='1',  # Use numeric string for position (bottom)
+        position='1',
         order_id=3,
-        type="vault"
+        type="vault",
+        company_id=1
     )
 
     db.session.add(v1)

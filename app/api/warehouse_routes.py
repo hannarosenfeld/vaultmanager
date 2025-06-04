@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_login import login_required, current_user
-from app.models import Warehouse, Field, Order, Vault, db, Rack
+from app.models import Warehouse, Field, Order, Vault, db
 
 warehouse_routes = Blueprint('warehouse', __name__)
 
@@ -92,21 +92,20 @@ def add_warehouse():
     rows = data.get('rows')
     cols = data.get('cols')
     field_capacity = data.get('field_capacity')
-    length = data.get('length')  # New field for length in feet
-    width = data.get('width')    # New field for width in feet
+    length = data.get('length')
+    width = data.get('width')
 
     if not name or rows is None or cols is None or field_capacity is None or length is None or width is None:
         return jsonify({'error': 'Name, rows, cols, field capacity, length, and width are required'}), 400
 
     try:
-        # Create warehouse
         warehouse = Warehouse(
             name=name,
             rows=rows,
             cols=cols,
             field_capacity=field_capacity,
-            length=length,  # Save length
-            width=width,    # Save width
+            length=length,
+            width=width,
             company_id=company_id
         )
         db.session.add(warehouse)
@@ -125,8 +124,7 @@ def add_warehouse():
                     name=field_name,
                     warehouse_id=warehouse_id,
                     full=False,
-                    type='vault',
-                    vaults=[]
+                    type='vault'
                 )
                 db.session.add(field)
                 db.session.commit()
@@ -164,40 +162,6 @@ def edit_field_capacity(warehouse_id):
         return jsonify({'error': str(e)}), 500
 
 
-@warehouse_routes.route('/<int:warehouse_id>/racks', methods=['GET'])
-def get_racks(warehouse_id):
-    racks = Rack.query.filter_by(warehouse_id=warehouse_id).all()
-    return jsonify([rack.to_dict() for rack in racks])
-
-
-@warehouse_routes.route('/<int:warehouse_id>/racks', methods=['POST'])
-def add_rack(warehouse_id):
-    data = request.get_json()
-    warehouse = Warehouse.query.get(warehouse_id)
-
-    if not warehouse:
-        return jsonify({"error": "Warehouse not found"}), 404
-
-    new_rack = Rack(
-        name=data.get("name"),
-        capacity=data.get("capacity"),
-        warehouse_id=warehouse_id,
-        position=data.get("position"),
-        orientation=data.get("orientation"),  # Ensure orientation is included
-        width=data.get("width"),  # Explicitly set width
-        length=data.get("length"),  # Explicitly set length
-    )
-
-    # Validate rack position
-    if not warehouse.validate_rack_position(new_rack):
-        return jsonify({"error": "Invalid rack position"}), 400
-
-    db.session.add(new_rack)
-    db.session.commit()
-
-    return jsonify(new_rack.to_dict()), 201
-
-
 @warehouse_routes.route('/<int:warehouse_id>/field-grid', methods=['PUT'])
 def update_field_grid(warehouse_id):
     """
@@ -221,3 +185,23 @@ def update_field_grid(warehouse_id):
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+
+@warehouse_routes.route('/company/<int:company_id>', methods=['GET'])
+def get_warehouses_by_company(company_id):
+    all_warehouses = Warehouse.query.all()
+    for w in all_warehouses:
+        db_fields = Field.query.filter_by(warehouse_id=w.id).all()
+    warehouses = Warehouse.query.filter_by(company_id=company_id).all()
+    if not warehouses:
+        return jsonify([]), 200
+
+    sorted_warehouses = []
+    for warehouse in warehouses:
+        warehouse_dict = warehouse.to_dict()
+        db_fields = Field.query.filter_by(warehouse_id=warehouse.id).all()
+        for field_id, field in warehouse_dict['fields'].items():
+            field['vaults'] = {vault['id']: vault for vault in sorted(field['vaults'], key=lambda x: x['id'])}
+        sorted_warehouses.append(warehouse_dict)
+
+    return jsonify(sorted_warehouses)

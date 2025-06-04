@@ -5,14 +5,19 @@ import {
   DialogTitle,
 } from "@headlessui/react";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addVaultThunk } from "../../store/warehouse";
 
 export default function AddVaultModal({ onClose, fieldId, type, position }) {
   const dispatch = useDispatch();
+  const user = useSelector((state) => state.session.user);
+  const companyId = user?.companyId;
   const [isEmpty, setIsEmpty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("vault");
+
+  console.log("❤️ user:", user)
+  console.log("🌸 compnayId:", companyId)
 
   const [formData, setFormData] = useState({
     customer: "",
@@ -70,10 +75,12 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
       if (formData.file) {
         vaultData.append("attachment", formData.file);
       }
+      if (companyId) {
+        vaultData.append("company_id", companyId);
+      }
 
-      await dispatch(addVaultThunk(vaultData));
+      dispatch(addVaultThunk(vaultData));
 
-      console.log("Vault added successfully");
       onClose();
     } catch (error) {
       console.error("Error submitting form: ", error);

@@ -2,6 +2,7 @@ from .db import db, environment, SCHEMA, add_prefix_for_prod
 from flask_login import UserMixin
 import json
 from sqlalchemy.dialects.postgresql import JSON  # Import JSON type for PostgreSQL
+from .field import Field  # <-- Add this import at the top of the file
 
 
 class Warehouse(db.Model):
@@ -12,11 +13,11 @@ class Warehouse(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String, unique=True)
-    rows = db.Column(db.Integer)  # Rows in the field grid (specific section of the warehouse)
-    cols = db.Column(db.Integer)  # Columns in the field grid
-    field_capacity = db.Column(db.Integer)  # Capacity of each field
-    length = db.Column(db.Float, nullable=True)  # Overall length of the warehouse (in feet)
-    width = db.Column(db.Float, nullable=True)   # Overall width of the warehouse (in feet)
+    rows = db.Column(db.Integer)
+    cols = db.Column(db.Integer)
+    field_capacity = db.Column(db.Integer)
+    length = db.Column(db.Float, nullable=True)
+    width = db.Column(db.Float, nullable=True)
     fieldgrid_location = db.Column(JSON, default={"x": 0.0, "y": 0.0})  # Field grid position as JSON
     address = db.Column(db.String)
     company_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('companies.id')))
@@ -38,9 +39,6 @@ class Warehouse(db.Model):
         rack_width = rack.position.get("width", 0)
         rack_height = rack.position.get("height", 0)
 
-        # Debugging: Log rack position details
-        print(f"🔍 Validating rack position: x={rack_x}, y={rack_y}, width={rack_width}, height={rack_height}")
-
         # Ensure the rack does not overlap with the field grid
         field_x = self.fieldgrid_location.get("x", 0)
         field_y = self.fieldgrid_location.get("y", 0)
@@ -54,21 +52,17 @@ class Warehouse(db.Model):
             rack_y + rack_height > field_y
         )
 
-        # Debugging: Log overlap check
-        print(f"🔍 Overlaps field grid: {overlaps_field_grid}")
-
         # Ensure the rack is within warehouse bounds
         within_bounds = (
             0 <= rack_x <= self.width - rack_width and
             0 <= rack_y <= self.length - rack_height
         )
 
-        # Debugging: Log bounds check
-        print(f"🔍 Within warehouse bounds: {within_bounds}")
-
         return within_bounds and not overlaps_field_grid
 
     def to_dict(self):
+        db_fields = Field.query.filter_by(warehouse_id=self.id).all()
+        print(f"    [to_dict] DB fields for warehouse {self.id}: {[f.id for f in db_fields]}")
         return {
             'id': self.id,
             'name': self.name,
@@ -76,11 +70,11 @@ class Warehouse(db.Model):
             'cols': self.cols,
             'fieldCapacity': self.field_capacity,
             'warehouseCapacity': self.rows * self.cols * self.field_capacity,
-            'fields': [field.to_dict() for field in self.warehouse_fields],
+            'fields': {field.id: field.to_dict() for field in self.warehouse_fields},
             'companyId': self.company_id,
             'companyName': self.company.name,
             'racks': [rack.to_dict() for rack in self.racks],
             'length': self.length,
             'width': self.width,
-            'fieldgridLocation': self.fieldgrid_location  # Include field grid location in the response
+            'fieldgridLocation': self.fieldgrid_location
         }

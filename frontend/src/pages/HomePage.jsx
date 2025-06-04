@@ -3,20 +3,48 @@ import { useNavigate } from "react-router-dom";
 import DeleteModal from "../components/WarehouseCard/ConfirmDeleteWarehouseModal";
 import WarehouseCard from "../components/WarehouseCard/WarehouseCard";
 
-export default function HomePage({ warehouses }) {
+export default function HomePage({ warehouses, loading }) {
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
-  // Show spinner if warehouses are not loaded yet
-  if (!warehouses || Object.keys(warehouses).length === 0) {
+  // Show spinner if loading is true
+  if (loading) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <span className="sr-only">Loading...</span>
-        {/* You can use your LoadingSpinner component here if you want */}
         <div className="flex justify-center items-center w-full h-full">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
         </div>
+      </div>
+    );
+  }
+
+  // Show message if warehouses is loaded but empty
+  if (warehouses && Object.keys(warehouses).length === 0) {
+    return (
+      <div className="w-full h-full flex flex-col items-center justify-center">
+        <div className="text-gray-500 text-lg mb-4">No warehouses added yet.</div>
+        <button
+          onClick={() => navigate("/add-warehouse")}
+          className="flex items-center p-2 rounded-lg hover:bg-gray-100 group text-gray-600 cursor-pointer border border-gray-300"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="h-6 w-6"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 4.5v15m7.5-7.5h-15"
+            />
+          </svg>
+          <span className="ml-3">Add Warehouse</span>
+        </button>
       </div>
     );
   }

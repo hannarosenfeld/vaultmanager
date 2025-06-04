@@ -16,33 +16,34 @@ seed_commands = AppGroup('seed')
 # Creates the `flask seed all` command
 @seed_commands.command('all')
 def seed():
+    companies = None
     users = None
-    fields = None
     customers = None
     orders = None
     warehouses = None
-    companies = None
 
-    if not User.query.all(): 
+    if not Company.query.all():
+        companies = seed_companies()
+    if not User.query.all():
         users = seed_users()  
-    if not Customer.query.all(): 
+    if not Customer.query.all():
         customers = seed_customers()
-    if not Order.query.all(): 
+    if not Order.query.all():
         orders = seed_orders()
-    if not Field.query.all(): 
-        fields = seed_fields(orders)
-    if not Warehouse.query.all(): 
-        warehouses = seed_warehouse(users, fields, orders)             
+    if not Warehouse.query.all():
+        warehouses = seed_warehouse(users, orders)  # Don't seed fields here
+    # Seed fields for each warehouse after warehouses are created
+    for warehouse in Warehouse.query.all():
+        from .fields import seed_fields
+        seed_fields(warehouse_id=warehouse.id, orders=orders)
     if not Vault.query.all(): 
         seed_vaults(customers)
-    if not Company.query.all(): 
-        companies = seed_companies()
 
 @seed_commands.command('undo')
 def undo():
-    undo_companies()
     undo_vaults()
     undo_fields()
+    undo_warehouse()
     undo_customers()
     undo_users()
-    undo_warehouse()
+    undo_companies()

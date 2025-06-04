@@ -17,24 +17,26 @@ import StatisticsPage from "./pages/StatisticsPage";
 import EditVaultPage from "./pages/EditVaultPage";
 import LandingPage from "./pages/LandingPage";
 
+
 function App() {
   const dispatch = useDispatch();
   const sessionUser = useSelector((state) => state.session.user);
+  const companyId = sessionUser?.companyId;
   const warehouses = useSelector((state) => state.warehouse.warehouses);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     dispatch(authenticate()).then(() => {
       setLoading(false);
-      dispatch(getAllStagedVaultsThunk());
     });
   }, [dispatch]);
 
   useEffect(() => {
-    if (sessionUser && Object.keys(warehouses).length === 0) {
-      dispatch(getAllWarehousesThunk());
+    if (companyId) {
+      dispatch(getAllWarehousesThunk(companyId));
+      dispatch(getAllStagedVaultsThunk(companyId));
     }
-  }, [dispatch, sessionUser, warehouses]);
+  }, [dispatch, sessionUser]);
 
   return (
     <Router>
@@ -47,7 +49,7 @@ function App() {
             <div className="flex-grow">
               <Routes>
                 <Route path="/" element={<Navigate to="/dashboard" />} />
-                <Route path="/dashboard" element={<HomePage warehouses={warehouses} />} />
+                <Route path="/dashboard" element={<HomePage warehouses={warehouses} loading={loading} />} />
                 <Route path="/login" element={<Navigate to="/dashboard" />} />
                 <Route path="/stage" element={<Stage />} />
                 <Route path="/warehouse/:warehouseName" element={<WarehousePage warehouses={warehouses} />} />

@@ -116,12 +116,15 @@ def add_vault():
     
     try:
         if form.validate_on_submit():
-            print("Form data:", form.data)
+            print("❤️ Form data:", form.data)
             customer_name = form.data['customer_name'].upper()
             order_name = form.data['order_name']
 
             existent_customer = Customer.query.filter_by(name=customer_name).first() if customer_name else None
             existent_order = Order.query.filter_by(name=order_name).first() if order_name else None
+
+            # Get company_id directly from request.form
+            company_id = request.form.get('company_id')
 
             new_vault = Vault(
                 name=None if customer_name in ("EMPTY T2", "EMPTY LIFTVAN") else form.data['vault_id'],
@@ -132,6 +135,7 @@ def add_vault():
                 note=form.data['note'],
                 empty=form.data['empty'],
                 type=form.data['type'],
+                company_id=company_id if company_id else None,
             )
             
             db.session.add(new_vault)
@@ -269,23 +273,12 @@ def get_all_vaults():
         
     return jsonify(vaults_with_warehouse)
 
-@vault_routes.route('/staged')
-# @login_required
-def all_vaults_staged():
-    """
-    Query for all vaults and returns them in a list of vault dictionaries
-    """
-    vaults = Vault.query.filter_by(field_id=None)
-    return { vault.id : vault.to_dict() for vault in vaults }
-
-
 @vault_routes.route('/<int:id>', methods=['GET', 'PUT'])
 # @login_required
 def manage_vault(id):
     """
     Query for a vault by id and manage it (GET, PUT)
     """
-    print("🍊 IN ROUTE")
     vault = Vault.query.get(id)
 
     if not vault:

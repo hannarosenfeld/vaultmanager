@@ -18,6 +18,7 @@ class Vault(db.Model, UserMixin):
     note = db.Column(db.Text)
     empty = db.Column(db.Boolean)
     warehouse_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('warehouses.id')))
+    company_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('companies.id')))
     
     field = db.relationship('Field', back_populates='vaults')
     order = db.relationship('Order', back_populates='order_vaults')
@@ -40,5 +41,6 @@ class Vault(db.Model, UserMixin):
             'type': self.type,
             'note': self.note,
             'attachments': [attachment.to_dict() for attachment in self.attachments],
-            'warehouse_id': self.field.warehouse_id if self.field else None,  # Dynamically set warehouse_id
+            'warehouse_id': self.field.warehouse_id if self.field else None,
+            'company_id': self.company_id,
         }
