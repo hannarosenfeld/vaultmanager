@@ -522,6 +522,48 @@ export const updateFieldGridThunk = (warehouseId, fieldgridLocation) => async (d
   }
 };
 
+export const getRacksThunk = (warehouseId) => async (dispatch) => {
+  try {
+    const res = await fetch(`/api/racks/warehouse/${warehouseId}`);
+    if (res.ok) {
+      const data = await res.json();
+      // dispatch(someAction(data)); // Add your action here if needed
+      return data;
+    } else {
+      const err = await res.json();
+      console.error("Error fetching racks:", err);
+      return err;
+    }
+  } catch (error) {
+    console.error("Error fetching racks:", error);
+    return error;
+  }
+};
+
+export const addRackThunk = (warehouseId, rackData) => async (dispatch) => {
+  try {
+    const res = await fetch(`/api/racks/warehouse/${warehouseId}/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(rackData),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      // dispatch(someAction(data)); // Add your action here if needed
+      return data;
+    } else {
+      const err = await res.json();
+      console.error("Error adding rack:", err);
+      return err;
+    }
+  } catch (error) {
+    console.error("Error adding rack:", error);
+    return error;
+  }
+};
+
 const initialState = {
   warehouses: {},
   currentWarehouse: null,
