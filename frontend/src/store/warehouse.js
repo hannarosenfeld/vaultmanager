@@ -146,11 +146,7 @@ export const getAllWarehousesThunk = (companyId) => async (dispatch) => {
     const response = await fetch(`/api/warehouse/company/${companyId}`);
     if (response.ok) {
       const data = await response.json();
-      if (Array.isArray(data)) {
-        data.forEach((w, i) => {
-          console.log(`Warehouse[${i}]: id=${w.id}, name=${w.name}, companyId=${w.companyId}`);
-        });
-      }
+
       dispatch(getAllWarehouses(data));
       return data;
     } else {
@@ -385,7 +381,6 @@ export const deleteFieldsThunk = (formData) => async (dispatch) => {
       return data;
     } else {
       const err = await res.json();
-      console.log("Error removing fields:", err.error);
       if (err)
         alert(
           "⛔️ Please remove all vaults from the row that you want to delete."

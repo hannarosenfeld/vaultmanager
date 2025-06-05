@@ -24,9 +24,6 @@ function WarehousePage() {
   const [isPalletFormOpen, setPalletFormOpen] = useState(false); // Use this for PalletForm
   const [selectedShelf, setSelectedShelf] = useState(null); // State for selected shelf
 
-  console.log("🏠 IN WAREHOUSE PAGE");
-  console.log("🏠 warehouses", warehouses);
-
   function handleFieldClick(field) {
     if (field.id) dispatch(getCurrentFieldThunk(field));
   }
@@ -78,7 +75,6 @@ function WarehousePage() {
   useEffect(() => {
     // Only run if warehouse is defined and has an id
     if (warehouse && warehouse.id) {
-      console.log(`🔍 Fetching racks for warehouseId: ${warehouse.id}`);
       dispatch(fetchRacksThunk(warehouse.id));
     }
   }, [dispatch, warehouse?.id]);

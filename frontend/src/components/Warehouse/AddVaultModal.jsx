@@ -16,9 +16,6 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedType, setSelectedType] = useState("vault");
 
-  console.log("❤️ user:", user)
-  console.log("🌸 compnayId:", companyId)
-
   const [formData, setFormData] = useState({
     customer: "",
     vault_id: "",
