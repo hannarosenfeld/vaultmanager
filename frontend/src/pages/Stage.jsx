@@ -3,10 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import StageToWareHouseModal from "../components/Stage/StageToWareHouseModal";
 import ConfirmDeleteVaultModal from "../components/Stage/ConfirmDeleteVaultModal";
 import { deleteVaultThunk } from "../store/warehouse";
+import { getAllStagedVaultsThunk } from "../store/stage"; // <-- import thunk
 
 export default function Stage() {
   const dispatch = useDispatch();
   const stagedVaults = useSelector((state) => state.stage.stagedVaults);
+  const sessionUser = useSelector((state) => state.session.user); // get user for companyId
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedVault, setSelectedVault] = useState(null);
   const [isDeleteModeOn, setIsDeleteModeOn] = useState(false);
@@ -14,8 +16,10 @@ export default function Stage() {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   useEffect(() => {
-    // dispatch(getVaultsThunk());
-  }, [dispatch]);
+    if (sessionUser?.companyId) {
+      dispatch(getAllStagedVaultsThunk(sessionUser.companyId));
+    }
+  }, [dispatch, sessionUser]);
 
   const openModal = (vault) => {
     setSelectedVault(vault);
