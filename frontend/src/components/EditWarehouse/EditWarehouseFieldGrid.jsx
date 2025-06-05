@@ -25,42 +25,41 @@ export default function EditWarehouseFieldGrid({ warehouse }) {
             margin: "0 auto",
           }}
         >
-          {sortedFields.map((field) => (
-            <div
-              className="bg-gray-200"
-              key={field.id}
-              style={{
-                display: field.type === "couchbox-B" ? "none" : "flex",
-                height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "5vh",
-                backgroundColor: `${
-                  (Object.keys(field.vaults).length === 3 && field.type === "vault") ||
-                  field.full ||
-                  (Object.keys(field.vaults).length === 4 && field.type === "couchbox-T") ||
-                  field.full
-                    ? "var(--red)"
-                    : (Object.keys(field.vaults).length === 3 &&
-                        field.type === "couchbox-T") ||
-                      field.full ||
-                      Object.keys(field.vaults).length === 2
-                    ? "var(--yellow)"
-                    : Object.keys(field.vaults).length === 1
-                    ? "var(--green)"
-                    : "var(--lightgrey)"
-                }`,
-                width: "100%",
-                zIndex: field.type === "couchbox-B" ? "100" : "auto",
-                alignItems: "center",
-                justifyContent: "center",
-                gridRow: field.type === "couchbox-T" ? "span 2" : "auto",
-              }}
-            >
-              {field.type !== "couchbox-B" && (
-                <div className="md:text-md text-center" style={{ fontSize: "0.5rem" }}>
-                  {field.name}
-                </div>
-              )}
-            </div>
-          ))}
+          {sortedFields.map((field) => {
+            // Determine background color based on field state
+            let bgColor = "var(--color-emptyfield)";
+            if (field.full) {
+              bgColor = "var(--color-full)";
+            } else if (
+              (Object.keys(field.vaults).length === 3 && field.type === "vault") ||
+              (Object.keys(field.vaults).length === 4 && field.type === "couchbox-T") ||
+              Object.keys(field.vaults).length === 2
+            ) {
+              bgColor = "var(--color-warning)";
+            }
+
+            return (
+              <div
+                className="flex items-center justify-center rounded transition-colors duration-200"
+                key={field.id}
+                style={{
+                  display: field.type === "couchbox-B" ? "none" : "flex",
+                  height: field.type === "couchbox-T" ? "calc(10vh + 0.25rem)" : "5vh",
+                  backgroundColor: bgColor,
+                  width: "100%",
+                  zIndex: field.type === "couchbox-B" ? "100" : "auto",
+                  gridRow: field.type === "couchbox-T" ? "span 2" : "auto",
+                  border: "1px solid #e5e7eb",
+                }}
+              >
+                {field.type !== "couchbox-B" && (
+                  <div className="md:text-md text-center" style={{ fontSize: "0.7rem", color: "#2B2B2B" }}>
+                    {field.name}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       ) : (
         "no fields"
