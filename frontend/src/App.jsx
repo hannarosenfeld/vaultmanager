@@ -24,6 +24,7 @@ function App() {
   const companyId = sessionUser?.companyId;
   const warehouses = useSelector((state) => state.warehouse.warehouses);
   const [loading, setLoading] = useState(true);
+  const [warehouseLoading, setWarehouseLoading] = useState(false);
 
   useEffect(() => {
     dispatch(authenticate()).then(() => {
@@ -37,8 +38,11 @@ function App() {
     console.log("❤️ COMPANY ID", companyId);
     if (companyId) {
       console.log("❤️ Fetching warehouses and staged vaults for companyId:", companyId);
-      dispatch(getAllWarehousesThunk(companyId));
-      dispatch(getAllStagedVaultsThunk(companyId));
+      setWarehouseLoading(true);
+      Promise.all([
+        dispatch(getAllWarehousesThunk(companyId)),
+        dispatch(getAllStagedVaultsThunk(companyId))
+      ]).finally(() => setWarehouseLoading(false));
     }
   }, [dispatch, sessionUser]);
 
@@ -53,7 +57,7 @@ function App() {
             <div className="flex-grow">
               <Routes>
                 <Route path="/" element={<Navigate to="/dashboard" />} />
-                <Route path="/dashboard" element={<HomePage warehouses={warehouses} loading={loading} />} />
+                <Route path="/dashboard" element={<HomePage warehouses={warehouses} loading={warehouseLoading} />} />
                 <Route path="/login" element={<Navigate to="/dashboard" />} />
                 <Route path="/stage" element={<Stage />} />
                 <Route path="/warehouse/:warehouseName" element={<WarehousePage warehouses={warehouses} />} />
