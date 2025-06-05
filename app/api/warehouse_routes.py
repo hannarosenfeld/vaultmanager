@@ -57,12 +57,6 @@ def get_warehouses():
     sorted_warehouses = []
     for warehouse in warehouses:
         warehouse_dict = warehouse.to_dict()
-        warehouse_dict['fields'] = {field['id']: field for field in sorted(warehouse_dict['fields'], key=lambda x: x['id'])}
-        
-        # Adding vaults to the fields
-        for field_id, field in warehouse_dict['fields'].items():
-            field['vaults'] = {vault['id']: vault for vault in sorted(field['vaults'], key=lambda x: x['id'])}
-        
         sorted_warehouses.append(warehouse_dict)
 
     return sorted_warehouses
@@ -189,9 +183,6 @@ def update_field_grid(warehouse_id):
 
 @warehouse_routes.route('/company/<int:company_id>', methods=['GET'])
 def get_warehouses_by_company(company_id):
-    all_warehouses = Warehouse.query.all()
-    for w in all_warehouses:
-        db_fields = Field.query.filter_by(warehouse_id=w.id).all()
     warehouses = Warehouse.query.filter_by(company_id=company_id).all()
     if not warehouses:
         return jsonify([]), 200
@@ -199,9 +190,6 @@ def get_warehouses_by_company(company_id):
     sorted_warehouses = []
     for warehouse in warehouses:
         warehouse_dict = warehouse.to_dict()
-        db_fields = Field.query.filter_by(warehouse_id=warehouse.id).all()
-        for field_id, field in warehouse_dict['fields'].items():
-            field['vaults'] = {vault['id']: vault for vault in sorted(field['vaults'], key=lambda x: x['id'])}
         sorted_warehouses.append(warehouse_dict)
 
     return jsonify(sorted_warehouses)

@@ -61,8 +61,7 @@ class Warehouse(db.Model):
         return within_bounds and not overlaps_field_grid
 
     def to_dict(self):
-        db_fields = Field.query.filter_by(warehouse_id=self.id).all()
-        print(f"    [to_dict] DB fields for warehouse {self.id}: {[f.id for f in db_fields]}")
+        # Only use self.warehouse_fields to avoid duplicates
         return {
             'id': self.id,
             'name': self.name,
