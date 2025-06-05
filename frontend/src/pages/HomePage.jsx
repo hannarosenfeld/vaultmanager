@@ -2,25 +2,16 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import DeleteModal from "../components/WarehouseCard/ConfirmDeleteWarehouseModal";
 import WarehouseCard from "../components/WarehouseCard/WarehouseCard";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 export default function HomePage({ warehouses, loading }) {
   const navigate = useNavigate();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
 
-  console.log("🏠 IN HOMEPAGE");
-  console.log("🏠 warehouses", warehouses);
-
-  // Show spinner if loading is true
-  if (loading) {
-    return (
-      <div className="w-full h-full flex items-center justify-center">
-        <span className="sr-only">Loading...</span>
-        <div className="flex justify-center items-center w-full h-full">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </div>
-    );
+  // Show spinner if loading is true or warehouses are not loaded yet
+  if (loading || !warehouses) {
+    return <LoadingSpinner />;
   }
 
   const openDeleteModal = (warehouse) => {
