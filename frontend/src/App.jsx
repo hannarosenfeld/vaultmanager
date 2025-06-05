@@ -37,7 +37,6 @@ function App() {
       setWarehouseLoading(true);
       Promise.all([
         dispatch(getAllWarehousesThunk(companyId)),
-        dispatch(getAllStagedVaultsThunk(companyId))
       ]).finally(() => setWarehouseLoading(false));
     }
   }, [dispatch, sessionUser]);
