@@ -116,7 +116,6 @@ def add_vault():
     
     try:
         if form.validate_on_submit():
-            print("❤️ Form data:", form.data)
             customer_name = form.data['customer_name'].upper()
             order_name = form.data['order_name']
 

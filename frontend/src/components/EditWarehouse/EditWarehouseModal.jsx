@@ -14,7 +14,7 @@ export function EditWarehouseModal({ dir, operation, warehouseId, onClose }) {
     const formData = new FormData();
     formData.append("warehouse_id", warehouseId);
     formData.append("direction", dir);
-    formData.append("operation", operation);
+    formData.append("opperation", operation); // <-- fix spelling here
     formData.append("warehouse_cols", warehouse?.cols);
     formData.append("warehouse_rows", warehouse?.rows);
     formData.append("count", count);

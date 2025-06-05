@@ -33,11 +33,7 @@ function App() {
   }, [dispatch]);
 
   useEffect(() => {
-    console.log("❤️ IN APP");
-    console.log("❤️ sessionUser", sessionUser);
-    console.log("❤️ COMPANY ID", companyId);
     if (companyId) {
-      console.log("❤️ Fetching warehouses and staged vaults for companyId:", companyId);
       setWarehouseLoading(true);
       Promise.all([
         dispatch(getAllWarehousesThunk(companyId)),

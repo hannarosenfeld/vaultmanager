@@ -83,6 +83,10 @@ def update_field_type(field_id):
     bottom_field = Field.query.filter_by(name=bottom_field_name, warehouse_id=warehouse_id).first()
     if not bottom_field:
         return jsonify({"error": "Bottom field not found"}), 404
+
+    # Prevent type change if vaults are present
+    if field.vaults.count() > 0 or bottom_field.vaults.count() > 0:
+        return jsonify({"error": "Please stage all vaults in fields to continue"}), 400
     
     # Toggle field types based on current types
     if field.type == 'vault':
@@ -138,7 +142,6 @@ def add_field():
             warehouse = Warehouse.query.get(warehouse_id)
 
             if direction == 'left':
-                print("🚀 in left direction")
                 new_warehouse_cols_count = warehouse.cols + count
                 warehouse.cols = new_warehouse_cols_count
 
@@ -305,7 +308,6 @@ def delete_field():
                 
                 fields_after_deletion = Field.query.filter_by(warehouse_id=warehouse_id).all()
                 fields_list_dicts = [field.to_dict() for field in fields_after_deletion]
-                print("🚀 fields_list: ", fields_list_dicts)
 
                 return jsonify({ 'fields': fields_list_dicts, 'warehouseId': warehouse.id, 'newWarehouseRowsCount': new_warehouse_row_count, 'newWarehouseColsCount': warehouse.cols }), 200
 
