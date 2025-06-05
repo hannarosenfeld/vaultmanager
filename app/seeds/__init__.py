@@ -16,6 +16,10 @@ seed_commands = AppGroup('seed')
 # Creates the `flask seed all` command
 @seed_commands.command('all')
 def seed():
+    if environment == "production":
+        print("Seeding is disabled in production.")
+        return
+
     companies = None
     users = None
     customers = None
@@ -32,10 +36,13 @@ def seed():
         orders = seed_orders()
     if not Warehouse.query.all():
         warehouses = seed_warehouse(users, orders)  # Don't seed fields here
-    # Seed fields for each warehouse after warehouses are created
+
+    # Only seed fields for warehouses that have no fields
     for warehouse in Warehouse.query.all():
         from .fields import seed_fields
-        seed_fields(warehouse_id=warehouse.id, orders=orders)
+        if not warehouse.warehouse_fields or len(warehouse.warehouse_fields) == 0:
+            seed_fields(warehouse_id=warehouse.id, orders=orders)
+
     if not Vault.query.all(): 
         seed_vaults(customers)
 
