@@ -3,7 +3,7 @@ import { throttle } from "lodash";
 import RackCreator from "./RackCreator";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRacksThunk, addRackThunk, moveRackThunk, updateRackPositionThunk } from '../../../store/rack';
-import { updateFieldGridThunk } from '../../../store/warehouse'; // Import the thunk
+import { updateFieldGridThunk } from '../../../store/warehouse';
 
 export default function EditWarehouseLayout({
   warehouse,
@@ -15,22 +15,20 @@ export default function EditWarehouseLayout({
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragPreviewPosition, setDragPreviewPosition] = useState(null);
-  const [invalidDrop, setInvalidDrop] = useState(false); // Define invalidDrop with a default value
+  const [invalidDrop, setInvalidDrop] = useState(false);
   const aspectRatio = warehouse.width / warehouse.length;
 
-  const [rackDragPreview, setRackDragPreview] = useState(null); // State for rack drag preview
+  const [rackDragPreview, setRackDragPreview] = useState(null);
 
   const dispatch = useDispatch();
   const racks = useSelector((state) => state.rack.racks);
 
-  // Fetch racks when the component mounts
   useEffect(() => {
     if (warehouse.id) {
       dispatch(fetchRacksThunk(warehouse.id));
     }
   }, [warehouse.id, dispatch]);
 
-  // Utility function to clamp coordinates
   const clampPosition = (x, y, width, length, maxWidth, maxHeight, orientation) => {
     const adjustedWidth = orientation === "horizontal" ? width : length;
     const adjustedLength = orientation === "horizontal" ? length : width;
@@ -100,19 +98,15 @@ export default function EditWarehouseLayout({
     event.preventDefault();
     try {
       const rackData = JSON.parse(event.dataTransfer.getData("rack"));
-
-      // Validate capacity
       if (!rackData.capacity) {
         console.error("❌ Rack capacity is undefined. Drop is not allowed.");
         return;
       }
-
       const warehouseEl = event.target.closest(".warehouse-grid");
       if (!warehouseEl) {
         console.error("❌ Warehouse grid element not found during drop.");
         return;
       }
-
       const rect = warehouseEl.getBoundingClientRect();
       const x = ((event.clientX - rect.left) / rect.width) * warehouse.width;
       const y = ((event.clientY - rect.top) / rect.height) * warehouse.length;
@@ -135,7 +129,6 @@ export default function EditWarehouseLayout({
       };
 
       if (rackData.id) {
-        // Update existing rack position
         await dispatch(
           moveRackThunk(warehouse.id, rackData.id, {
             ...updatedPosition,
@@ -143,13 +136,12 @@ export default function EditWarehouseLayout({
           })
         );
       } else {
-        // Add a new rack
         const newRack = {
           name: rackData.name || "Unnamed Rack",
-          capacity: rackData.capacity || 100, // Pass capacity correctly
+          capacity: rackData.capacity || 100,
           position: updatedPosition,
           orientation: rackData.orientation,
-          num_shelves: rackData.num_shelves || 1, // Include the number of shelves
+          num_shelves: rackData.num_shelves || 1,
         };
         await dispatch(addRackThunk(warehouse.id, newRack));
       }
@@ -157,7 +149,7 @@ export default function EditWarehouseLayout({
       console.error("❌ Error handling rack drop:", error);
     }
 
-    setRackDragPreview(null); // Clear rack drag preview after drop
+    setRackDragPreview(null);
   };
 
   const handleRackDragStart = (e, rack) => {
@@ -171,7 +163,7 @@ export default function EditWarehouseLayout({
         x: rack.position.x,
         y: rack.position.y,
         orientation: rack.orientation,
-        capacity: rack.capacity, // Include capacity
+        capacity: rack.capacity,
       })
     );
   };
@@ -185,28 +177,27 @@ export default function EditWarehouseLayout({
       const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
       const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-      // Pass the orientation to clampPosition
       const { x: clampedX, y: clampedY } = clampPosition(
         x,
         y,
-        rack.width, // Use rack.width directly
-        rack.length, // Use rack.length directly
+        rack.width,
+        rack.length,
         warehouse.width,
         warehouse.length,
-        rack.orientation // Pass orientation here
+        rack.orientation
       );
 
       setRackDragPreview({
         x: clampedX,
         y: clampedY,
-        width: rack.orientation === "horizontal" ? rack.width : rack.length, // Correct width
-        height: rack.orientation === "horizontal" ? rack.length : rack.width, // Correct height
+        width: rack.orientation === "horizontal" ? rack.width : rack.length,
+        height: rack.orientation === "horizontal" ? rack.length : rack.width,
       });
     }, 100),
     [warehouse]
   );
 
-  const SNAP_THRESHOLD = 1; // Threshold in feet for snapping racks
+  const SNAP_THRESHOLD = 1;
 
   const isCloseToLockableSite = (draggedRack, targetRack) => {
     const isHorizontal = targetRack.orientation === "horizontal";
@@ -219,18 +210,17 @@ export default function EditWarehouseLayout({
     const dx = Math.abs(draggedRack.x - targetRack.position.x);
     const dy = Math.abs(draggedRack.y - targetRack.position.y);
 
-    // Check if the dragged rack is close to the lockable side of the target rack
     if (isHorizontal) {
       return (
         dy <= SNAP_THRESHOLD &&
-        (Math.abs(draggedRack.x - (targetRack.position.x + targetWidth)) <= SNAP_THRESHOLD || // Right side
-          Math.abs(draggedRack.x + draggedWidth - targetRack.position.x) <= SNAP_THRESHOLD) // Left side
+        (Math.abs(draggedRack.x - (targetRack.position.x + targetWidth)) <= SNAP_THRESHOLD ||
+          Math.abs(draggedRack.x + draggedWidth - targetRack.position.x) <= SNAP_THRESHOLD)
       );
     } else {
       return (
         dx <= SNAP_THRESHOLD &&
-        (Math.abs(draggedRack.y - (targetRack.position.y + targetHeight)) <= SNAP_THRESHOLD || // Bottom side
-          Math.abs(draggedRack.y + draggedHeight - targetRack.position.y) <= SNAP_THRESHOLD) // Top side
+        (Math.abs(draggedRack.y - (targetRack.position.y + targetHeight)) <= SNAP_THRESHOLD ||
+          Math.abs(draggedRack.y + draggedHeight - targetRack.position.y) <= SNAP_THRESHOLD)
       );
     }
   };
@@ -252,9 +242,8 @@ export default function EditWarehouseLayout({
       rack.orientation
     );
 
-    // Check all racks for a lockable site
     for (const targetRack of racks) {
-      if (targetRack.id === rack.id) continue; // Skip the dragged rack itself
+      if (targetRack.id === rack.id) continue;
 
       const draggedRack = {
         x: updatedPosition.x,
@@ -265,23 +254,22 @@ export default function EditWarehouseLayout({
       };
 
       if (isCloseToLockableSite(draggedRack, targetRack)) {
-        // Lock the dragged rack to the target rack
         if (rack.orientation === "horizontal") {
-          updatedPosition.y = targetRack.position.y; // Align vertically
+          updatedPosition.y = targetRack.position.y;
           if (Math.abs(updatedPosition.x - (targetRack.position.x + targetRack.width)) <= SNAP_THRESHOLD) {
-            updatedPosition.x = targetRack.position.x + targetRack.width; // Lock to the right
+            updatedPosition.x = targetRack.position.x + targetRack.width;
           } else if (Math.abs(updatedPosition.x + rack.width - targetRack.position.x) <= SNAP_THRESHOLD) {
-            updatedPosition.x = targetRack.position.x - rack.width; // Lock to the left
+            updatedPosition.x = targetRack.position.x - rack.width;
           }
         } else {
-          updatedPosition.x = targetRack.position.x; // Align horizontally
+          updatedPosition.x = targetRack.position.x;
           if (Math.abs(updatedPosition.y - (targetRack.position.y + targetRack.length)) <= SNAP_THRESHOLD) {
-            updatedPosition.y = targetRack.position.y + targetRack.length; // Lock to the bottom
+            updatedPosition.y = targetRack.position.y + targetRack.length;
           } else if (Math.abs(updatedPosition.y + rack.length - targetRack.position.y) <= SNAP_THRESHOLD) {
-            updatedPosition.y = targetRack.position.y - rack.length; // Lock to the top
+            updatedPosition.y = targetRack.position.y - rack.length;
           }
         }
-        break; // Stop checking once locked
+        break;
       }
     }
 
@@ -304,7 +292,7 @@ export default function EditWarehouseLayout({
   };
 
   if (!warehouse.width || !warehouse.length) {
-    return null; // Do not render if width or length is undefined
+    return null;
   }
 
   return (
@@ -316,50 +304,35 @@ export default function EditWarehouseLayout({
         style={{ aspectRatio }}
       >
         <div
-          class={`warehouse-grid ${invalidDrop ? "bg-red-200" : ""}`}
+          className={`warehouse-grid ${invalidDrop ? "bg-red-200" : ""} relative w-full h-full`}
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleRackDrop}
           style={{
-            position: "relative",
-            width: "100%",
-            height: "100%",
             backgroundImage:
               "linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px)",
-            backgroundSize: `${(FIELD_SIZE_FT / warehouse.width) * 100}% ${
-              (FIELD_SIZE_FT / warehouse.length) * 100
-            }%`,
+            backgroundSize: `${(FIELD_SIZE_FT / warehouse.width) * 100}% ${(FIELD_SIZE_FT / warehouse.length) * 100}%`,
           }}
         >
           {isDragging && dragPreviewPosition && (
             <div
+              className="absolute border-2 border-blue-500 bg-blue-200 bg-opacity-20 pointer-events-none"
               style={{
-                position: "absolute",
                 top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
                 left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
-                width: `${
-                  ((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100
-                }%`,
-                height: `${
-                  ((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100
-                }%`,
-                backgroundColor: "rgba(0, 0, 255, 0.2)",
-                border: "2px dashed blue",
-                pointerEvents: "none",
+                width: `${((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100}%`,
+                height: `${((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100}%`,
               }}
             />
           )}
 
           {rackDragPreview && (
             <div
+              className="absolute border-2 border-green-500 bg-green-200 bg-opacity-20 pointer-events-none"
               style={{
-                position: "absolute",
                 top: `${(rackDragPreview.y / warehouse.length) * 100}%`,
                 left: `${(rackDragPreview.x / warehouse.width) * 100}%`,
                 width: `${(rackDragPreview.width / warehouse.width) * 100}%`,
                 height: `${(rackDragPreview.height / warehouse.length) * 100}%`,
-                backgroundColor: "rgba(0, 255, 0, 0.2)", // Green background
-                border: "2px dashed green", // Green border
-                pointerEvents: "none",
               }}
             />
           )}
@@ -369,32 +342,15 @@ export default function EditWarehouseLayout({
             onDragStart={handleDragStart}
             onDrag={handleDrag}
             onDragEnd={handleDragEnd}
+            className="absolute flex items-center justify-center cursor-grab bg-blue-100 bg-opacity-30"
             style={{
-              position: "absolute",
               top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
               left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
-              width: `${
-                ((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100 + 3.1
-              }%`,
-              height: `${
-                ((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100 + 1.9
-              }%`,
-              cursor: "grab",
-              backgroundColor: "rgba(0, 0, 255, 0.1)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              width: `${((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100 + 3.1}%`,
+              height: `${((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100 + 1.9}%`,
             }}
           >
-            <span
-              style={{
-                fontSize: "1.5rem",
-                fontWeight: "bold",
-                color: "black",
-              }}
-            >
-              VAULTS
-            </span>
+            <span className="text-xl font-bold text-black">VAULTS</span>
           </div>
 
           {racks.map((rack, index) => {
@@ -409,28 +365,17 @@ export default function EditWarehouseLayout({
                 onDragStart={(e) => handleRackDragStart(e, rack)}
                 onDrag={(e) => handleRackDrag(e, rack)}
                 onDragEnd={(e) => handleRackDragEnd(e, rack)}
-                onClick={() => handleRackClick(rack)} // Add onClick handler
+                onClick={() => handleRackClick(rack)}
+                className="absolute flex items-center justify-center border-2 border-blue-500 bg-blue-200 bg-opacity-20"
                 style={{
-                  position: "absolute",
                   top: `${(rack.position.y / warehouse.length) * 100}%`,
                   left: `${(rack.position.x / warehouse.width) * 100}%`,
                   width: `${(rackWidth / warehouse.width) * 100}%`,
                   height: `${(rackHeight / warehouse.length) * 100}%`,
-                  backgroundColor: "rgba(0, 0, 255, 0.2)",
-                  border: "1px solid blue",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
                 }}
               >
                 <span
-                  className="text-[0.55rem] text-center w-full"
-                  style={{
-                    display: "block",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
+                  className="text-[0.55rem] text-center w-full truncate"
                   title={rack.name}
                 >
                   {rack.name.length > 10 ? rack.name.slice(0, 10) + "…" : rack.name}

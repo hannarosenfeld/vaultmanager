@@ -65,7 +65,7 @@ export default function RackCreator() {
 
       <div className="flex flex-col md:flex-row w-full gap-4 items-start">
         <div className="flex w-full gap-4 items-stretch">
-          <div className="flex-1 bg-gray-100 p-4 rounded shadow flex flex-col">
+          <div className="flex-1 bg-background p-4 rounded shadow flex flex-col">
             <div className="mb-2">
               <label className="block text-sm font-medium">Rack Name</label>
               <input

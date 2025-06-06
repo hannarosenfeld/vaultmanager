@@ -78,9 +78,17 @@ export default function EditWarehousePage() {
   return (
     <div className="flex flex-col items-center h-full mt-3 mb-8">
       <h2 className="mb-4 text-2xl font-bold">{warehouse.name}</h2>
+      <hr className="w-full h-px my-6 bg-black" />
+
+      <h2 className="mb-4 text-2xl font-bold">Edit Warehouse Fields</h2>
+      <WarehouseView
+        warehouse={warehouse}
+        openModal={openModal}
+        handleSubmit={handleSubmit}
+      />
       {warehouse.width && warehouse.length && (
         <>
-          <hr className="w-full h-px my-4 bg-black" />
+      <hr className="w-full h-px my-10 bg-black" />
           <EditWarehouseLayout
             warehouse={warehouse}
             fieldGridPosition={fieldGridPosition}
@@ -91,13 +99,6 @@ export default function EditWarehousePage() {
       )}
       <br />
       <hr className="w-full h-px my-8 bg-black" />
-
-      <h2 className="mb-4 text-2xl font-bold">Edit Warehouse Fields</h2>
-        <WarehouseView
-          warehouse={warehouse}
-          openModal={openModal}
-          handleSubmit={handleSubmit}
-        />
       {isModalOpen && (
         <EditWarehouseModal
           {...modalProps}
