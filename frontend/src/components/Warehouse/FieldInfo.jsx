@@ -16,8 +16,7 @@ export default function FieldInfo({ field, warehouse, isStage, vaultId, onMove }
   const [isFieldFull, setIsFieldFull] = useState(field.full);
 
   // Determine capacity and positionOrder
-  let capacity = field.capacity || warehouse?.fieldCapacity || 3;
-  // Bottom vault should be 1, top vault should be capacity (so reverse order)
+  let capacity = warehouse?.fieldCapacity || 3;
   let positionOrder = Array.from({ length: capacity }, (_, i) => (capacity - i).toString());
   // If couchbox, add an extra position at the top
   if (fieldType === "couchbox" || field.type === "couchbox-T") {
