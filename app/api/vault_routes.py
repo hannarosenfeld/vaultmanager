@@ -122,11 +122,18 @@ def add_vault():
             existent_customer = Customer.query.filter_by(name=customer_name).first() if customer_name else None
             existent_order = Order.query.filter_by(name=order_name).first() if order_name else None
 
-            # Get company_id directly from request.form
             company_id = request.form.get('company_id')
 
+            # Only allow a name for EMPTY T2, not for EMPTY LIFTVAN or EMPTY COUCHBOX
+            if customer_name == "EMPTY T2":
+                vault_name = form.data['vault_id'] if form.data['vault_id'] else None
+            elif customer_name in ("EMPTY LIFTVAN", "EMPTY COUCHBOX"):
+                vault_name = None
+            else:
+                vault_name = form.data['vault_id']
+
             new_vault = Vault(
-                name=None if customer_name in ("EMPTY T2", "EMPTY LIFTVAN") else form.data['vault_id'],
+                name=vault_name,
                 customer_id=existent_customer.id if existent_customer else None,
                 field_id=form.data['field_id'],
                 order_id=existent_order.id if existent_order else None,

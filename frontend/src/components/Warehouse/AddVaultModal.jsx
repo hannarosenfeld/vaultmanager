@@ -207,12 +207,32 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
                       id="vault_id"
                       value={formData.vault_id}
                       onChange={handleChange}
-                      disabled={isEmpty && selectedType == "t2" || selectedType == "liftvan"}
+                      disabled={
+                        isEmpty &&
+                        (
+                          selectedType === "couchbox" ||
+                          selectedType === "liftvan"
+                        )
+                      }
                       className={`border border-gray-300 text-sm rounded-lg w-full p-2.5 ${
-                        isEmpty && selectedType == "t2" || selectedType == "liftvan" ? "bg-gray-200 text-gray-500" : "bg-white"
+                        isEmpty &&
+                        (
+                          selectedType === "couchbox" ||
+                          selectedType === "liftvan"
+                        )
+                          ? "bg-gray-200 text-gray-500"
+                          : "bg-white"
                       }`}
                       placeholder="Vault Number"
-                      required
+                      required={
+                        !(
+                          isEmpty &&
+                          (
+                            selectedType === "couchbox" ||
+                            selectedType === "liftvan"
+                          )
+                        )
+                      }
                     />
                   </div>
                   <div className="mb-5 w-1/2">
