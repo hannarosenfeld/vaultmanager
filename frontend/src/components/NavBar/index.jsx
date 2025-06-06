@@ -20,7 +20,7 @@ export default function NavBar() {
               <img
                 alt="Warehouse Manager Logo"
                 src={logo}
-                className="w-[3em]"
+                className="w-[2.25em]"
               />
             </Link>
           </div>
