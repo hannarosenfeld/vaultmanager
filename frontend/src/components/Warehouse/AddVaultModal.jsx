@@ -186,6 +186,9 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
                         <option value="vault">Vault</option>
                         <option value="liftvan">Liftvan</option>
                         <option value="t2">T2</option>
+                        { type === "couchbox" && (
+                          <option value="couchbox">Couchbox</option>
+                        )}
                       </select>
                     </div>
                   )}
