@@ -13,6 +13,7 @@ class Field(db.Model, UserMixin):
     type = db.Column(db.String, default="vault")
     vaults = db.relationship('Vault', back_populates='field', lazy='dynamic')
     full = db.Column(db.Boolean, default=False)
+    capacity = db.Column(db.Integer, default=3)  # <-- add this line
 
     warehouse_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('warehouses.id')))
     warehouse = db.relationship('Warehouse', back_populates='warehouse_fields')
@@ -28,4 +29,5 @@ class Field(db.Model, UserMixin):
             'vaults': [vault.to_dict() for vault in self.vaults],
             'warehouse_id': self.warehouse_id,
             'full': self.full,
+            'capacity': self.capacity,  # <-- include in dict
         }

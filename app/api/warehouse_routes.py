@@ -109,7 +109,7 @@ def add_warehouse():
         warehouse = Warehouse.query.filter_by(name=name).first()
         warehouse_id = warehouse.id
 
-        # Create columns and fields
+        # Create columns and fields, and set capacity for each field
         for i in range(1, cols + 1):
             col_char = chr(64 + i)
             for field_num in range(1, rows + 1):
@@ -118,7 +118,8 @@ def add_warehouse():
                     name=field_name,
                     warehouse_id=warehouse_id,
                     full=False,
-                    type='vault'
+                    type='vault',
+                    capacity=field_capacity  # <-- set capacity here
                 )
                 db.session.add(field)
                 db.session.commit()
