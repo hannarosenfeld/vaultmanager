@@ -12,13 +12,14 @@ function PrintStudio() {
   }, [dispatch]);
 
   const handleDownloadCSV = () => {
-    const csvData = vaults.map((vault) => ({
+    const csvData = sortedVaults.map((vault) => ({
       "Vault Name": vault.name,
       "Customer Name": vault.customer_name,
       "Vault Type": vault.type,
       "Position": vault.position,
       "Field Name": vault.field_name,
       "Warehouse Name": vault.warehouse_name,
+      "Notes": vault.note,
     }));
 
     const csv = Papa.unparse(csvData);
@@ -33,10 +34,19 @@ function PrintStudio() {
     document.body.removeChild(link);
   };
 
-  // Sort vaults by customer name
-  const sortedVaults = [...vaults].sort((a, b) =>
-    a.customer_name.localeCompare(b.customer_name)
-  );
+  // Sort vaults by warehouse, then field, then position
+  const sortedVaults = [...vaults].sort((a, b) => {
+    const warehouseCompare = (a.warehouse_name || "").localeCompare(b.warehouse_name || "");
+    if (warehouseCompare !== 0) return warehouseCompare;
+    const fieldCompare = (a.field_name || "").localeCompare(b.field_name || "");
+    if (fieldCompare !== 0) return fieldCompare;
+    // If position is numeric, sort numerically, else lexically
+    const posA = isNaN(Number(a.position)) ? a.position : Number(a.position);
+    const posB = isNaN(Number(b.position)) ? b.position : Number(b.position);
+    if (posA < posB) return -1;
+    if (posA > posB) return 1;
+    return 0;
+  });
 
   return (
     <div className="p-4">
@@ -61,6 +71,7 @@ function PrintStudio() {
                 <th className="py-2 text-center">Pos</th>
                 <th className="py-2 text-center">Field</th>
                 <th className="py-2 text-center">Warehouse</th>
+                <th className="py-2 text-center">Notes</th>
               </tr>
             </thead>
             <tbody>
@@ -79,6 +90,9 @@ function PrintStudio() {
                   </td>
                   <td className="border px-4 py-2 text-center">
                     {vault.warehouse_name}
+                  </td>
+                  <td className="border px-4 py-2 text-center">
+                    {vault.note}
                   </td>
                 </tr>
               ))}
