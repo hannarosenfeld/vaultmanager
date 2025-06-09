@@ -1,24 +1,9 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm, ValidationError } from "@formspree/react";
 
 export default function LandingPage() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    company: "",
-  });
-  const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
-
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitted(true);
-  };
+  const [state, handleSubmit] = useForm("manjebko");
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center">
@@ -45,7 +30,7 @@ export default function LandingPage() {
             href="#signup"
             className="inline-block bg-primary text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:bg-accent hover:text-white transition"
           >
-            Create Your Free Account
+            Submit a Request
           </a>
         </div>
       </header>
@@ -126,11 +111,11 @@ export default function LandingPage() {
       >
         <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl p-10 border border-accent">
           <h2 className="text-2xl font-extrabold mb-6 text-primary text-center">
-            Create Your Warehouse Manager Account
+            Tell Us About Your Warehouse Needs
           </h2>
-          {submitted ? (
+          {state.succeeded ? (
             <div className="text-success font-semibold text-center">
-              Thank you for your interest! Your account request has been received.
+              Thank you! Your request has been submitted. We'll be in touch soon.
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
@@ -146,10 +131,9 @@ export default function LandingPage() {
                   name="name"
                   type="text"
                   required
-                  value={form.name}
-                  onChange={handleChange}
                   className="w-full border border-slate rounded px-3 py-2 focus:ring-2 focus:ring-accent"
                 />
+                <ValidationError prefix="Name" field="name" errors={state.errors} />
               </div>
               <div>
                 <label
@@ -163,10 +147,9 @@ export default function LandingPage() {
                   name="company"
                   type="text"
                   required
-                  value={form.company}
-                  onChange={handleChange}
                   className="w-full border border-slate rounded px-3 py-2 focus:ring-2 focus:ring-accent"
                 />
+                <ValidationError prefix="Company" field="company" errors={state.errors} />
               </div>
               <div>
                 <label
@@ -180,33 +163,32 @@ export default function LandingPage() {
                   name="email"
                   type="email"
                   required
-                  value={form.email}
-                  onChange={handleChange}
                   className="w-full border border-slate rounded px-3 py-2 focus:ring-2 focus:ring-accent"
                 />
+                <ValidationError prefix="Email" field="email" errors={state.errors} />
               </div>
               <div>
                 <label
-                  htmlFor="password"
+                  htmlFor="needs"
                   className="block text-charcoal font-medium mb-1"
                 >
-                  Password
+                  Tell us about your warehouse needs (e.g. type of storage, challenges, goals, questions)
                 </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
+                <textarea
+                  id="needs"
+                  name="needs"
                   required
-                  value={form.password}
-                  onChange={handleChange}
+                  rows={4}
                   className="w-full border border-slate rounded px-3 py-2 focus:ring-2 focus:ring-accent"
                 />
+                <ValidationError prefix="Needs" field="needs" errors={state.errors} />
               </div>
               <button
                 type="submit"
+                disabled={state.submitting}
                 className="w-full bg-primary text-white font-semibold py-2 rounded-lg shadow-md hover:bg-accent hover:text-white transition"
               >
-                Create Account
+                Submit Request
               </button>
             </form>
           )}
