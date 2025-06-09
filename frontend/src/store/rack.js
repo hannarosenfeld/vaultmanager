@@ -6,6 +6,7 @@ const ADD_RACK = 'rack/ADD_RACK';
 const UPDATE_RACK_POSITION = 'rack/UPDATE_RACK_POSITION';
 const DELETE_PALLET = "rack/DELETE_PALLET";
 const SET_CURRENT_RACK = "rack/SET_CURRENT_RACK"; // New action type
+const DELETE_RACK = "rack/DELETE_RACK";
 
 // Action Creators
 export const setRacks = (racks) => ({
@@ -31,6 +32,11 @@ export const deletePallet = (palletId) => ({
 export const setCurrentRack = (rack) => ({
   type: SET_CURRENT_RACK,
   payload: rack,
+});
+
+export const deleteRack = (rackId) => ({
+  type: DELETE_RACK,
+  payload: rackId,
 });
 
 // Thunks
@@ -231,6 +237,24 @@ export const addPalletThunk = createAsyncThunk(
   }
 );
 
+// Thunk to delete a rack
+export const deleteRackThunk = ({ warehouseId, rackId }) => async (dispatch) => {
+  try {
+    const response = await fetch(`/api/racks/${warehouseId}/rack/${rackId}/delete`, {
+      method: "DELETE",
+    });
+    if (response.ok) {
+      dispatch(deleteRack(rackId));
+    } else {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to delete rack");
+    }
+  } catch (error) {
+    console.error("❌ Error deleting rack:", error);
+    throw error;
+  }
+};
+
 // Initial State
 const initialState = {
   racks: [],
@@ -278,6 +302,12 @@ const rackReducer = (state = initialState, action) => {
       return {
         ...state,
         currentRack: action.payload,
+      };
+
+    case DELETE_RACK:
+      return {
+        ...state,
+        racks: state.racks.filter((rack) => rack.id !== action.payload),
       };
 
     default:

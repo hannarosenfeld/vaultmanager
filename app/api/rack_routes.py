@@ -183,3 +183,16 @@ def create_pallet():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+@rack_routes.route('/<int:warehouse_id>/rack/<int:rack_id>/delete', methods=['DELETE'])
+def delete_rack(warehouse_id, rack_id):
+    rack = Rack.query.filter_by(id=rack_id, warehouse_id=warehouse_id).first()
+    if not rack:
+        return jsonify({'error': 'Rack not found'}), 404
+    try:
+        db.session.delete(rack)
+        db.session.commit()
+        return jsonify({'message': 'Rack deleted successfully'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': 'Failed to delete rack', 'details': str(e)}), 500

@@ -10,4 +10,5 @@
   --color-warning: #F59E0B;      /* Amber */
   --color-emptyfield: #E0E7EF;   /* Light Blue for Empty Fields */
   --color-full: #E53935;         /* Red for Full Fields */
+  --color-danger: #dc2626;       /* Bright Red for Danger/Destructive actions */
 }
