@@ -20,6 +20,7 @@ class Pallet(db.Model):
     file_path = db.Column(db.String(255), nullable=True)
     note = db.Column(db.Text, nullable=True)
     shelf_spots = db.Column(db.Integer, nullable=True)
+    slot_index = db.Column(db.Integer, nullable=True)
 
     # Relationship with Shelf
     shelf = db.relationship('Shelf', back_populates='pallets')
@@ -35,5 +36,6 @@ class Pallet(db.Model):
             'notes': self.notes,               
             'filePath': self.file_path,
             'note': self.note,
-            'shelfSpots': self.shelf_spots,    
+            'shelfSpots': self.shelf_spots,
+            'slotIndex': self.slot_index,
         }

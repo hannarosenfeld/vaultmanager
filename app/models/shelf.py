@@ -1,6 +1,6 @@
-from app.models.db import db, environment, SCHEMA, add_prefix_for_prod  # Import directly from db.py
-from app.models.rack import Rack  # Import Rack model
-from sqlalchemy.orm import validates  # Import validates for validation logic
+from app.models.db import db, environment, SCHEMA, add_prefix_for_prod
+from app.models.rack import Rack
+from sqlalchemy.orm import validates
 
 class Shelf(db.Model):
     __tablename__ = 'shelves'
@@ -13,7 +13,7 @@ class Shelf(db.Model):
     capacity = db.Column(db.Integer, nullable=False)
     rack_id = db.Column(
         db.Integer,
-        db.ForeignKey(add_prefix_for_prod('racks.id')),  # Use add_prefix_for_prod
+        db.ForeignKey(add_prefix_for_prod('racks.id')),
         nullable=False
     )
 
@@ -35,7 +35,7 @@ class Shelf(db.Model):
         return {
             'id': self.id,
             'name': self.name,
-            'capacity': self.capacity,  # Include capacity field
+            'capacity': self.capacity,
             'rackId': self.rack_id,
-            'pallets': [pallet.to_dict() for pallet in self.pallets],  # Include pallets
+            'pallets': [pallet.to_dict() for pallet in self.pallets],
         }
