@@ -140,6 +140,41 @@ export const updateFieldGrid = (warehouseId, fieldgridLocation) => ({
   payload: { warehouseId, fieldgridLocation },
 });
 
+// Action for updating warehouse after dimension edit
+export const editWarehouseDimensions = (warehouse) => ({
+  type: EDIT_FIELD_CAPACITY,
+  warehouse,
+});
+
+// Thunk for editing warehouse dimensions
+export const editWarehouseDimensionsThunk = (warehouseId, { fieldCapacity, length, width }) => async (dispatch) => {
+  try {
+    const res = await fetch(`/api/warehouse/${warehouseId}/edit-dimensions`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        field_capacity: fieldCapacity,
+        length,
+        width,
+      }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      dispatch(editWarehouseDimensions(data.warehouse));
+      return data;
+    } else {
+      const err = await res.json();
+      console.error("Error editing warehouse dimensions:", err);
+      return err;
+    }
+  } catch (error) {
+    console.error("Error editing warehouse dimensions:", error);
+    return error;
+  }
+};
 
 export const getAllWarehousesThunk = (companyId) => async (dispatch) => {
   try {

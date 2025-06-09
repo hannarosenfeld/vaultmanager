@@ -7,7 +7,7 @@ import WarehouseView from "../components/EditWarehouse/WarehouseView";
 
 import {
   setCurrentWarehouse,
-  editFieldCapacityThunk,
+  editWarehouseDimensionsThunk, // <-- import the correct thunk
 } from "../store/warehouse";
 import LoadingSpinner from "../components/LoadingSpinner";
 import EditWarehouseLayout from "../components/EditWarehouse/EditWarehouseLayout";
@@ -29,6 +29,7 @@ export default function EditWarehousePage() {
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("Warehouse");
   const [fieldGridPosition, setFieldGridPosition] = useState({ x: 0, y: 0 });
+  const [successMsg, setSuccessMsg] = useState(""); // Add state for success message
 
   useEffect(() => {
     const foundWarehouse = Object.values(warehouses).find(
@@ -51,17 +52,24 @@ export default function EditWarehousePage() {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (fieldCapacity) => {
-    if (!warehouse) return; // Prevent errors if warehouse is null
-    dispatch(editFieldCapacityThunk(warehouse.id, fieldCapacity)).then(
-      (response) => {
-        if (response.error) {
-          alert("Error updating field capacity: " + response.error);
-        } else {
-          alert("Field capacity updated successfully!");
-        }
+  const handleSubmit = async ({ fieldCapacity, length, width }) => {
+    if (!warehouse) return;
+    const prev = {
+      fieldCapacity: warehouse.field_capacity ?? warehouse.fieldCapacity,
+      length: warehouse.length,
+      width: warehouse.width,
+    };
+    const res = await dispatch(editWarehouseDimensionsThunk(warehouse.id, { fieldCapacity, length, width }));
+    if (res && res.warehouse) {
+      let changed = [];
+      if (String(prev.fieldCapacity) !== String(fieldCapacity)) changed.push("Capacity");
+      if (String(prev.length) !== String(length)) changed.push("Length");
+      if (String(prev.width) !== String(width)) changed.push("Width");
+      if (changed.length) {
+        setSuccessMsg(`${changed.join(", ")} updated successfully!`);
+        setTimeout(() => setSuccessMsg(""), 2500);
       }
-    );
+    }
   };
 
   if (loading) return <LoadingSpinner />;
@@ -81,6 +89,11 @@ export default function EditWarehousePage() {
       <hr className="w-full h-px my-6 bg-black" />
 
       <h2 className="mb-4 text-2xl font-bold">Edit Warehouse Fields</h2>
+      {successMsg && (
+        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 bg-green-100 border border-green-400 text-green-800 px-6 py-3 rounded shadow transition-all">
+          {successMsg}
+        </div>
+      )}
       <WarehouseView
         warehouse={warehouse}
         openModal={openModal}
@@ -88,7 +101,7 @@ export default function EditWarehousePage() {
       />
       {warehouse.width && warehouse.length && (
         <>
-      <hr className="w-full h-px my-10 bg-black" />
+          <hr className="w-full h-px my-10 bg-black" />
           <EditWarehouseLayout
             warehouse={warehouse}
             fieldGridPosition={fieldGridPosition}

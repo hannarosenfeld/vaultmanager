@@ -41,26 +41,6 @@ def delete_warehouse(warehouse_id):
     return jsonify({'message': 'Warehouse deleted successfully'}), 200
 
 
-@warehouse_routes.route('/', methods=['GET'])
-# @login_required
-def get_warehouses():
-    """
-    Retrieve all warehouses
-    """
-    # company_id = current_user.company_id
-    # warehouses = Warehouse.query.filter(Warehouse.company_id == company_id).all()
-    warehouses = Warehouse.query.all()
-    
-    if not warehouses:
-        return {'errors': 'No warehouses found!'}, 404
-
-    sorted_warehouses = []
-    for warehouse in warehouses:
-        warehouse_dict = warehouse.to_dict()
-        sorted_warehouses.append(warehouse_dict)
-
-    return sorted_warehouses
-
 @warehouse_routes.route('/<int:warehouse_id>', methods=['GET'])
 def get_warehouse_info(warehouse_id):
     """
@@ -157,6 +137,35 @@ def edit_field_capacity(warehouse_id):
         return jsonify({'error': str(e)}), 500
 
 
+@warehouse_routes.route('/<int:warehouse_id>/edit-dimensions', methods=['PATCH'])
+@login_required
+def edit_warehouse_dimensions(warehouse_id):
+    """
+    Edit the field capacity, length, and width of a warehouse.
+    """
+    data = request.get_json()
+    field_capacity = data.get('field_capacity')
+    length = data.get('length')
+    width = data.get('width')
+
+    warehouse = Warehouse.query.get(warehouse_id)
+    if not warehouse:
+        return jsonify({'error': 'Warehouse not found'}), 404
+
+    try:
+        if field_capacity is not None:
+            warehouse.field_capacity = field_capacity
+        if length is not None:
+            warehouse.length = length
+        if width is not None:
+            warehouse.width = width
+        db.session.commit()
+        return jsonify({'message': 'Warehouse dimensions updated successfully', 'warehouse': warehouse.to_dict()}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
+
+
 @warehouse_routes.route('/<int:warehouse_id>/field-grid', methods=['PUT'])
 def update_field_grid(warehouse_id):
     """
@@ -194,3 +203,4 @@ def get_warehouses_by_company(company_id):
         sorted_warehouses.append(warehouse_dict)
 
     return jsonify(sorted_warehouses)
+
