@@ -318,6 +318,23 @@ export default function EditWarehouseLayout({
     }
   };
 
+  // Helper to get rack color based on fill percentage
+  function getRackColor(rack) {
+    if (!rack.shelves || !Array.isArray(rack.shelves)) return "var(--color-success)";
+    const totalPallets = rack.shelves.reduce(
+      (sum, shelf) => sum + (shelf.pallets?.length || 0),
+      0
+    );
+    const totalCapacity = rack.shelves.reduce(
+      (sum, shelf) => sum + (shelf.capacity || 0),
+      0
+    );
+    const fillPercentage = totalCapacity > 0 ? totalPallets / totalCapacity : 0;
+    if (fillPercentage >= 1) return "var(--color-full)";
+    if (fillPercentage > 0.5) return "var(--color-warning)";
+    return "var(--color-success)";
+  }
+
   if (!warehouse.width || !warehouse.length) {
     return null;
   }
@@ -439,12 +456,17 @@ export default function EditWarehouseLayout({
 
           {rackDragPreview && (
             <div
-              className="absolute border-2 border-green-500 bg-green-200 bg-opacity-20 pointer-events-none"
+              className="absolute pointer-events-none"
               style={{
                 top: `${(rackDragPreview.y / warehouse.length) * 100}%`,
                 left: `${(rackDragPreview.x / warehouse.width) * 100}%`,
                 width: `${(rackDragPreview.width / warehouse.width) * 100}%`,
                 height: `${(rackDragPreview.height / warehouse.length) * 100}%`,
+                backgroundColor: "rgba(59, 130, 246, 0.20)", // blue-500 with lower opacity
+                border: "2px solid #3b82f6", // blue-500 border
+                borderRadius: 0, // no rounded corners
+                boxSizing: "border-box",
+                transition: "box-shadow 0.2s, border 0.2s",
               }}
             />
           )}
@@ -478,12 +500,14 @@ export default function EditWarehouseLayout({
                 onDrag={(e) => handleRackDrag(e, rack)}
                 onDragEnd={(e) => handleRackDragEnd(e, rack)}
                 onClick={() => handleRackClick(rack)}
-                className="absolute flex items-center justify-center border-2 border-blue-500 bg-blue-200 bg-opacity-20"
+                className="absolute flex items-center justify-center bg-blue-200 bg-opacity-20"
                 style={{
                   top: `${(rack.position.y / warehouse.length) * 100}%`,
                   left: `${(rack.position.x / warehouse.width) * 100}%`,
                   width: `${(rackWidth / warehouse.width) * 100}%`,
                   height: `${(rackHeight / warehouse.length) * 100}%`,
+                  backgroundColor: getRackColor(rack),
+                  transition: "box-shadow 0.2s, border 0.2s",
                 }}
               >
                 <span
