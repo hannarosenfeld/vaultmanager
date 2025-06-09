@@ -293,14 +293,27 @@ export default function EditWarehouseLayout({
     setModalRack(rack);
   };
 
+  // Helper to check if rack has any pallets
+  const rackHasPallets = (rack) => {
+    if (!rack || !rack.shelves) return false;
+    return rack.shelves.some(shelf => shelf.pallets && shelf.pallets.length > 0);
+  };
+
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
+
   const handleDeleteRack = async () => {
     if (!modalRack || !modalRack.id) return;
+    if (rackHasPallets(modalRack) && !showDeleteWarning) {
+      setShowDeleteWarning(true);
+      return;
+    }
     try {
       await dispatch(deleteRackThunk({ warehouseId: warehouse.id, rackId: modalRack.id }));
-      // Immediately close the modal before any state updates
       setModalRack(null);
+      setShowDeleteWarning(false);
     } catch (error) {
-      setModalRack(null); // Also close on error for a clean UX
+      setModalRack(null);
+      setShowDeleteWarning(false);
       alert("Failed to delete rack.");
     }
   };
@@ -312,7 +325,7 @@ export default function EditWarehouseLayout({
   return (
     <>
       {/* Modal for rack info */}
-      <Dialog open={!!modalRack} onClose={() => setModalRack(null)} className="relative z-50">
+      <Dialog open={!!modalRack} onClose={() => { setModalRack(null); setShowDeleteWarning(false); }} className="relative z-50">
         {/* Only render modal content if modalRack is present */}
         {modalRack && (
           <>
@@ -358,6 +371,11 @@ export default function EditWarehouseLayout({
                             <strong>Number of Shelves:</strong> {modalRack.shelves ? modalRack.shelves.length : 0}
                           </div>
                         </div>
+                        {showDeleteWarning && rackHasPallets(modalRack) && (
+                          <div className="mt-4 p-3 rounded bg-[color:var(--color-warning)]/20 border border-[color:var(--color-warning)] text-[color:var(--color-warning)] text-sm font-semibold">
+                            Warning: This rack contains pallets. Deleting it will remove all associated pallets. Are you sure you want to continue?
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -371,14 +389,14 @@ export default function EditWarehouseLayout({
                     </button>
                     <button
                       className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-[color:var(--color-primary)] shadow-xs ring-1 ring-[color:var(--color-primary)] ring-inset hover:bg-gray-50 sm:mt-0 sm:w-auto"
-                      onClick={() => setModalRack(null)}
+                      onClick={() => { setModalRack(null); setShowDeleteWarning(false); }}
                       type="button"
                     >
                       Close
                     </button>
                   </div>
                   <button
-                    onClick={() => setModalRack(null)}
+                    onClick={() => { setModalRack(null); setShowDeleteWarning(false); }}
                     className="absolute top-4 right-4 text-slate-400 hover:text-[color:var(--color-accent)]"
                     aria-label="Close"
                     type="button"
