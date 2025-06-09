@@ -311,9 +311,11 @@ export default function EditWarehouseLayout({
       await dispatch(deleteRackThunk({ warehouseId: warehouse.id, rackId: modalRack.id }));
       setModalRack(null);
       setShowDeleteWarning(false);
+      setRackDragPreview(null); // <-- Clear rack drag preview on delete
     } catch (error) {
       setModalRack(null);
       setShowDeleteWarning(false);
+      setRackDragPreview(null); // <-- Also clear on error
       alert("Failed to delete rack.");
     }
   };
