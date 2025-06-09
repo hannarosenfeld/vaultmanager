@@ -105,6 +105,10 @@ export default function FieldInfo({ field, warehouse, isStage, vaultId, onMove }
     await dispatch(setFieldFullThunk(field.id, newFieldFullStatus));
   };
 
+  // Calculate vault count for this field
+  const vaultCount = vaults ? Object.keys(vaults).length : 0;
+  const hideFullCheckbox = vaultCount === (warehouse?.fieldCapacity || 3);
+
   const hasVaults = vaults && Object.keys(vaults).length > 0;
 
   return (
@@ -160,22 +164,24 @@ export default function FieldInfo({ field, warehouse, isStage, vaultId, onMove }
             ></div>
           </label>
         </div>
-        <div className="flex items-center">
-          <button
-            className={`px-2 py-1 text-xs md:text-sm ${
-              isFieldFull ? "text-red-600" : "text-gray-900"
-            }`}
-            onClick={handleFieldFullToggle}
-          >
-            {isFieldFull ? "Field is Full" : "Field is Not Full"}
-          </button>
-          <input
-            type="checkbox"
-            className="ml-2"
-            checked={isFieldFull}
-            onChange={handleFieldFullToggle}
-          />
-        </div>
+        {!hideFullCheckbox && (
+          <div className="flex items-center">
+            <button
+              className={`px-2 py-1 text-xs md:text-sm ${
+                isFieldFull ? "text-red-600" : "text-gray-900"
+              }`}
+              onClick={handleFieldFullToggle}
+            >
+              {isFieldFull ? "Field is Full" : "Field is Not Full"}
+            </button>
+            <input
+              type="checkbox"
+              className="ml-2"
+              checked={isFieldFull}
+              onChange={handleFieldFullToggle}
+            />
+          </div>
+        )}
       </div>
       {isModalOpen && (
         <AddVaultModal
