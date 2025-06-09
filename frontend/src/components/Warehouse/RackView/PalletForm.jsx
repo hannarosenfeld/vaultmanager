@@ -9,7 +9,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addPalletThunk, editPalletThunk, fetchRacksThunk } from "../../../store/rack"; // Import the editPalletThunk
 import { deletePalletThunk } from "../../../store/rack"; // Import the deletePalletThunk
 
-function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelfId }) {
+function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelfId, selectedSlotIndex }) {
   const dispatch = useDispatch();
   const currentRack = useSelector((state) => state.rack.currentRack);
   const warehouseId = useSelector((state) => state.warehouse.currentWarehouse?.id);
@@ -95,7 +95,16 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
         ).unwrap();
         onClose();
         onSubmit(formData);
+        setFormData({
+          customer_name: "",
+          pallet_number: "",
+          notes: "",
+          weight: 0,
+          pallet_spaces: 1,
+        }); // Clear form after edit
       } else {
+        console.log("❤️ you clicked on a shelf to add a pallet:", selectedShelf);
+        console.log("Add Pallet Button slotIndex:", selectedSlotIndex); // this is already undefined here.
         await dispatch(
           addPalletThunk({
             shelf_id: selectedShelf.id,
@@ -104,6 +113,7 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
             notes: formData.notes,
             weight: Number(formData.weight) || 0,
             shelf_spots: palletSpaces,
+            slot_index: selectedSlotIndex, // Pass slot index from prop
           })
         ).unwrap();
         // Refresh racks after adding a pallet
@@ -111,6 +121,13 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
           await dispatch(fetchRacksThunk(warehouseId));
         }
         onClose();
+        setFormData({
+          customer_name: "",
+          pallet_number: "",
+          notes: "",
+          weight: 0,
+          pallet_spaces: 1,
+        }); // Clear form after add
       }
     } catch (error) {
       console.error("❌ Error submitting form:", error);

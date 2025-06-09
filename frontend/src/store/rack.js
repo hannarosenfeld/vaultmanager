@@ -217,13 +217,14 @@ export const updateRackPositionThunk = (warehouseId, rackId, position) => async 
 export const addPalletThunk = createAsyncThunk(
   "rack/addPallet",
   async (palletData, { rejectWithValue }) => {
+    console.log("addPalletThunk payload:", palletData); // Log the payload
     try {
       const response = await fetch("/api/racks/pallets", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(palletData),
+        body: JSON.stringify(palletData), // palletData should include slot_index
       });
       if (!response.ok) {
         const errorData = await response.json();

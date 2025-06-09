@@ -23,14 +23,22 @@ function WarehousePage() {
   const racks = useSelector((state) => state.rack.racks); // Fetch racks from Redux
   const [isPalletFormOpen, setPalletFormOpen] = useState(false); // Use this for PalletForm
   const [selectedShelf, setSelectedShelf] = useState(null); // State for selected shelf
+  const [selectedSlotIndex, setSelectedSlotIndex] = useState(null); // <-- Add this line
 
   function handleFieldClick(field) {
     if (field.id) dispatch(getCurrentFieldThunk(field));
   }
 
+  // Update how you open the PalletForm modal to set slot index
+  // For example, in your RackView or wherever you call setSelectedShelf/setPalletFormOpen:
+  // setSelectedShelf(shelfId);
+  // setSelectedSlotIndex(slotIndex);
+  // setPalletFormOpen(true);
+
   function closePalletForm() {
-    setPalletFormOpen(false); // Close the PalletForm modal
-    setSelectedShelf(null); // Clear the selected shelf
+    setPalletFormOpen(false);
+    setSelectedShelf(null);
+    setSelectedSlotIndex(null); // Reset slot index on close
   }
 
   async function handleAddPallet(palletData) {
@@ -122,6 +130,7 @@ function WarehousePage() {
           setIsModalOpen={setPalletFormOpen}
           selectedShelf={selectedShelf}
           setSelectedShelf={setSelectedShelf}
+          setSelectedSlotIndex={setSelectedSlotIndex} // <-- Pass this down
           handleAddPallet={handleAddPallet}
           closeModal={closePalletForm}
         />
@@ -154,7 +163,8 @@ function WarehousePage() {
         isOpen={isPalletFormOpen}
         onClose={closePalletForm}
         onSubmit={handleAddPallet}
-        selectedShelfId={selectedShelf} // <-- Ensure this line is present and correct
+        selectedShelfId={selectedShelf}
+        selectedSlotIndex={selectedSlotIndex} // <-- Now this will be set!
       />
     </div>
   );

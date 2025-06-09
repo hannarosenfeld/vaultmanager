@@ -154,6 +154,7 @@ def add_pallet_to_shelf(shelf_id):
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
 
+
 @rack_routes.route('/pallets', methods=['POST'])
 def create_pallet():
     data = request.get_json()
@@ -163,6 +164,7 @@ def create_pallet():
     notes = data.get('notes')
     weight = data.get('weight')
     shelf_spots = data.get('shelf_spots')
+    slot_index = data.get('slot_index')  # Accept slot_index
 
     if not shelf_id or not customer_name or not pallet_number:
         return jsonify({'error': 'Missing required fields'}), 400
@@ -176,6 +178,7 @@ def create_pallet():
             pallet_number=pallet_number,
             notes=notes,
             shelf_spots=shelf_spots,
+            slot_index=slot_index,  # Store slot_index
         )
         db.session.add(new_pallet)
         db.session.commit()
@@ -183,6 +186,7 @@ def create_pallet():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
 
 @rack_routes.route('/<int:warehouse_id>/rack/<int:rack_id>/delete', methods=['DELETE'])
 def delete_rack(warehouse_id, rack_id):

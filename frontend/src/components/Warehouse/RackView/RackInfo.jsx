@@ -17,7 +17,6 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
     // Map slotIndex to pallet for quick lookup
     const slotMap = {};
     pallets.forEach((pallet) => {
-      // Default to first available if slotIndex is null
       const idx =
         pallet.slotIndex !== null && pallet.slotIndex !== undefined
           ? pallet.slotIndex
@@ -26,8 +25,8 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
         slotMap[idx] = pallet;
       }
     });
-    let slotIndex = 0;
-    while (slotIndex < shelf.capacity) {
+    // Render each slot explicitly by index
+    for (let slotIndex = 0; slotIndex < shelf.capacity; slotIndex++) {
       const pallet = slotMap[slotIndex];
       if (pallet) {
         const spots = pallet.shelfSpots || 1;
@@ -53,24 +52,23 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
             </span>
           </div>
         );
-        slotIndex += spots;
-        continue;
+        // If a pallet takes up multiple spots, skip those slots
+        slotIndex += (pallet.shelfSpots || 1) - 1;
+      } else {
+        slots.push(
+          <div
+            key={`add-pallet-${shelf.id}-${slotIndex}`}
+            className="flex flex-col items-center text-center"
+            style={{
+              width: "30%",
+              minWidth: "30px",
+              marginRight: "2px",
+            }}
+          >
+            <AddPalletButton onClick={() => handleAddPalletClick(shelf, slotIndex)} />
+          </div>
+        );
       }
-      // Empty slot: show add button
-      slots.push(
-        <div
-          key={`add-pallet-${shelf.id}-${slotIndex}`}
-          className="flex flex-col items-center text-center"
-          style={{
-            width: "30%",
-            minWidth: "30px",
-            marginRight: "2px",
-          }}
-        >
-          <AddPalletButton onClick={() => handleAddPalletClick(shelf, slotIndex)} />
-        </div>
-      );
-      slotIndex++;
     }
     return slots;
   }

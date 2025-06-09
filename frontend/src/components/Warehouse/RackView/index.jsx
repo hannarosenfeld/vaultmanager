@@ -1,12 +1,14 @@
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentRack } from "../../../store/rack";
-import RackInfo from "./RackInfo"; // Import RackInfo component
+import RackInfo from "./RackInfo";
+import { useState } from "react";
 
 function RackView({
   warehouse,
   racks,
   setIsModalOpen,
   setSelectedShelf,
+  setSelectedSlotIndex, // <-- Accept as prop
 }) {
   const dispatch = useDispatch();
   const selectedRack = useSelector((state) => state.rack.currentRack);
@@ -15,12 +17,15 @@ function RackView({
     dispatch(setCurrentRack(rack));
   }
 
-  function handleAddPalletClick(shelf) {
+  function handleAddPalletClick(shelf, slotIndex) {
+    console.log("❤️ you clicked on a shelf to add a pallet:", shelf);
+    console.log("Add Pallet Button slotIndex:", slotIndex);
     if (shelf.pallets?.length >= shelf.capacity) {
       alert(`This shelf already has the maximum number of pallets (${shelf.capacity}).`);
       return;
     }
     setSelectedShelf(shelf.id);
+    setSelectedSlotIndex(slotIndex); // <-- Set slot index in parent state
     setIsModalOpen(true);
   }
 
@@ -146,6 +151,8 @@ function RackView({
           })}
         </div>
       </div>
+      {/* Render PalletForm modal (add this at the bottom of your return, or wherever you render the modal) */}
+      {/* <PalletForm ... selectedSlotIndex={selectedSlotIndex} ... /> */}
     </div>
   );
 }
