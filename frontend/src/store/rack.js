@@ -132,9 +132,9 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
 // Edit Pallet Thunk
 export const editPalletThunk = createAsyncThunk(
   "rack/editPallet",
-  async ({ palletId, customer_name, pallet_number, notes, weight }, { rejectWithValue }) => {
+  async ({ id, customer_name, pallet_number, notes, weight, pallet_spaces }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`/api/pallets/${palletId}/edit`, {
+      const response = await fetch(`/api/pallets/${id}/edit`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -144,6 +144,7 @@ export const editPalletThunk = createAsyncThunk(
           pallet_number,
           notes,
           weight,
+          pallet_spaces,
         }),
       });
       if (!response.ok) {
@@ -163,7 +164,7 @@ export const editPalletThunk = createAsyncThunk(
 // Delete Pallet Thunk
 export const deletePalletThunk = createAsyncThunk(
   "rack/deletePallet",
-  async (palletId, { dispatch, rejectWithValue }) => {
+  async (palletId, { dispatch, getState, rejectWithValue }) => {
     try {
       const response = await fetch(`/api/pallets/${palletId}/delete`, {
         method: "DELETE",
@@ -175,6 +176,16 @@ export const deletePalletThunk = createAsyncThunk(
       }
       const data = await response.json();
       dispatch(deletePallet(palletId));
+      // Update currentRack in state after deletion
+      const state = getState();
+      const racks = state.rack.racks;
+      const currentRack = state.rack.currentRack;
+      if (currentRack) {
+        const updatedRack = racks.find(r => r.id === currentRack.id);
+        if (updatedRack) {
+          dispatch(setCurrentRack(updatedRack));
+        }
+      }
       return data;
     } catch (error) {
       console.error("❌ Error deleting pallet:", error);
@@ -310,6 +321,33 @@ const rackReducer = (state = initialState, action) => {
         ...state,
         racks: state.racks.filter((rack) => rack.id !== action.payload),
       };
+
+    case "rack/editPallet/fulfilled": {
+      const updatedPallet = action.payload;
+      return {
+        ...state,
+        racks: state.racks.map((rack) => ({
+          ...rack,
+          shelves: rack.shelves.map((shelf) => ({
+            ...shelf,
+            pallets: shelf.pallets.map((pallet) =>
+              pallet.id === updatedPallet.id ? { ...pallet, ...updatedPallet } : pallet
+            ),
+          })),
+        })),
+        currentRack: state.currentRack
+          ? {
+              ...state.currentRack,
+              shelves: state.currentRack.shelves.map((shelf) => ({
+                ...shelf,
+                pallets: shelf.pallets.map((pallet) =>
+                  pallet.id === updatedPallet.id ? { ...pallet, ...updatedPallet } : pallet
+                ),
+              })),
+            }
+          : state.currentRack,
+      };
+    }
 
     default:
       return state;

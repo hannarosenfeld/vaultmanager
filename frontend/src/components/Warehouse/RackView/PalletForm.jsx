@@ -60,7 +60,7 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
     const { id, value } = e.target;
     setFormData({
       ...formData,
-      [id]: value,
+      [id]: id === "customer_name" ? value.toUpperCase() : value, // Always uppercase in input
     });
   };
 
@@ -81,12 +81,13 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
     }
     setError("");
     try {
+      const customerNameUpper = formData.customer_name.toUpperCase();
       if (initialData.id) {
         // Editing an existing pallet
         await dispatch(
           editPalletThunk({
-            id: initialData.id,
-            customer_name: formData.customer_name,
+            id: initialData.id, // <-- Use id, not palletId
+            customer_name: customerNameUpper,
             pallet_number: formData.pallet_number,
             notes: formData.notes,
             weight: Number(formData.weight) || 0,
@@ -94,7 +95,7 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
           })
         ).unwrap();
         onClose();
-        onSubmit(formData);
+        onSubmit && onSubmit(formData);
         setFormData({
           customer_name: "",
           pallet_number: "",
@@ -108,7 +109,7 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
         await dispatch(
           addPalletThunk({
             shelf_id: selectedShelf.id,
-            customer_name: formData.customer_name,
+            customer_name: customerNameUpper,
             pallet_number: formData.pallet_number,
             notes: formData.notes,
             weight: Number(formData.weight) || 0,

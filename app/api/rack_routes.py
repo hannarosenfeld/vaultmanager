@@ -169,6 +169,8 @@ def create_pallet():
     if not shelf_id or not customer_name or not pallet_number:
         return jsonify({'error': 'Missing required fields'}), 400
 
+    customer_name = customer_name.upper()  # Ensure uppercase
+
     try:
         new_pallet = Pallet(
             name=f"Pallet-{shelf_id}-{pallet_number}",

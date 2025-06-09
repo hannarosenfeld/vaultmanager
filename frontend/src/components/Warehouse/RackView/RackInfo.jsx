@@ -1,13 +1,17 @@
 import React, { useState } from "react";
 import AddPalletButton from "./AddPalletButton";
+import PalletForm from "./PalletForm"; // Import PalletForm
 
 function RackInfo({ selectedRack, handleAddPalletClick }) {
   const rowCount = selectedRack?.shelves?.length || 3;
   const [selectedPallet, setSelectedPallet] = useState(null);
+  const [isPalletFormOpen, setPalletFormOpen] = useState(false);
+  const [editShelfId, setEditShelfId] = useState(null);
 
-  const handlePalletClick = (pallet) => {
+  const handlePalletClick = (pallet, shelfId) => {
     setSelectedPallet(pallet);
-    setPalletModalOpen(true);
+    setEditShelfId(shelfId);
+    setPalletFormOpen(true);
   };
 
   // Helper to build shelf slots with multi-spot pallets
@@ -40,7 +44,7 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
               gridColumn: `span ${spots}`,
               marginRight: "2px",
             }}
-            onClick={() => handlePalletClick(pallet)}
+            onClick={() => handlePalletClick(pallet, shelf.id)}
           >
             <span className="text-xs font-medium text-center">
               {pallet.customerName && pallet.customerName.length > 8
@@ -73,6 +77,12 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
     return slots;
   }
 
+  const handleClosePalletForm = () => {
+    setPalletFormOpen(false);
+    setSelectedPallet(null);
+    setEditShelfId(null);
+  };
+
   return (
     <>
       <div
@@ -102,6 +112,15 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
           <div></div>
         )}
       </div>
+      {/* PalletForm for editing/deleting a pallet */}
+      {isPalletFormOpen && selectedPallet && (
+        <PalletForm
+          isOpen={isPalletFormOpen}
+          onClose={handleClosePalletForm}
+          initialData={selectedPallet}
+          selectedShelfId={editShelfId}
+        />
+      )}
     </>
   );
 }
