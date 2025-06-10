@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useForm, ValidationError } from "@formspree/react";
+import warehouseVaultsImg from "../assets/vaults.jpg";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -35,8 +36,17 @@ export default function LandingPage() {
         </div>
       </header>
 
-      <section className="max-w-5xl w-full px-6 py-16 grid md:grid-cols-3 gap-10">
-        <div className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center hover:shadow-xl transition">
+      {/* Feature Cards Section with full-width background image and lighter overlay */}
+      <section
+        className="relative w-full px-0 py-16 grid md:grid-cols-3 gap-10"
+        style={{
+          backgroundImage: `linear-gradient(rgba(30,41,59,0.35), rgba(30,41,59,0.35)), url(${warehouseVaultsImg})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      >
+        {/* Cards */}
+        <div className="bg-white bg-opacity-90 rounded-xl shadow-md p-8 flex flex-col items-center hover:shadow-xl transition relative z-10">
           <svg
             className="w-12 h-12 text-accent mb-4"
             fill="none"
@@ -54,7 +64,7 @@ export default function LandingPage() {
             moved it—no more paper lists or guesswork.
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center hover:shadow-xl transition">
+        <div className="bg-white bg-opacity-90 rounded-xl shadow-md p-8 flex flex-col items-center hover:shadow-xl transition relative z-10">
           <svg
             className="w-12 h-12 text-success mb-4"
             fill="none"
@@ -72,7 +82,7 @@ export default function LandingPage() {
             and vaults in seconds.
           </p>
         </div>
-        <div className="bg-white rounded-xl shadow-md p-8 flex flex-col items-center hover:shadow-xl transition">
+        <div className="bg-white bg-opacity-90 rounded-xl shadow-md p-8 flex flex-col items-center hover:shadow-xl transition relative z-10">
           <svg
             className="w-12 h-12 text-warning mb-4"
             fill="none"
