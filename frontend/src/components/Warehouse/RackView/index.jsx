@@ -18,8 +18,6 @@ function RackView({
   }
 
   function handleAddPalletClick(shelf, slotIndex) {
-    console.log("❤️ you clicked on a shelf to add a pallet:", shelf);
-    console.log("Add Pallet Button slotIndex:", slotIndex);
     if (shelf.pallets?.length >= shelf.capacity) {
       alert(`This shelf already has the maximum number of pallets (${shelf.capacity}).`);
       return;
@@ -30,15 +28,21 @@ function RackView({
   }
 
   function getRackColor(rack) {
-    const totalPallets = rack.shelves.reduce(
-      (sum, shelf) => sum + (shelf.pallets?.length || 0),
+    // Count total occupied spots, not just number of pallets
+    const totalOccupiedSpots = rack.shelves.reduce(
+      (sum, shelf) =>
+        sum +
+        (shelf.pallets?.reduce(
+          (p, pallet) => p + (pallet.shelfSpots || 1),
+          0
+        ) || 0),
       0
     );
     const totalCapacity = rack.shelves.reduce(
       (sum, shelf) => sum + (shelf.capacity || 0),
       0
     );
-    const fillPercentage = totalCapacity > 0 ? totalPallets / totalCapacity : 0;
+    const fillPercentage = totalCapacity > 0 ? totalOccupiedSpots / totalCapacity : 0;
     if (fillPercentage >= 1) return "var(--color-full)";
     if (fillPercentage > 0.5) return "var(--color-warning)";
     return "var(--color-success)";
