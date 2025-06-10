@@ -38,67 +38,68 @@ export default function LandingPage() {
 
       {/* Feature Cards Section with full-width background image and lighter overlay */}
       <section
-        className="relative w-full px-0 py-16 grid md:grid-cols-3 gap-10"
+        className="relative w-full px-0 py-16"
         style={{
           backgroundImage: `linear-gradient(rgba(30,41,59,0.35), rgba(30,41,59,0.35)), url(${warehouseVaultsImg})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        {/* Cards */}
-        <div className="bg-white bg-opacity-90 rounded-xl shadow-md p-8 flex flex-col items-center hover:shadow-xl transition relative z-10">
-          <svg
-            className="w-12 h-12 text-accent mb-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path d="M3 7V6a2 2 0 012-2h14a2 2 0 012 2v1M3 7v11a2 2 0 002 2h14a2 2 0 002-2V7M3 7h18" />
-          </svg>
-          <h3 className="font-bold text-lg mb-2 text-primary">
-            Real-Time Inventory
-          </h3>
-          <p className="text-slate text-center">
-            Instantly see what’s in your warehouse, where it’s stored, and who
-            moved it—no more paper lists or guesswork.
-          </p>
-        </div>
-        <div className="bg-white bg-opacity-90 rounded-xl shadow-md p-8 flex flex-col items-center hover:shadow-xl transition relative z-10">
-          <svg
-            className="w-12 h-12 text-success mb-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <h3 className="font-bold text-lg mb-2 text-primary">
-            Lightning Fast
-          </h3>
-          <p className="text-slate text-center">
-            Modern, responsive interface built for speed—update layouts, racks,
-            and vaults in seconds.
-          </p>
-        </div>
-        <div className="bg-white bg-opacity-90 rounded-xl shadow-md p-8 flex flex-col items-center hover:shadow-xl transition relative z-10">
-          <svg
-            className="w-12 h-12 text-warning mb-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            viewBox="0 0 24 24"
-          >
-            <path d="M9 17v-2a4 4 0 018 0v2M5 21v-2a4 4 0 018 0v2M7 7a4 4 0 118 0 4 4 0 01-8 0z" />
-          </svg>
-          <h3 className="font-bold text-lg mb-2 text-primary">
-            Collaboration Ready
-          </h3>
-          <p className="text-slate text-center">
-            Multiple users, real-time updates, and secure cloud storage—everyone’s
-            always on the same page.
-          </p>
+        <div className="max-w-5xl mx-auto grid md:grid-cols-3 gap-10 px-4">
+          <div className="bg-white bg-opacity-90 rounded-xl shadow-md p-10 flex flex-col items-center hover:shadow-xl transition relative z-10 max-w-xs mx-auto">
+            <svg
+              className="w-12 h-12 text-accent mb-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M3 7V6a2 2 0 012-2h14a2 2 0 012 2v1M3 7v11a2 2 0 002 2h14a2 2 0 002-2V7M3 7h18" />
+            </svg>
+            <h3 className="font-bold text-lg mb-2 text-primary">
+              Real-Time Inventory
+            </h3>
+            <p className="text-slate text-center">
+              Instantly see what’s in your warehouse, where it’s stored, and who
+              moved it—no more paper lists or guesswork.
+            </p>
+          </div>
+          <div className="bg-white bg-opacity-90 rounded-xl shadow-md p-10 flex flex-col items-center hover:shadow-xl transition relative z-10 max-w-xs mx-auto">
+            <svg
+              className="w-12 h-12 text-success mb-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3 className="font-bold text-lg mb-2 text-primary">
+              Lightning Fast
+            </h3>
+            <p className="text-slate text-center">
+              Modern, responsive interface built for speed—update layouts, racks,
+              and vaults in seconds.
+            </p>
+          </div>
+          <div className="bg-white bg-opacity-90 rounded-xl shadow-md p-10 flex flex-col items-center hover:shadow-xl transition relative z-10 max-w-xs mx-auto">
+            <svg
+              className="w-12 h-12 text-warning mb-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+            >
+              <path d="M9 17v-2a4 4 0 018 0v2M5 21v-2a4 4 0 018 0v2M7 7a4 4 0 118 0 4 4 0 01-8 0z" />
+            </svg>
+            <h3 className="font-bold text-lg mb-2 text-primary">
+              Collaboration Ready
+            </h3>
+            <p className="text-slate text-center">
+              Multiple users, real-time updates, and secure cloud storage—everyone’s
+              always on the same page.
+            </p>
+          </div>
         </div>
       </section>
 
