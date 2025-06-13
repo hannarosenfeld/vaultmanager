@@ -44,8 +44,8 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
               gridColumn: `span ${spots}`,
               marginRight: "1px",
               marginLeft: "1px",
-              padding: "6px 0", // Increased vertical padding for more height
-              height: "48px",   // Explicitly set a larger height
+              padding: "6px 0",
+              height: "48px",
             }}
             onClick={() => handlePalletClick(pallet, shelf.id)}
           >
