@@ -128,24 +128,19 @@ export const moveRackThunk = (warehouseId, rackId, updatedPosition) => async (di
 };
 
 
-
 // Edit Pallet Thunk
 export const editPalletThunk = createAsyncThunk(
   "rack/editPallet",
-  async ({ id, customer_name, pallet_number, notes, weight, pallet_spaces }, { rejectWithValue }) => {
+  async (palletData, { rejectWithValue }) => {
+    console.log("❤️ pallet data: ", palletData);
     try {
-      const response = await fetch(`/api/pallets/${id}/edit`, {
+      // FIX: Use the correct route prefix for the rack_routes blueprint
+      const response = await fetch(`/api/racks/pallets/${palletData.id}/edit`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          customer_name,
-          pallet_number,
-          notes,
-          weight,
-          pallet_spaces,
-        }),
+        body: JSON.stringify(palletData),
       });
       if (!response.ok) {
         const errorData = await response.json();

@@ -39,19 +39,22 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
             key={`pallet-${pallet.id}`}
             className="flex flex-col items-center justify-center text-center bg-blue-100 border border-blue-300 rounded cursor-pointer"
             style={{
-              width: `${spots * 30}%`,
-              minWidth: `${spots * 30}px`,
+              width: `${spots * 36}%`,
+              minWidth: `${spots * 36}px`,
               gridColumn: `span ${spots}`,
-              marginRight: "2px",
+              marginRight: "1px",
+              marginLeft: "1px",
+              padding: "6px 0", // Increased vertical padding for more height
+              height: "48px",   // Explicitly set a larger height
             }}
             onClick={() => handlePalletClick(pallet, shelf.id)}
           >
-            <span className="text-xs font-medium text-center">
-              {pallet.customerName && pallet.customerName.length > 8
-                ? `${pallet.customerName.slice(0, 8)}...`
-                : pallet.customerName}
+            <span className="text-[10px] font-medium text-center">
+              {pallet.customerName && pallet.name
+                ? `${pallet.customerName.length > 10 ? pallet.customerName.slice(0, 10) + "..." : pallet.customerName} - ${pallet.name.length > 10 ? pallet.name.slice(0, 10) + "..." : pallet.name}`
+                : pallet.customerName || (pallet.name && pallet.name.length > 10 ? pallet.name.slice(0, 10) + "..." : pallet.name)}
             </span>
-            <span className="text-xs font-medium text-center">
+            <span className="text-[10px] font-medium text-center">
               {pallet.palletNumber}
             </span>
           </div>
@@ -64,9 +67,12 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
             key={`add-pallet-${shelf.id}-${slotIndex}`}
             className="flex flex-col items-center text-center"
             style={{
-              width: "30%",
-              minWidth: "30px",
-              marginRight: "2px",
+              width: "36%",
+              minWidth: "36px",
+              marginRight: "1px",
+              marginLeft: "1px",
+              padding: "6px 0", // Match the pallet height
+              height: "48px",
             }}
           >
             <AddPalletButton onClick={() => handleAddPalletClick(shelf, slotIndex)} />

@@ -6,8 +6,8 @@ import {
 } from "@headlessui/react";
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addPalletThunk, editPalletThunk, fetchRacksThunk } from "../../../store/rack"; // Import the editPalletThunk
-import { deletePalletThunk } from "../../../store/rack"; // Import the deletePalletThunk
+import { addPalletThunk, editPalletThunk, fetchRacksThunk } from "../../../store/rack";
+import { deletePalletThunk } from "../../../store/rack";
 
 function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelfId, selectedSlotIndex }) {
   const dispatch = useDispatch();
@@ -19,6 +19,7 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
 
   const [error, setError] = useState("");
   const [formData, setFormData] = useState({
+    name: initialData.name || "",
     customer_name: initialData.customerName || "",
     pallet_number: initialData.palletNumber || "",
     notes: initialData.notes || "",
@@ -32,13 +33,15 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
   useEffect(() => {
     if (
       isOpen &&
-      (prevInitialData.current.customerName !== initialData.customerName ||
+      (prevInitialData.current.name !== initialData.name ||
+        prevInitialData.current.customerName !== initialData.customerName ||
         prevInitialData.current.palletNumber !== initialData.palletNumber ||
         prevInitialData.current.notes !== initialData.notes ||
         prevInitialData.current.weight !== initialData.weight ||
         prevInitialData.current.palletSpaces !== initialData.palletSpaces)
     ) {
       setFormData({
+        name: initialData.name || "",
         customer_name: initialData.customerName || "",
         pallet_number: initialData.palletNumber || "",
         notes: initialData.notes || "",
@@ -60,7 +63,10 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
     const { id, value } = e.target;
     setFormData({
       ...formData,
-      [id]: id === "customer_name" ? value.toUpperCase() : value, // Always uppercase in input
+      [id]:
+        id === "customer_name" || id === "name"
+          ? value.toUpperCase()
+          : value,
     });
   };
 
@@ -71,7 +77,14 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
       return;
     }
     const palletSpaces = Number(formData.pallet_spaces);
-    const availableSpaces = selectedShelf.capacity - (selectedShelf.pallets?.length || 0);
+
+    // Calculate used spaces, accounting for editing
+    let usedSpaces = (selectedShelf.pallets?.length || 0);
+    if (initialData.id) {
+      // Subtract this pallet if editing (since it's already on the shelf)
+      usedSpaces -= 1;
+    }
+    const availableSpaces = selectedShelf.capacity - usedSpaces;
 
     if (palletSpaces > availableSpaces) {
       setError(
@@ -82,21 +95,24 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
     setError("");
     try {
       const customerNameUpper = formData.customer_name.toUpperCase();
+      const palletNameUpper = formData.name.toUpperCase();
       if (initialData.id) {
         // Editing an existing pallet
-        await dispatch(
-          editPalletThunk({
-            id: initialData.id, // <-- Use id, not palletId
-            customer_name: customerNameUpper,
-            pallet_number: formData.pallet_number,
-            notes: formData.notes,
-            weight: Number(formData.weight) || 0,
-            pallet_spaces: palletSpaces,
-          })
-        ).unwrap();
+        const editPayload = {
+          id: initialData.id,
+          name: palletNameUpper,
+          customer_name: customerNameUpper,
+          pallet_number: formData.pallet_number,
+          notes: formData.notes,
+          weight: Number(formData.weight) || 0,
+          pallet_spaces: palletSpaces,
+        };
+        console.log("🟢 Submitting editPalletThunk with payload:", editPayload);
+        await dispatch(editPalletThunk(editPayload)).unwrap();
         onClose();
         onSubmit && onSubmit(formData);
         setFormData({
+          name: "",
           customer_name: "",
           pallet_number: "",
           notes: "",
@@ -104,29 +120,31 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
           pallet_spaces: 1,
         }); // Clear form after edit
       } else {
-        await dispatch(
-          addPalletThunk({
-            shelf_id: selectedShelf.id,
-            customer_name: customerNameUpper,
-            pallet_number: formData.pallet_number,
-            notes: formData.notes,
-            weight: Number(formData.weight) || 0,
-            shelf_spots: palletSpaces,
-            slot_index: selectedSlotIndex, // Pass slot index from prop
-          })
-        ).unwrap();
+        const addPayload = {
+          name: palletNameUpper,
+          shelf_id: selectedShelf.id,
+          customer_name: customerNameUpper,
+          pallet_number: formData.pallet_number,
+          notes: formData.notes,
+          weight: Number(formData.weight) || 0,
+          shelf_spots: palletSpaces,
+          slot_index: selectedSlotIndex, // Pass slot index from prop
+        };
+        console.log("🟢 Submitting addPalletThunk with payload:", addPayload);
+        await dispatch(addPalletThunk(addPayload)).unwrap();
         // Refresh racks after adding a pallet
         if (warehouseId) {
           await dispatch(fetchRacksThunk(warehouseId));
         }
         onClose();
         setFormData({
+          name: "",
           customer_name: "",
           pallet_number: "",
           notes: "",
           weight: 0,
           pallet_spaces: 1,
-        }); // Clear form after add
+        });
       }
     } catch (error) {
       console.error("❌ Error submitting form:", error);
@@ -171,6 +189,23 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
             <form onSubmit={handleSubmit}>
               <div className="mb-5">
                 <label
+                  htmlFor="name"
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                >
+                  Pallet Name
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white uppercase"
+                  placeholder="Pallet Name"
+                />
+              </div>
+
+              <div className="mb-5">
+                <label
                   htmlFor="customer_name"
                   className="block mb-2 text-sm font-medium text-gray-900"
                 >
@@ -201,7 +236,6 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
                   onChange={handleChange}
                   className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
                   placeholder="Pallet Number"
-                  required
                 />
               </div>
 
