@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Link } from "react-router-dom";
 import { login } from "../store/session";
-import logo from "../assets/no_background_logo.png";
+import logo from "../assets/warehouse_manager_logo.png";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
@@ -27,7 +27,7 @@ const LoginPage = () => {
         <div className="flex flex-col items-center">
           {/* Remove the circle background, just show the logo */}
           <img
-            className="h-24 w-24 object-contain mb-3"
+            className="w-50 object-contain mb-3"
             src={logo}
             alt="Warehouse Manager Logo"
           />

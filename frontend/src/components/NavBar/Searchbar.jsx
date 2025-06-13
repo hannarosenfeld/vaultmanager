@@ -5,6 +5,7 @@ import { searchWarehouse, clearSearch } from "../../store/warehouse";
 function Searchbar() {
   const dispatch = useDispatch();
   const currentWarehouse = useSelector((state) => state.warehouse.currentWarehouse);
+  const currentView = useSelector((state) => state.warehouse.currentView);
   const [search, setSearch] = useState("");
   const [customers, setCustomers] = useState([]);
   const [orders, setOrders] = useState([]);
@@ -28,6 +29,10 @@ function Searchbar() {
       dispatch(clearSearch());
     };
   }, [dispatch]);
+
+  useEffect(() => {
+    console.log("🔍 Searchbar view changed:", currentView);
+  }, [currentView]);
 
 
   const handleChange = (e) => {
@@ -72,7 +77,7 @@ function Searchbar() {
             type="text"
             id="simple-search"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-3 p-2.5"
-            placeholder="Search customer/order..."
+            placeholder={currentView === "rack" ? "Search customer/pallet number" : "Search customer/order..."}
             value={search}
             onChange={handleChange}
             required

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { setCurrentWarehouse, setCurrentField } from "../store/warehouse";
+import { setCurrentWarehouse, setCurrentField, setCurrentView } from "../store/warehouse";
 import { setCurrentRack } from "../store/rack"; // Import setCurrentRack
 import LoadingSpinner from "../components/LoadingSpinner";
 import FieldGrid from "../components/Warehouse/FieldGrid";
@@ -100,6 +100,15 @@ function WarehousePage() {
     return <div>Warehouse could not be fetched</div>;
   }
 
+  const handleVaultView = () => {
+    setIsWarehouseView(true);
+    dispatch(setCurrentView("vault"));
+  };
+  const handleRackView = () => {
+    setIsWarehouseView(false);
+    dispatch(setCurrentView("rack"));
+  };
+
   return (
     <div className="flex flex-col max-w-[100vw] p-4">
       <h1 className="text-xl font-bold mb-2 text-center">{warehouse.name}</h1>
@@ -109,15 +118,15 @@ function WarehousePage() {
           className={`px-4 py-2 rounded-l ${
             isWarehouseView ? "bg-primary text-white" : "bg-background text-primary border border-primary"
           }`}
-          onClick={() => setIsWarehouseView(true)}
+          onClick={handleVaultView}
         >
-          Warehouse View
+          Vault View
         </button>
         <button
           className={`px-4 py-2 rounded-r ${
             !isWarehouseView ? "bg-primary text-white" : "bg-background text-primary border border-primary"
           }`}
-          onClick={() => setIsWarehouseView(false)}
+          onClick={handleRackView}
         >
           Rack View
         </button>
@@ -136,7 +145,7 @@ function WarehousePage() {
         />
       ) : (
         <>
-          {/* Warehouse View */}
+          {/* Vault View */}
           <div className="h-[25vh]">
             {selectedField ? (
               <FieldInfo field={selectedField} warehouse={warehouse}/>

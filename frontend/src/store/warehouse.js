@@ -554,6 +554,7 @@ const initialState = {
   currentField: null,
   currentVault: null,
   search: null,
+  currentView: "vault", // "vault" or "rack"
 };
 
 const warehouseReducer = (state = initialState, action) => {
@@ -1048,9 +1049,17 @@ const warehouseReducer = (state = initialState, action) => {
           },
         },
       };
+    case "warehouse/setCurrentView":
+      return { ...state, currentView: action.payload };
     default:
       return state;
   }
 };
 
 export default warehouseReducer;
+
+// Add this export if not already present
+export const setCurrentView = (view) => ({
+  type: "warehouse/setCurrentView",
+  payload: view,
+});
