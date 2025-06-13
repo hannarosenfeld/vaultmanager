@@ -1,5 +1,6 @@
 from flask import Blueprint, jsonify, request
 from app.models import Rack, Shelf, Warehouse, db, Pallet
+from app.models.customer import Customer 
 
 rack_routes = Blueprint('racks', __name__)
 
@@ -171,6 +172,16 @@ def create_pallet():
 
     customer_name = customer_name.upper()  # Ensure uppercase
 
+    # --- Begin: Ensure customer exists ---
+    customer = Customer.query.filter(
+        db.func.upper(Customer.name) == customer_name
+    ).first()
+    if not customer:
+        customer = Customer(name=customer_name)
+        db.session.add(customer)
+        db.session.flush()  # Get customer.id before commit
+    # --- End: Ensure customer exists ---
+
     try:
         new_pallet = Pallet(
             name=f"Pallet-{shelf_id}-{pallet_number}",
@@ -181,6 +192,7 @@ def create_pallet():
             notes=notes,
             shelf_spots=shelf_spots,
             slot_index=slot_index,  # Store slot_index
+            customer_id=customer.id,  # Associate with customer
         )
         db.session.add(new_pallet)
         db.session.commit()

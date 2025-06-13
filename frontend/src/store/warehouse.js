@@ -1,3 +1,4 @@
+import { current } from "@reduxjs/toolkit";
 import { removeVaultFromStage } from "./stage";
 
 const GET_ALL_WAREHOUSES = "warehouse/GET_ALL_WAREHOUSES";
@@ -14,7 +15,7 @@ const ADD_WAREHOUSE = "warehouse/ADD_WAREHOUSE";
 const ADD_FIELDS = "warehouse/ADD_FIELDS";
 const DELETE_FIELDS = "warehouse/DELETE_FIELDS";
 const DELETE_WAREHOUSE = "warehouse/DELETE_WAREHOUSE";
-const SEARCH_WAREHOUSE = "warehouse/SEARCH_WAREHOUSE";
+export const SEARCH_WAREHOUSE = "warehouse/SEARCH_WAREHOUSE";
 const CLEAR_SEARCH = "warehouse/CLEAR_SEARCH";
 const SET_CURRENT_VAULT = "warehouse/SET_CURRENT_VAULT";
 const UPDATE_VAULT = "warehouse/UPDATE_VAULT";
@@ -554,7 +555,7 @@ const initialState = {
   currentField: null,
   currentVault: null,
   search: null,
-  currentView: "vault", // "vault" or "rack"
+  currentView: "vault",
 };
 
 const warehouseReducer = (state = initialState, action) => {
@@ -610,8 +611,16 @@ const warehouseReducer = (state = initialState, action) => {
       const warehouseVaults = Object.values(action.warehouse.fields).flatMap(
         (field) => Object.values(field.vaults)
       );
+
+      const warehousePallets = Object.values(action.warehouse.racks).flatMap((rack) =>
+        Object.values(rack.shelves).flatMap((shelf) => Object.values(shelf.pallets))
+      );
+
+      console.log("❤️💕 Warehouse Pallets:", warehousePallets);
+
       const customers = Object.fromEntries(
         warehouseVaults.map((vault) => [vault.customer_id, vault.customer_name])
+        // warehousePallets.map((pallet) => [pallet.customer_id, pallet.customer_name])
       );
       const orders = Object.fromEntries(
         warehouseVaults.map((vault) => [vault.order_id, vault.order_name])
@@ -661,23 +670,23 @@ const warehouseReducer = (state = initialState, action) => {
       // Update the current warehouse if it matches the warehouseId
       const updatedCurrentWarehouse =
         state.currentWarehouse &&
-        state.currentWarehouse.id === parseInt(addWarehouseId)
+          state.currentWarehouse.id === parseInt(addWarehouseId)
           ? {
-              ...state.currentWarehouse,
-              fields: updatedFields,
-            }
+            ...state.currentWarehouse,
+            fields: updatedFields,
+          }
           : state.currentWarehouse;
 
       // Update the current field if it matches the fieldId
       const updatedCurrentField =
         state.currentField && state.currentField.id === parseInt(addFieldId)
           ? {
-              ...state.currentField,
-              vaults: {
-                ...state.currentField.vaults,
-                [vaultId]: vault,
-              },
-            }
+            ...state.currentField,
+            vaults: {
+              ...state.currentField.vaults,
+              [vaultId]: vault,
+            },
+          }
           : state.currentField;
 
       return {
@@ -752,26 +761,26 @@ const warehouseReducer = (state = initialState, action) => {
       // Update the current warehouse if it matches the warehouseId
       const updatedCurrentWarehouseAfterStaging =
         state.currentWarehouse &&
-        state.currentWarehouse.id === parseInt(stagedWarehouseId)
+          state.currentWarehouse.id === parseInt(stagedWarehouseId)
           ? {
-              ...state.currentWarehouse,
-              fields: {
-                ...state.currentWarehouse.fields,
-                [stagedFieldId]: {
-                  ...state.currentWarehouse.fields[stagedFieldId],
-                  vaults: updatedVaultsObj,
-                },
+            ...state.currentWarehouse,
+            fields: {
+              ...state.currentWarehouse.fields,
+              [stagedFieldId]: {
+                ...state.currentWarehouse.fields[stagedFieldId],
+                vaults: updatedVaultsObj,
               },
-            }
+            },
+          }
           : state.currentWarehouse;
 
       // Remove the vault from the current field
       const updatedCurrenField =
         state.currentField && state.currentField.id === parseInt(stagedFieldId)
           ? {
-              ...state.currentField,
-              vaults: updatedVaultsObj,
-            }
+            ...state.currentField,
+            vaults: updatedVaultsObj,
+          }
           : state.currentField;
 
       return {
@@ -946,23 +955,32 @@ const warehouseReducer = (state = initialState, action) => {
       const type = action.payload.searchType;
       const searchTerm = action.payload.searchTerm;
 
-      const fields = Object.values(state.currentWarehouse.fields);
-      const vaults = fields.flatMap((field) => Object.values(field.vaults));
-      const vaultsContainingSearchTerm =
-        type == "order"
-          ? vaults.filter((vault) => vault.order_name === searchTerm)
-          : type == "customer"
-          ? vaults.filter((vault) => vault.customer_name === searchTerm)
-          : [];
+      const currentView = state.currentView;
 
-      const fieldIds = vaultsContainingSearchTerm.map(
-        (vault) => vault.field_id
-      );
+      if (currentView == "vault") {
+        const fields = Object.values(state.currentWarehouse.fields);
+        const vaults = fields.flatMap((field) => Object.values(field.vaults));
 
-      return {
-        ...state,
-        search: fieldIds,
-      };
+        const vaultsContainingSearchTerm =
+          type == "order"
+            ? vaults.filter((vault) => vault.order_name === searchTerm)
+            : type == "customer"
+              ? vaults.filter((vault) => vault.customer_name === searchTerm)
+              : [];
+
+        const fieldIds = vaultsContainingSearchTerm.map(
+          (vault) => vault.field_id
+        );
+
+        return {
+          ...state,
+          search: fieldIds,
+        };
+      }
+
+      if (currentView == "rack") {
+        console.log("🍐 RACK VIEW SEARCH!");
+      }
 
     case CLEAR_SEARCH:
       return {
@@ -991,14 +1009,14 @@ const warehouseReducer = (state = initialState, action) => {
           ...state.currentVault,
           ...editedVault,
         },
-        currentField: { 
+        currentField: {
           ...state.currentField,
           vaults: {
             ...state.currentField.vaults,
             [editedVault.id]: editedVault,
-          } 
-      }
-    };
+          }
+        }
+      };
 
     case SET_FIELD_FULL:
       const { fieldId, isFull } = action.payload;
@@ -1023,8 +1041,8 @@ const warehouseReducer = (state = initialState, action) => {
           ...state.currentField,
           full: isFull,
         },
-      };    
-    
+      };
+
     case EDIT_FIELD_CAPACITY:
       return {
         ...state,

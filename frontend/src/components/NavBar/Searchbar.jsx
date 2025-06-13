@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { searchWarehouse, clearSearch } from "../../store/warehouse";
+import { current } from "@reduxjs/toolkit";
 
 function Searchbar() {
   const dispatch = useDispatch();
@@ -9,6 +10,7 @@ function Searchbar() {
   const [search, setSearch] = useState("");
   const [customers, setCustomers] = useState([]);
   const [orders, setOrders] = useState([]);
+  const [pallets, setPallets] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
@@ -22,6 +24,14 @@ function Searchbar() {
     if (currentWarehouse.orders) {
       setOrders(Object.values(currentWarehouse.orders));
     }
+    if (currentWarehouse.racks) {
+      const racks = Object.values(currentWarehouse.racks);
+      const shelves = racks.flatMap(rack => Object.values(rack.shelves));
+      const pallets = shelves.flatMap(shelf => Object.values(shelf.pallets));
+      if (pallets.length > 0) {
+        setPallets(pallets.map(pallet => pallet.palletNumber));
+      }
+    }
   }, [currentWarehouse]);
 
   useEffect(() => {
@@ -30,16 +40,12 @@ function Searchbar() {
     };
   }, [dispatch]);
 
-  useEffect(() => {
-    console.log("🔍 Searchbar view changed:", currentView);
-  }, [currentView]);
-
-
   const handleChange = (e) => {
     const value = e.target.value;
     setSearch(value);
 
     if (value) {
+      console.log("❤️", value)
       const customerSuggestions = customers.filter((customer) =>
         customer && customer.toLowerCase().includes(value.toLowerCase())
       ).map((customer) => ({ type: 'customer', name: customer }));
@@ -56,6 +62,8 @@ function Searchbar() {
 
   const handleSuggestionClick = (suggestion) => {
     setSearch(suggestion.name);
+    console.log("🔍 Searchbar suggestion clicked:", suggestion);
+    console.log("🔍 Searchbar suggestion type:", suggestion.type);
     dispatch(searchWarehouse(suggestion.name, suggestion.type));
     setDropdownVisible(false);
   };

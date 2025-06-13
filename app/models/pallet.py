@@ -15,6 +15,7 @@ class Pallet(db.Model):
         nullable=False
     )
     customer_name = db.Column(db.String(100), nullable=False)
+    customer_id = db.Column(db.Integer, db.ForeignKey(add_prefix_for_prod('customers.id')), nullable=True)  # Add this line
     pallet_number = db.Column(db.String(50), nullable=True)
     notes = db.Column(db.Text, nullable=True)              
     file_path = db.Column(db.String(255), nullable=True)
@@ -32,6 +33,7 @@ class Pallet(db.Model):
             'weight': self.weight,
             'shelfId': self.shelf_id,
             'customerName': self.customer_name,
+            'customerId': self.customer_id,  # Add this line
             'palletNumber': self.pallet_number,
             'notes': self.notes,               
             'filePath': self.file_path,
