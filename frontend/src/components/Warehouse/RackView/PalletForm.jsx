@@ -199,7 +199,7 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
                   id="name"
                   value={formData.name}
                   onChange={handleChange}
-                  className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white uppercase"
+                  className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
                   placeholder="Pallet Name"
                 />
               </div>
@@ -216,7 +216,7 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
                   id="customer_name"
                   value={formData.customer_name}
                   onChange={handleChange}
-                  className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white uppercase"
+                  className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
                   placeholder="Customer Name"
                   required
                 />
