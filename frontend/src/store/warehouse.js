@@ -619,9 +619,12 @@ const warehouseReducer = (state = initialState, action) => {
       console.log("❤️💕 Warehouse Pallets:", warehousePallets);
 
       const customers = Object.fromEntries(
-        warehouseVaults.map((vault) => [vault.customer_id, vault.customer_name])
-        // warehousePallets.map((pallet) => [pallet.customer_id, pallet.customer_name])
+        [
+          ...warehouseVaults.map((vault) => [vault.customer_id, vault.customer_name]),
+          ...warehousePallets.map((pallet) => [pallet.customerId, pallet.customerName])
+        ]
       );
+      
       const orders = Object.fromEntries(
         warehouseVaults.map((vault) => [vault.order_id, vault.order_name])
       );
