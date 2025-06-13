@@ -189,23 +189,6 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
             <form onSubmit={handleSubmit}>
               <div className="mb-5">
                 <label
-                  htmlFor="name"
-                  className="block mb-2 text-sm font-medium text-gray-900"
-                >
-                  Pallet Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
-                  placeholder="Pallet Name"
-                />
-              </div>
-
-              <div className="mb-5">
-                <label
                   htmlFor="customer_name"
                   className="block mb-2 text-sm font-medium text-gray-900"
                 >
@@ -219,6 +202,23 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
                   className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
                   placeholder="Customer Name"
                   required
+                />
+              </div>
+
+              <div className="mb-5">
+                <label
+                  htmlFor="name"
+                  className="block mb-2 text-sm font-medium text-gray-900"
+                >
+                  Pallet Name / Short Description
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  className="border border-gray-300 text-sm rounded-lg w-full p-2.5 bg-white"
+                  placeholder="Pallet Name"
                 />
               </div>
 
