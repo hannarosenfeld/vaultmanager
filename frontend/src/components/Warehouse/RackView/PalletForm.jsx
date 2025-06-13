@@ -104,8 +104,6 @@ function PalletForm({ isOpen, onClose, onSubmit, initialData = {}, selectedShelf
           pallet_spaces: 1,
         }); // Clear form after edit
       } else {
-        console.log("❤️ you clicked on a shelf to add a pallet:", selectedShelf);
-        console.log("Add Pallet Button slotIndex:", selectedSlotIndex); // this is already undefined here.
         await dispatch(
           addPalletThunk({
             shelf_id: selectedShelf.id,

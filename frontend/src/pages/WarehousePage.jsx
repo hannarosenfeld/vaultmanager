@@ -2,43 +2,37 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentWarehouse, setCurrentField, setCurrentView } from "../store/warehouse";
-import { setCurrentRack } from "../store/rack"; // Import setCurrentRack
+import { setCurrentRack } from "../store/rack";
 import LoadingSpinner from "../components/LoadingSpinner";
 import FieldGrid from "../components/Warehouse/FieldGrid";
 import FieldInfo from "../components/Warehouse/FieldInfo";
 import { getCurrentFieldThunk } from "../store/warehouse";
-import { fetchRacksThunk, addPalletThunk } from "../store/rack"; // Import fetchRacksThunk and addPalletThunk
-import RackView from "../components/Warehouse/RackView"; // Import the new RackView component
-import PalletForm from "../components/Warehouse/RackView/PalletForm"; // Import PalletForm
+import { fetchRacksThunk, addPalletThunk } from "../store/rack";
+import RackView from "../components/Warehouse/RackView";
+import PalletForm from "../components/Warehouse/RackView/PalletForm";
 
 function WarehousePage() {
   const { warehouseName } = useParams();
   const dispatch = useDispatch();
   const warehouse = useSelector((state) => state.warehouse.currentWarehouse);
   const warehouses = useSelector((state) => state.warehouse.warehouses);
-  const [fieldsArr, setFieldsArr] = useState([]); // Initialize as empty array
+  const [fieldsArr, setFieldsArr] = useState([]);
   const selectedField = useSelector((state) => state.warehouse.currentField);
   const [loading, setLoading] = useState(true);
-  const [isWarehouseView, setIsWarehouseView] = useState(true); // Toggle state
-  const racks = useSelector((state) => state.rack.racks); // Fetch racks from Redux
-  const [isPalletFormOpen, setPalletFormOpen] = useState(false); // Use this for PalletForm
-  const [selectedShelf, setSelectedShelf] = useState(null); // State for selected shelf
-  const [selectedSlotIndex, setSelectedSlotIndex] = useState(null); // <-- Add this line
+  const [isWarehouseView, setIsWarehouseView] = useState(true);
+  const racks = useSelector((state) => state.rack.racks);
+  const [isPalletFormOpen, setPalletFormOpen] = useState(false);
+  const [selectedShelf, setSelectedShelf] = useState(null);
+  const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
 
   function handleFieldClick(field) {
     if (field.id) dispatch(getCurrentFieldThunk(field));
   }
 
-  // Update how you open the PalletForm modal to set slot index
-  // For example, in your RackView or wherever you call setSelectedShelf/setPalletFormOpen:
-  // setSelectedShelf(shelfId);
-  // setSelectedSlotIndex(slotIndex);
-  // setPalletFormOpen(true);
-
   function closePalletForm() {
     setPalletFormOpen(false);
     setSelectedShelf(null);
-    setSelectedSlotIndex(null); // Reset slot index on close
+    setSelectedSlotIndex(null);
   }
 
   async function handleAddPallet(palletData) {
@@ -139,7 +133,7 @@ function WarehousePage() {
           setIsModalOpen={setPalletFormOpen}
           selectedShelf={selectedShelf}
           setSelectedShelf={setSelectedShelf}
-          setSelectedSlotIndex={setSelectedSlotIndex} // <-- Pass this down
+          setSelectedSlotIndex={setSelectedSlotIndex}
           handleAddPallet={handleAddPallet}
           closeModal={closePalletForm}
         />
@@ -173,7 +167,7 @@ function WarehousePage() {
         onClose={closePalletForm}
         onSubmit={handleAddPallet}
         selectedShelfId={selectedShelf}
-        selectedSlotIndex={selectedSlotIndex} // <-- Now this will be set!
+        selectedSlotIndex={selectedSlotIndex}
       />
     </div>
   );

@@ -45,7 +45,6 @@ function Searchbar() {
     setSearch(value);
 
     if (value) {
-      console.log("❤️", value)
       const customerSuggestions = customers.filter((customer) =>
         customer && customer.toLowerCase().includes(value.toLowerCase())
       ).map((customer) => ({ type: 'customer', name: customer }));
@@ -62,8 +61,6 @@ function Searchbar() {
 
   const handleSuggestionClick = (suggestion) => {
     setSearch(suggestion.name);
-    console.log("🔍 Searchbar suggestion clicked:", suggestion);
-    console.log("🔍 Searchbar suggestion type:", suggestion.type);
     dispatch(searchWarehouse(suggestion.name, suggestion.type));
     setDropdownVisible(false);
   };
