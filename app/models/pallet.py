@@ -7,7 +7,7 @@ class Pallet(db.Model):
         __table_args__ = {'schema': SCHEMA}    
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
+    name = db.Column(db.String(100))
     weight = db.Column(db.Float, nullable=False)
     shelf_id = db.Column(
         db.Integer,
@@ -33,7 +33,7 @@ class Pallet(db.Model):
             'weight': self.weight,
             'shelfId': self.shelf_id,
             'customerName': self.customer_name,
-            'customerId': self.customer_id,  # Add this line
+            'customerId': self.customer_id,
             'palletNumber': self.pallet_number,
             'notes': self.notes,               
             'filePath': self.file_path,

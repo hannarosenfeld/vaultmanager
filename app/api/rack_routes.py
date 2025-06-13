@@ -166,8 +166,9 @@ def create_pallet():
     weight = data.get('weight')
     shelf_spots = data.get('shelf_spots')
     slot_index = data.get('slot_index')  # Accept slot_index
+    name = data.get('name')  # Get name from request
 
-    if not shelf_id or not customer_name or not pallet_number:
+    if not shelf_id or not customer_name or not name:
         return jsonify({'error': 'Missing required fields'}), 400
 
     customer_name = customer_name.upper()  # Ensure uppercase
@@ -184,7 +185,7 @@ def create_pallet():
 
     try:
         new_pallet = Pallet(
-            name=f"Pallet-{shelf_id}-{pallet_number}",
+            name=name,  # Use provided name
             weight=weight,
             shelf_id=shelf_id,
             customer_name=customer_name,
