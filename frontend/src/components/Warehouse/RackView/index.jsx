@@ -9,6 +9,7 @@ function RackView({
   setIsModalOpen,
   setSelectedShelf,
   setSelectedSlotIndex, // <-- Accept as prop
+  search,
 }) {
   const dispatch = useDispatch();
   const selectedRack = useSelector((state) => state.rack.currentRack);
@@ -48,6 +49,17 @@ function RackView({
     return "var(--color-success)";
   }
 
+  // Helper to check if rack should be highlighted
+  function isRackHighlighted(rack) {
+    if (!search || !search.rackIds) return false;
+    return search.rackIds.includes(rack.id);
+  }
+
+  // Helper to check if any rack is highlighted (search active)
+  function isAnyRackHighlighted() {
+    return search && Array.isArray(search.rackIds) && search.rackIds.length > 0;
+  }
+
   return (
     <div className="flex flex-col gap-6 w-full">
       <div className="h-[90%] grid grid-cols-[65%_35%] bg-white shadow-lg border border-blue-100 p-6">
@@ -69,7 +81,9 @@ function RackView({
       </div>
       <div
         className="relative w-full overflow-hidden bg-background shadow border border-blue-100"
-        style={{ aspectRatio: warehouse.width / warehouse.length }}
+        style={{
+          aspectRatio: warehouse.width / warehouse.length,
+        }}
       >
         <div
           className="relative"
@@ -107,6 +121,39 @@ function RackView({
             const isHorizontal = rack.orientation === "horizontal";
             const rackWidth = isHorizontal ? rack.width : rack.length;
             const rackHeight = isHorizontal ? rack.length : rack.width;
+            const highlighted = isRackHighlighted(rack);
+            const anyHighlighted = isAnyRackHighlighted();
+            const isSelected = selectedRack?.id === rack.id;
+
+            // Visual style logic
+            let border, boxShadow, filter, opacity, zIndex;
+            if (anyHighlighted) {
+              if (highlighted) {
+                filter = "none";
+                opacity = 1;
+                zIndex = 2;
+              } else {
+                boxShadow = "none";
+                filter = "grayscale(100%)";
+                opacity = 0.4;
+                zIndex = 1;
+              }
+            } else {
+              filter = "none";
+              opacity = 1;
+              zIndex = isSelected ? 2 : 1;
+            }
+
+            // Always show a black border for the selected rack
+            if (isSelected) {
+              border = "2px solid black";
+              boxShadow = "0 4px 16px 0 rgba(30, 64, 175, 0.12)";
+            } else {
+              border = "1px solid #e5e7eb";
+              if (!boxShadow) {
+                boxShadow = "0 1px 4px 0 rgba(30, 64, 175, 0.04)";
+              }
+            }
 
             return (
               <div
@@ -118,22 +165,22 @@ function RackView({
                   width: `${(rackWidth / warehouse.width) * 100}%`,
                   height: `${(rackHeight / warehouse.length) * 100}%`,
                   backgroundColor: getRackColor(rack),
-                  border: selectedRack?.id === rack.id
-                    ? "2px solid var(--color-primary)"
-                    : "1px solid #e5e7eb",
-                  boxShadow: selectedRack?.id === rack.id
-                    ? "0 4px 16px 0 rgba(30, 64, 175, 0.12)"
-                    : "0 1px 4px 0 rgba(30, 64, 175, 0.04)",
+                  border,
+                  boxShadow,
+                  filter,
+                  opacity,
+                  zIndex,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   cursor: "pointer",
-                  transition: "box-shadow 0.2s, border 0.2s",
+                  transition: "box-shadow 0.2s, border 0.2s, filter 0.2s, opacity 0.2s",
+                  // padding: "0.25rem 0.5rem", // Removed padding
                 }}
                 onClick={() => handleRackClick(rack)}
               >
                 <span
-                  className="text-xs text-center font-semibold text-white drop-shadow"
+                  className="text-[0.60rem] text-center font-normal text-white drop-shadow"
                   style={{
                     writingMode: isHorizontal
                       ? "horizontal-tb"
@@ -143,7 +190,7 @@ function RackView({
                     whiteSpace: "nowrap",
                     maxWidth: "100%",
                     maxHeight: "100%",
-                    fontSize: "0.75rem",
+                    fontWeight: 400, // normal
                   }}
                 >
                   {rack.name.length > 10

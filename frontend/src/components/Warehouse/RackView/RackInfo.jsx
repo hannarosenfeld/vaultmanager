@@ -49,12 +49,24 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
             }}
             onClick={() => handlePalletClick(pallet, shelf.id)}
           >
-            <span className="text-[10px] font-medium text-center">
+            <span
+              className="text-[9px] font-normal text-center"
+              style={{
+                maxWidth: "36px",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                display: "block",
+              }}
+            >
               {pallet.customerName && pallet.name
                 ? `${pallet.customerName.length > 10 ? pallet.customerName.slice(0, 10) + "..." : pallet.customerName} - ${pallet.name.length > 10 ? pallet.name.slice(0, 10) + "..." : pallet.name}`
-                : pallet.customerName || (pallet.name && pallet.name.length > 10 ? pallet.name.slice(0, 10) + "..." : pallet.name)}
+                : pallet.customerName
+                  ? (pallet.customerName.length > 10 ? pallet.customerName.slice(0, 10) + "..." : pallet.customerName)
+                  : (pallet.name && pallet.name.length > 10 ? pallet.name.slice(0, 10) + "..." : pallet.name)
+              }
             </span>
-            <span className="text-[10px] font-medium text-center">
+            <span className="text-[9px] font-normal text-center">
               {pallet.palletNumber}
             </span>
           </div>

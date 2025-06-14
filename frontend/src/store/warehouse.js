@@ -982,7 +982,34 @@ const warehouseReducer = (state = initialState, action) => {
       }
 
       if (currentView == "rack") {
-        console.log("🍐 RACK VIEW SEARCH!");
+        // 🍐 RACK VIEW SEARCH!
+        // Find racks and pallets matching the customer name
+        const racks = Object.values(state.currentWarehouse.racks || {});
+        let matchingRackIds = [];
+        let matchingPalletIds = [];
+        racks.forEach((rack) => {
+          rack.shelves &&
+            Object.values(rack.shelves).forEach((shelf) => {
+              Object.values(shelf.pallets || {}).forEach((pallet) => {
+                if (
+                  type === "customer" &&
+                  pallet.customerName &&
+                  pallet.customerName.toUpperCase() === searchTerm.toUpperCase()
+                ) {
+                  matchingRackIds.push(rack.id);
+                  matchingPalletIds.push(pallet.id);
+                }
+              });
+            });
+        });
+        return {
+          ...state,
+          search: {
+            customerName: searchTerm,
+            rackIds: matchingRackIds,
+            palletIds: matchingPalletIds,
+          },
+        };
       }
 
     case CLEAR_SEARCH:

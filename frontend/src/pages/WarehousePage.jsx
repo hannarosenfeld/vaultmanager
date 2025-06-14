@@ -21,6 +21,7 @@ function WarehousePage() {
   const [loading, setLoading] = useState(true);
   const [isWarehouseView, setIsWarehouseView] = useState(true);
   const racks = useSelector((state) => state.rack.racks);
+  const search = useSelector((state) => state.warehouse.search); // <-- Add this line
   const [isPalletFormOpen, setPalletFormOpen] = useState(false);
   const [selectedShelf, setSelectedShelf] = useState(null);
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
@@ -136,6 +137,7 @@ function WarehousePage() {
           setSelectedSlotIndex={setSelectedSlotIndex}
           handleAddPallet={handleAddPallet}
           closeModal={closePalletForm}
+          search={search}
         />
       ) : (
         <>
