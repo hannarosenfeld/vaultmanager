@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from app.models import Pallet, Shelf, db
+from app.models import Customer, Pallet, Shelf, db
 
 pallet_routes = Blueprint('pallets', __name__)
 
@@ -72,10 +72,15 @@ def edit_pallet(pallet_id):
 @pallet_routes.route('/<int:pallet_id>/delete', methods=['DELETE'])
 def delete_pallet(pallet_id):
     pallet = Pallet.query.get(pallet_id)
+    customer = Customer.query.get(pallet.customer_id)
+
     if not pallet:
         return jsonify({'error': 'Pallet not found'}), 404
 
     try:
+        if customer and len(customer.vaults) == 0 & len(customer.pallets) == 1 :
+           db.session.delete(customer)
+         
         db.session.delete(pallet)
         db.session.commit()
         return jsonify({'message': 'Pallet deleted successfully'}), 200

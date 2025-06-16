@@ -11,10 +11,12 @@ class Customer(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     vaults = db.relationship('Vault', back_populates='customer')
+    pallets = db.relationship('Pallet', back_populates='customer')
 
     def to_dict(self):
         return {
             'id': self.id,
             'name': self.name,
             'vaults': [vault.id for vault in self.vaults], 
+            'pallets': [pallet.id for pallet in self.pallets], 
         }

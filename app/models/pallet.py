@@ -25,6 +25,7 @@ class Pallet(db.Model):
 
     # Relationship with Shelf
     shelf = db.relationship('Shelf', back_populates='pallets')
+    customer = db.relationship('Customer', back_populates='pallets')
 
     def to_dict(self):
         return {

@@ -399,7 +399,7 @@ def delete_vault(id):
             db.session.delete(attachment) 
                 
         # Check if the customer has any other vaults
-        if customer and len(customer.vaults) == 1:
+        if customer and len(customer.vaults) == 1 & len(customer.pallets) == 0:
             db.session.delete(customer)
 
         # Check if the order has any other vaults
