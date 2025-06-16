@@ -85,7 +85,7 @@ function RackInfo({ selectedRack, handleAddPalletClick }) {
               gridColumn: `span ${spots}`,
               marginRight: "1px",
               marginLeft: "1px",
-              padding: "1px 0", // Less padding
+              padding: "1px 0",
               height: "48px",
               filter,
               opacity,

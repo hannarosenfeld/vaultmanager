@@ -219,17 +219,13 @@ def delete_rack(warehouse_id, rack_id):
 
 @rack_routes.route('/pallets/<int:id>/edit', methods=['PUT'])
 def edit_pallet(id):
-    print("❤️ [DEBUG] /pallets/<id>/edit route called with id:", id)
     data = request.get_json()
-    print("❤️ [DEBUG] request data:", data)
     pallet = Pallet.query.get(id)
     if not pallet:
-        print("❤️ [DEBUG] Pallet not found for id:", id)
         return jsonify({'error': 'Pallet not found'}), 404
 
     # Update fields if present in request
     pallet.name = data.get('name', pallet.name)
-    print("❤️ [DEBUG] Updated pallet name:", pallet.name)
     pallet.customer_name = data.get('customer_name', pallet.customer_name)
     pallet.pallet_number = data.get('pallet_number', pallet.pallet_number)
     pallet.notes = data.get('notes', pallet.notes)
@@ -243,7 +239,6 @@ def edit_pallet(id):
             db.func.upper(Customer.name) == customer_name
         ).first()
         if not customer:
-            print("❤️ [DEBUG] Creating new customer:", customer_name)
             customer = Customer(name=customer_name)
             db.session.add(customer)
             db.session.flush()
@@ -251,9 +246,7 @@ def edit_pallet(id):
 
     try:
         db.session.commit()
-        print("❤️ [DEBUG] Pallet updated and committed.")
         return jsonify(pallet.to_dict()), 200
     except Exception as e:
         db.session.rollback()
-        print("❤️ [DEBUG] Exception occurred:", str(e))
         return jsonify({'error': str(e)}), 500
