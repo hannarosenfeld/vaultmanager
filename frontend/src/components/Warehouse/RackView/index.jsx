@@ -8,7 +8,7 @@ function RackView({
   racks,
   setIsModalOpen,
   setSelectedShelf,
-  setSelectedSlotIndex, // <-- Accept as prop
+  setSelectedSlotIndex,
   search,
 }) {
   const dispatch = useDispatch();
@@ -24,7 +24,7 @@ function RackView({
       return;
     }
     setSelectedShelf(shelf.id);
-    setSelectedSlotIndex(slotIndex); // <-- Set slot index in parent state
+    setSelectedSlotIndex(slotIndex);
     setIsModalOpen(true);
   }
 
@@ -175,7 +175,6 @@ function RackView({
                   justifyContent: "center",
                   cursor: "pointer",
                   transition: "box-shadow 0.2s, border 0.2s, filter 0.2s, opacity 0.2s",
-                  // padding: "0.25rem 0.5rem", // Removed padding
                 }}
                 onClick={() => handleRackClick(rack)}
               >
@@ -202,8 +201,6 @@ function RackView({
           })}
         </div>
       </div>
-      {/* Render PalletForm modal (add this at the bottom of your return, or wherever you render the modal) */}
-      {/* <PalletForm ... selectedSlotIndex={selectedSlotIndex} ... /> */}
     </div>
   );
 }
