@@ -1032,9 +1032,45 @@ const warehouseReducer = (state = initialState, action) => {
 
     case UPDATE_VAULT:
       const editedVault = action.payload;
+      // Find the warehouse and field containing the vault
+      let updatedWarehouses = { ...state.warehouses };
+      let warehouseIdToUpdate = null;
+      let fieldIdToUpdate = null;
+
+      // Find the warehouse and field containing the vault
+      for (const [wid, warehouse] of Object.entries(state.warehouses)) {
+        for (const [fid, field] of Object.entries(warehouse.fields)) {
+          if (field.vaults && field.vaults[editedVault.id]) {
+            warehouseIdToUpdate = wid;
+            fieldIdToUpdate = fid;
+            break;
+          }
+        }
+        if (warehouseIdToUpdate) break;
+      }
+
+      if (warehouseIdToUpdate && fieldIdToUpdate) {
+        updatedWarehouses = {
+          ...state.warehouses,
+          [warehouseIdToUpdate]: {
+            ...state.warehouses[warehouseIdToUpdate],
+            fields: {
+              ...state.warehouses[warehouseIdToUpdate].fields,
+              [fieldIdToUpdate]: {
+                ...state.warehouses[warehouseIdToUpdate].fields[fieldIdToUpdate],
+                vaults: {
+                  ...state.warehouses[warehouseIdToUpdate].fields[fieldIdToUpdate].vaults,
+                  [editedVault.id]: editedVault,
+                }
+              }
+            }
+          }
+        };
+      }
 
       return {
         ...state,
+        warehouses: updatedWarehouses,
         currentVault: {
           ...state.currentVault,
           ...editedVault,
