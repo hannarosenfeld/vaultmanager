@@ -8,6 +8,7 @@ import {
 } from "../store/warehouse";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ConfirmDeleteVaultModal from "../components/Warehouse/ConfirmDeleteVaultModal";
+import React from "react";
 
 
 export default function EditVaultPage() {
@@ -28,6 +29,8 @@ export default function EditVaultPage() {
     useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
   const [selectedType, setSelectedType] = useState("vault");
+  const [showEmptyConfirm, setShowEmptyConfirm] = useState(false);
+  const [pendingSave, setPendingSave] = useState(false);
 
   useEffect(() => {
     if (vault) {
@@ -51,10 +54,25 @@ export default function EditVaultPage() {
     }));
   };
 
+  // Helper: check if the customer is an "empty" type
+  const isEmptyCustomer = (name) => {
+    if (!name) return false;
+    const n = name.toUpperCase();
+    return n.startsWith("EMPTY");
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
+    // Only show modal if switching to EMPTY and not already EMPTY
+    if (
+      isEmptyCustomer(editableVault.customer_name) &&
+      (!vault.customer_name || !isEmptyCustomer(vault.customer_name))
+    ) {
+      setShowEmptyConfirm(true);
+      setPendingSave(true);
+      return;
+    }
     setLoading(true);
-
     try {
       await dispatch(updateVaultThunk(editableVault));
     } catch (error) {
@@ -63,6 +81,35 @@ export default function EditVaultPage() {
       setLoading(false);
       navigate(`/warehouse/${vault.warehouse_name}`);      
     }
+  };
+
+  // Confirm erase handler
+  const handleConfirmEmpty = async () => {
+    setShowEmptyConfirm(false);
+    setPendingSave(false);
+    setLoading(true);
+    // Erase vault info
+    const erasedVault = {
+      ...editableVault,
+      order_name: "",
+      note: "",
+      attachments: [],
+      // add other fields to erase if needed
+    };
+    try {
+      await dispatch(updateVaultThunk(erasedVault));
+    } catch (error) {
+      console.error("Error updating vault: ", error);
+    } finally {
+      setLoading(false);
+      navigate(`/warehouse/${vault.warehouse_name}`);
+    }
+  };
+
+  // Cancel erase handler
+  const handleCancelEmpty = () => {
+    setShowEmptyConfirm(false);
+    setPendingSave(false);
   };
 
   const toggleEditField = (field) => {
@@ -348,6 +395,33 @@ export default function EditVaultPage() {
           onClose={() => setIsConfirmDeleteModalOpen(false)}
           onConfirm={handleDelete}
         />
+      )}
+      {showEmptyConfirm && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black opacity-50"></div>
+          <div className="bg-white p-6 rounded-lg shadow-lg z-10 w-full max-w-md relative">
+            <h3 className="text-lg font-semibold mb-4">Confirm Vault Change</h3>
+            <p className="mb-6">
+              You are changing the vault to a <span className="font-bold">{editableVault.customer_name}</span>. This will erase vault info. Are you sure?
+            </p>
+            <div className="flex justify-end">
+              <button
+                className="text-white bg-red-600 hover:bg-red-700 font-medium rounded-lg text-sm px-4 py-2 mr-2"
+                onClick={handleConfirmEmpty}
+                type="button"
+              >
+                Confirm
+              </button>
+              <button
+                className="text-gray-700 bg-gray-200 hover:bg-gray-300 font-medium rounded-lg text-sm px-4 py-2"
+                onClick={handleCancelEmpty}
+                type="button"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
