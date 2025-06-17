@@ -1050,6 +1050,7 @@ const warehouseReducer = (state = initialState, action) => {
       }
 
       if (warehouseIdToUpdate && fieldIdToUpdate) {
+        // Replace the vault object everywhere, not merging with old data
         updatedWarehouses = {
           ...state.warehouses,
           [warehouseIdToUpdate]: {
@@ -1060,7 +1061,7 @@ const warehouseReducer = (state = initialState, action) => {
                 ...state.warehouses[warehouseIdToUpdate].fields[fieldIdToUpdate],
                 vaults: {
                   ...state.warehouses[warehouseIdToUpdate].fields[fieldIdToUpdate].vaults,
-                  [editedVault.id]: editedVault,
+                  [editedVault.id]: { ...editedVault }, // full replace
                 }
               }
             }
@@ -1068,20 +1069,20 @@ const warehouseReducer = (state = initialState, action) => {
         };
       }
 
+      // Replace vault in currentField and currentVault as well
       return {
         ...state,
         warehouses: updatedWarehouses,
-        currentVault: {
-          ...state.currentVault,
-          ...editedVault,
-        },
-        currentField: {
-          ...state.currentField,
-          vaults: {
-            ...state.currentField.vaults,
-            [editedVault.id]: editedVault,
-          }
-        }
+        currentVault: { ...editedVault },
+        currentField: state.currentField && state.currentField.vaults && state.currentField.vaults[editedVault.id]
+          ? {
+              ...state.currentField,
+              vaults: {
+                ...state.currentField.vaults,
+                [editedVault.id]: { ...editedVault },
+              }
+            }
+          : state.currentField,
       };
 
     case SET_FIELD_FULL:
