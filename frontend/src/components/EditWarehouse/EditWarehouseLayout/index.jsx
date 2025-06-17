@@ -96,6 +96,60 @@ export default function EditWarehouseLayout({
     }
   };
 
+  // Helper: get all 4 corners of a rack
+  function getRackCorners(rack) {
+    const isHorizontal = rack.orientation === "horizontal";
+    const width = isHorizontal ? rack.width : rack.length;
+    const height = isHorizontal ? rack.length : rack.width;
+    const x = rack.position?.x ?? rack.x ?? 0;
+    const y = rack.position?.y ?? rack.y ?? 0;
+    return [
+      { x: x, y: y }, // top-left
+      { x: x + width, y: y }, // top-right
+      { x: x, y: y + height }, // bottom-left
+      { x: x + width, y: y + height }, // bottom-right
+    ];
+  }
+
+  // Helper: snap dragged rack's corners to any existing rack's corners
+  function getSnappedCornerPosition(draggedRack, dropX, dropY, placedRacks, snapThreshold = 0.5) {
+    // Get corners for dragged rack at drop position
+    const isHorizontal = draggedRack.orientation === "horizontal";
+    const width = isHorizontal ? draggedRack.width : draggedRack.length;
+    const height = isHorizontal ? draggedRack.length : draggedRack.width;
+    const draggedCorners = [
+      { x: dropX, y: dropY }, // top-left
+      { x: dropX + width, y: dropY }, // top-right
+      { x: dropX, y: dropY + height }, // bottom-left
+      { x: dropX + width, y: dropY + height }, // bottom-right
+    ];
+
+    let snappedX = dropX;
+    let snappedY = dropY;
+    let foundSnap = false;
+
+    placedRacks.forEach(rack => {
+      if (!rack) return;
+      const rackCorners = getRackCorners(rack);
+      for (let i = 0; i < draggedCorners.length; i++) {
+        for (let j = 0; j < rackCorners.length; j++) {
+          const dx = rackCorners[j].x - draggedCorners[i].x;
+          const dy = rackCorners[j].y - draggedCorners[i].y;
+          if (Math.abs(dx) <= snapThreshold && Math.abs(dy) <= snapThreshold) {
+            // Snap dragged rack so its corner i aligns with rack's corner j
+            snappedX = dropX + dx;
+            snappedY = dropY + dy;
+            foundSnap = true;
+            break;
+          }
+        }
+        if (foundSnap) break;
+      }
+    });
+
+    return { x: snappedX, y: snappedY };
+  }
+
   const handleRackDrop = async (event) => {
     event.preventDefault();
     try {
@@ -113,9 +167,22 @@ export default function EditWarehouseLayout({
       const x = ((event.clientX - rect.left) / rect.width) * warehouse.width;
       const y = ((event.clientY - rect.top) / rect.height) * warehouse.length;
 
-      const { x: clampedX, y: clampedY } = clampPosition(
+      // Snap to nearest rack corner
+      const placedRacks = racks.map(r => ({
+        ...r,
+        position: r.position || { x: r.x, y: r.y }
+      }));
+      const snapped = getSnappedCornerPosition(
+        rackData,
         x,
         y,
+        placedRacks,
+        0.5 // snap threshold in ft (adjust as needed)
+      );
+
+      const { x: clampedX, y: clampedY } = clampPosition(
+        snapped.x,
+        snapped.y,
         rackData.width,
         rackData.length,
         warehouse.width,
@@ -179,9 +246,22 @@ export default function EditWarehouseLayout({
       const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
       const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-      const { x: clampedX, y: clampedY } = clampPosition(
+      // Snap preview to corners
+      const placedRacks = racks.map(r => ({
+        ...r,
+        position: r.position || { x: r.x, y: r.y }
+      }));
+      const snapped = getSnappedCornerPosition(
+        rack,
         x,
         y,
+        placedRacks,
+        0.5 // snap threshold in ft (adjust as needed)
+      );
+
+      const { x: clampedX, y: clampedY } = clampPosition(
+        snapped.x,
+        snapped.y,
         rack.width,
         rack.length,
         warehouse.width,
@@ -196,36 +276,8 @@ export default function EditWarehouseLayout({
         height: rack.orientation === "horizontal" ? rack.length : rack.width,
       });
     }, 100),
-    [warehouse]
+    [warehouse, racks]
   );
-
-  const SNAP_THRESHOLD = 1;
-
-  const isCloseToLockableSite = (draggedRack, targetRack) => {
-    const isHorizontal = targetRack.orientation === "horizontal";
-    const targetWidth = isHorizontal ? targetRack.width : targetRack.length;
-    const targetHeight = isHorizontal ? targetRack.length : targetRack.width;
-
-    const draggedWidth = isHorizontal ? draggedRack.width : draggedRack.length;
-    const draggedHeight = isHorizontal ? draggedRack.length : draggedRack.width;
-
-    const dx = Math.abs(draggedRack.x - targetRack.position.x);
-    const dy = Math.abs(draggedRack.y - targetRack.position.y);
-
-    if (isHorizontal) {
-      return (
-        dy <= SNAP_THRESHOLD &&
-        (Math.abs(draggedRack.x - (targetRack.position.x + targetWidth)) <= SNAP_THRESHOLD ||
-          Math.abs(draggedRack.x + draggedWidth - targetRack.position.x) <= SNAP_THRESHOLD)
-      );
-    } else {
-      return (
-        dx <= SNAP_THRESHOLD &&
-        (Math.abs(draggedRack.y - (targetRack.position.y + targetHeight)) <= SNAP_THRESHOLD ||
-          Math.abs(draggedRack.y + draggedHeight - targetRack.position.y) <= SNAP_THRESHOLD)
-      );
-    }
-  };
 
   const handleRackDragEnd = async (e, rack) => {
     const warehouseEl = e.target.closest(".warehouse-grid");
@@ -234,9 +286,24 @@ export default function EditWarehouseLayout({
     const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
     const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
 
-    let updatedPosition = clampPosition(
+    // Snap to nearest rack corner (same as drop logic)
+    const placedRacks = racks
+      .filter(r => r.id !== rack.id)
+      .map(r => ({
+        ...r,
+        position: r.position || { x: r.x, y: r.y }
+      }));
+    const snapped = getSnappedCornerPosition(
+      rack,
       x,
       y,
+      placedRacks,
+      0.5 // snap threshold in ft (adjust as needed)
+    );
+
+    const { x: clampedX, y: clampedY } = clampPosition(
+      snapped.x,
+      snapped.y,
       rack.width,
       rack.length,
       warehouse.width,
@@ -244,42 +311,11 @@ export default function EditWarehouseLayout({
       rack.orientation
     );
 
-    for (const targetRack of racks) {
-      if (targetRack.id === rack.id) continue;
-
-      const draggedRack = {
-        x: updatedPosition.x,
-        y: updatedPosition.y,
-        width: rack.width,
-        length: rack.length,
-        orientation: rack.orientation,
-      };
-
-      if (isCloseToLockableSite(draggedRack, targetRack)) {
-        if (rack.orientation === "horizontal") {
-          updatedPosition.y = targetRack.position.y;
-          if (Math.abs(updatedPosition.x - (targetRack.position.x + targetRack.width)) <= SNAP_THRESHOLD) {
-            updatedPosition.x = targetRack.position.x + targetRack.width;
-          } else if (Math.abs(updatedPosition.x + rack.width - targetRack.position.x) <= SNAP_THRESHOLD) {
-            updatedPosition.x = targetRack.position.x - rack.width;
-          }
-        } else {
-          updatedPosition.x = targetRack.position.x;
-          if (Math.abs(updatedPosition.y - (targetRack.position.y + targetRack.length)) <= SNAP_THRESHOLD) {
-            updatedPosition.y = targetRack.position.y + targetRack.length;
-          } else if (Math.abs(updatedPosition.y + rack.length - targetRack.position.y) <= SNAP_THRESHOLD) {
-            updatedPosition.y = targetRack.position.y - rack.length;
-          }
-        }
-        break;
-      }
-    }
-
     try {
       await dispatch(
         updateRackPositionThunk(warehouse.id, rack.id, {
-          x: updatedPosition.x,
-          y: updatedPosition.y,
+          x: clampedX,
+          y: clampedY,
         })
       );
     } catch (error) {
