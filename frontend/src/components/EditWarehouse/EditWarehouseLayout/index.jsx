@@ -31,14 +31,31 @@ export default function EditWarehouseLayout({
     }
   }, [warehouse.id, dispatch]);
 
+  // Clamp position so that the rack stays fully inside the warehouse (lock to wall if needed)
   const clampPosition = (x, y, width, length, maxWidth, maxHeight, orientation) => {
     const adjustedWidth = orientation === "horizontal" ? width : length;
     const adjustedLength = orientation === "horizontal" ? length : width;
 
-    const clampedX = Math.max(0, Math.min(x, maxWidth - adjustedWidth));
-    const clampedY = Math.max(0, Math.min(y, maxHeight - adjustedLength));
+    // Snap threshold for wall snapping (same as rack-to-rack)
+    const snapThreshold = 0.5;
 
-    return { x: clampedX, y: clampedY };
+    // Snap to left wall
+    let snappedX = x;
+    if (Math.abs(x) < snapThreshold) snappedX = 0;
+    // Snap to right wall
+    if (Math.abs((x + adjustedWidth) - maxWidth) < snapThreshold) snappedX = maxWidth - adjustedWidth;
+
+    // Snap to top wall
+    let snappedY = y;
+    if (Math.abs(y) < snapThreshold) snappedY = 0;
+    // Snap to bottom wall
+    if (Math.abs((y + adjustedLength) - maxHeight) < snapThreshold) snappedY = maxHeight - adjustedLength;
+
+    // Clamp so that the rack never goes outside the warehouse
+    snappedX = Math.max(0, Math.min(snappedX, maxWidth - adjustedWidth));
+    snappedY = Math.max(0, Math.min(snappedY, maxHeight - adjustedLength));
+
+    return { x: snappedX, y: snappedY };
   };
 
   const handleDragStart = (e) => {
