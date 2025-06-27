@@ -36,22 +36,27 @@ export default function EditWarehouseLayout({
     const adjustedWidth = orientation === "horizontal" ? width : length;
     const adjustedLength = orientation === "horizontal" ? length : width;
 
+    // If the cursor is beyond the left/top, snap to 0
+    let snappedX = x < 0 ? 0 : x;
+    let snappedY = y < 0 ? 0 : y;
+
+    // If the cursor is beyond the right/bottom, snap to the max allowed
+    if (snappedX + adjustedWidth > maxWidth) snappedX = maxWidth - adjustedWidth;
+    if (snappedY + adjustedLength > maxHeight) snappedY = maxHeight - adjustedLength;
+
     // Snap threshold for wall snapping (same as rack-to-rack)
     const snapThreshold = 0.5;
 
-    // Snap to left wall
-    let snappedX = x;
-    if (Math.abs(x) < snapThreshold) snappedX = 0;
-    // Snap to right wall
-    if (Math.abs((x + adjustedWidth) - maxWidth) < snapThreshold) snappedX = maxWidth - adjustedWidth;
+    // Snap to left wall if close
+    if (snappedX < snapThreshold) snappedX = 0;
+    // Snap to right wall if close
+    if (Math.abs((snappedX + adjustedWidth) - maxWidth) < snapThreshold) snappedX = maxWidth - adjustedWidth;
+    // Snap to top wall if close
+    if (snappedY < snapThreshold) snappedY = 0;
+    // Snap to bottom wall if close
+    if (Math.abs((snappedY + adjustedLength) - maxHeight) < snapThreshold) snappedY = maxHeight - adjustedLength;
 
-    // Snap to top wall
-    let snappedY = y;
-    if (Math.abs(y) < snapThreshold) snappedY = 0;
-    // Snap to bottom wall
-    if (Math.abs((y + adjustedLength) - maxHeight) < snapThreshold) snappedY = maxHeight - adjustedLength;
-
-    // Clamp so that the rack never goes outside the warehouse
+    // Final clamp to ensure inside bounds
     snappedX = Math.max(0, Math.min(snappedX, maxWidth - adjustedWidth));
     snappedY = Math.max(0, Math.min(snappedY, maxHeight - adjustedLength));
 
@@ -296,6 +301,20 @@ export default function EditWarehouseLayout({
     [warehouse, racks]
   );
 
+  // --- PATCH: force a local state update after rack move ---
+  // Helper to force a re-render of racks after a move
+  const [forceUpdate, setForceUpdate] = useState(0);
+
+  // Helper: update rack position in local state immediately after drag
+  const updateRackPositionLocal = (rackId, newPosition) => {
+    // This will update the rack in the Redux store immediately for UI feedback
+    dispatch({
+      type: "rack/UPDATE_RACK_POSITION",
+      payload: { rackId, updatedPosition: newPosition },
+    });
+    setForceUpdate(f => f + 1);
+  };
+
   const handleRackDragEnd = async (e, rack) => {
     const warehouseEl = e.target.closest(".warehouse-grid");
     const rect = warehouseEl.getBoundingClientRect();
@@ -328,11 +347,16 @@ export default function EditWarehouseLayout({
       rack.orientation
     );
 
+    // Immediately update local state for UI feedback
+    updateRackPositionLocal(rack.id, { x: clampedX, y: clampedY });
+
     try {
       await dispatch(
         updateRackPositionThunk(warehouse.id, rack.id, {
           x: clampedX,
           y: clampedY,
+          width: rack.width,
+          length: rack.length,
         })
       );
     } catch (error) {
@@ -542,6 +566,7 @@ export default function EditWarehouseLayout({
             <span className="text-xl font-bold text-black">VAULTS</span>
           </div>
 
+          {/* PATCH: force re-render by using forceUpdate in key */}
           {racks.map((rack, index) => {
             const isHorizontal = rack.orientation === "horizontal";
             const rackWidth = isHorizontal ? rack.width : rack.length;
@@ -549,7 +574,7 @@ export default function EditWarehouseLayout({
 
             return (
               <div
-                key={index}
+                key={rack.id + '-' + forceUpdate}
                 draggable
                 onDragStart={(e) => handleRackDragStart(e, rack)}
                 onDrag={(e) => handleRackDrag(e, rack)}
