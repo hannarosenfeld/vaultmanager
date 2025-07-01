@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { throttle } from "lodash";
 import RackCreator from "./RackCreator";
+import EditWarehouseView from "./EditWarehouseView"; // <-- Add this import
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRacksThunk, addRackThunk, moveRackThunk, updateRackPositionThunk, deleteRackThunk } from '../../../store/rack';
 import { updateFieldGridThunk } from '../../../store/warehouse';
@@ -334,7 +335,7 @@ export default function EditWarehouseLayout({
       x,
       y,
       placedRacks,
-      0.5 // snap threshold in ft (adjust as needed)
+      0.5 
     );
 
     const { x: clampedX, y: clampedY } = clampPosition(
@@ -349,6 +350,7 @@ export default function EditWarehouseLayout({
 
     // Immediately update local state for UI feedback
     updateRackPositionLocal(rack.id, { x: clampedX, y: clampedY });
+    console.log(`Rack ${rack.id} local position updated to:`, { x: clampedX, y: clampedY });
 
     try {
       await dispatch(
@@ -359,6 +361,7 @@ export default function EditWarehouseLayout({
           length: rack.length,
         })
       );
+      console.log(`Rack ${rack.id} persisted position:`, { x: clampedX, y: clampedY });
     } catch (error) {
       console.error("Error updating rack position:", error);
     }
@@ -507,100 +510,29 @@ export default function EditWarehouseLayout({
       </Dialog>
       <h2 className="text-lg font-bold">Edit Warehouse Layout</h2>
       <RackCreator />
-      <div
-        className="relative w-full overflow-hidden bg-white"
-        style={{ aspectRatio }}
-      >
-        <div
-          className={`warehouse-grid ${invalidDrop ? "bg-red-200" : ""} relative w-full h-full`}
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={handleRackDrop}
-          style={{
-            backgroundImage:
-              "linear-gradient(to right, #ddd 1px, transparent 1px), linear-gradient(to bottom, #ddd 1px, transparent 1px)",
-            backgroundSize: `${(FIELD_SIZE_FT / warehouse.width) * 100}% ${(FIELD_SIZE_FT / warehouse.length) * 100}%`,
-          }}
-        >
-          {isDragging && dragPreviewPosition && (
-            <div
-              className="absolute border-2 border-blue-500 bg-blue-200 bg-opacity-20 pointer-events-none"
-              style={{
-                top: `${(dragPreviewPosition.y / warehouse.length) * 100}%`,
-                left: `${(dragPreviewPosition.x / warehouse.width) * 100}%`,
-                width: `${((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100}%`,
-                height: `${((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100}%`,
-              }}
-            />
-          )}
-
-          {rackDragPreview && (
-            <div
-              className="absolute pointer-events-none"
-              style={{
-                top: `${(rackDragPreview.y / warehouse.length) * 100}%`,
-                left: `${(rackDragPreview.x / warehouse.width) * 100}%`,
-                width: `${(rackDragPreview.width / warehouse.width) * 100}%`,
-                height: `${(rackDragPreview.height / warehouse.length) * 100}%`,
-                backgroundColor: "rgba(59, 130, 246, 0.20)", // blue-500 with lower opacity
-                border: "2px solid #3b82f6", // blue-500 border
-                borderRadius: 0, // no rounded corners
-                boxSizing: "border-box",
-                transition: "box-shadow 0.2s, border 0.2s",
-              }}
-            />
-          )}
-
-          <div
-            draggable
-            onDragStart={handleDragStart}
-            onDrag={handleDrag}
-            onDragEnd={handleDragEnd}
-            className="absolute flex items-center justify-center cursor-grab bg-blue-100 bg-opacity-30"
-            style={{
-              top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
-              left: `${(fieldGridPosition.x / warehouse.width) * 100}%`,
-              width: `${((warehouse.cols * VAULT_SIZE_FT) / warehouse.width) * 100 + 3.1}%`,
-              height: `${((warehouse.rows * VAULT_SIZE_FT) / warehouse.length) * 100 + 1.9}%`,
-            }}
-          >
-            <span className="text-xl font-bold text-black">VAULTS</span>
-          </div>
-
-          {/* PATCH: force re-render by using forceUpdate in key */}
-          {racks.map((rack, index) => {
-            const isHorizontal = rack.orientation === "horizontal";
-            const rackWidth = isHorizontal ? rack.width : rack.length;
-            const rackHeight = isHorizontal ? rack.length : rack.width;
-
-            return (
-              <div
-                key={rack.id + '-' + forceUpdate}
-                draggable
-                onDragStart={(e) => handleRackDragStart(e, rack)}
-                onDrag={(e) => handleRackDrag(e, rack)}
-                onDragEnd={(e) => handleRackDragEnd(e, rack)}
-                onClick={() => handleRackClick(rack)}
-                className="absolute flex items-center justify-center bg-blue-200 bg-opacity-20"
-                style={{
-                  top: `${(rack.position.y / warehouse.length) * 100}%`,
-                  left: `${(rack.position.x / warehouse.width) * 100}%`,
-                  width: `${(rackWidth / warehouse.width) * 100}%`,
-                  height: `${(rackHeight / warehouse.length) * 100}%`,
-                  backgroundColor: getRackColor(rack),
-                  transition: "box-shadow 0.2s, border 0.2s",
-                }}
-              >
-                <span
-                  className="text-[0.55rem] text-center w-full truncate"
-                  title={rack.name}
-                >
-                  {rack.name.length > 10 ? rack.name.slice(0, 10) + "…" : rack.name}
-                </span>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      <EditWarehouseView
+        warehouse={warehouse}
+        fieldGridPosition={fieldGridPosition}
+        setFieldGridPosition={setFieldGridPosition}
+        isDragging={isDragging}
+        dragPreviewPosition={dragPreviewPosition}
+        invalidDrop={invalidDrop}
+        rackDragPreview={rackDragPreview}
+        racks={racks}
+        handleDragStart={handleDragStart}
+        handleDrag={handleDrag}
+        handleDragEnd={handleDragEnd}
+        handleRackDrop={handleRackDrop}
+        handleRackDragStart={handleRackDragStart}
+        handleRackDrag={handleRackDrag}
+        handleRackDragEnd={handleRackDragEnd}
+        handleRackClick={handleRackClick}
+        forceUpdate={forceUpdate}
+        VAULT_SIZE_FT={VAULT_SIZE_FT}
+        FIELD_SIZE_FT={FIELD_SIZE_FT}
+        aspectRatio={aspectRatio}
+        getRackColor={getRackColor}
+      />
     </>
   );
 }
