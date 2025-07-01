@@ -1,8 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { throttle } from "lodash";
 import RackCreator from "./RackCreator";
 import EditWarehouseView from "./EditWarehouseView";
-import RackModal from "./RackModal"; // <-- Add this import
+import RackModal from "./RackModal";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRacksThunk, addRackThunk, moveRackThunk, updateRackPositionThunk, deleteRackThunk } from '../../../store/rack';
 import { updateFieldGridThunk } from '../../../store/warehouse';
@@ -18,10 +18,10 @@ export default function EditWarehouseLayout({
   const [isDragging, setIsDragging] = useState(false);
   const [dragPreviewPosition, setDragPreviewPosition] = useState(null);
   const [invalidDrop, setInvalidDrop] = useState(false);
-  const aspectRatio = warehouse.width / warehouse.length;
-
   const [rackDragPreview, setRackDragPreview] = useState(null);
   const [modalRack, setModalRack] = useState(null);
+  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
+  const [forceUpdate, setForceUpdate] = useState(0);
 
   const dispatch = useDispatch();
   const racks = useSelector((state) => state.rack.racks);
@@ -31,6 +31,8 @@ export default function EditWarehouseLayout({
       dispatch(fetchRacksThunk(warehouse.id));
     }
   }, [warehouse.id, dispatch]);
+
+  const aspectRatio = useMemo(() => warehouse.width / warehouse.length, [warehouse.width, warehouse.length]);
 
   // Clamp position so that the rack stays fully inside the warehouse (lock to wall if needed)
   const clampPosition = (x, y, width, length, maxWidth, maxHeight, orientation) => {
@@ -304,7 +306,6 @@ export default function EditWarehouseLayout({
 
   // --- PATCH: force a local state update after rack move ---
   // Helper to force a re-render of racks after a move
-  const [forceUpdate, setForceUpdate] = useState(0);
 
   // Helper: update rack position in local state immediately after drag
   const updateRackPositionLocal = (rackId, newPosition) => {
@@ -379,8 +380,6 @@ export default function EditWarehouseLayout({
     return rack.shelves.some(shelf => shelf.pallets && shelf.pallets.length > 0);
   };
 
-  const [showDeleteWarning, setShowDeleteWarning] = useState(false);
-
   const handleDeleteRack = async () => {
     if (!modalRack || !modalRack.id) return;
     if (rackHasPallets(modalRack) && !showDeleteWarning) {
@@ -417,9 +416,7 @@ export default function EditWarehouseLayout({
     return "var(--color-success)";
   }
 
-  if (!warehouse.width || !warehouse.length) {
-    return null;
-  }
+  if (!warehouse.width || !warehouse.length) return null;
 
   return (
     <>
