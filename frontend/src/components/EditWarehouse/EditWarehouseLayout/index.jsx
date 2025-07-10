@@ -94,33 +94,6 @@ export default function EditWarehouseLayout({
     [warehouse]
   );
 
-  const handleDragEnd = async (e) => {
-    const warehouseEl = e.target.closest(".warehouse-grid");
-    const rect = warehouseEl.getBoundingClientRect();
-
-    const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
-    const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
-
-    const newPosition = clampPosition(
-      x,
-      y,
-      warehouse.cols * VAULT_SIZE_FT,
-      warehouse.rows * VAULT_SIZE_FT,
-      warehouse.width,
-      warehouse.length
-    );
-
-    setFieldGridPosition(newPosition);
-    setIsDragging(false);
-    setDragPreviewPosition(null);
-
-    try {
-      await dispatch(updateFieldGridThunk(warehouse.id, newPosition));
-    } catch (error) {
-      console.error("Error saving field grid position:", error);
-    }
-  };
-
   // Helper: get all 4 corners of a rack
   function getRackCorners(rack) {
     const isHorizontal = rack.orientation === "horizontal";
@@ -177,6 +150,8 @@ export default function EditWarehouseLayout({
 
   const handleRackDrop = async (event) => {
     event.preventDefault();
+       console.log('❤️',dragPreviewPosition)
+    console.log('❤️',rackDragPreview) 
     try {
       const rackData = JSON.parse(event.dataTransfer.getData("rack"));
       if (!rackData.capacity) {
@@ -442,7 +417,6 @@ export default function EditWarehouseLayout({
         racks={racks}
         handleDragStart={handleDragStart}
         handleDrag={handleDrag}
-        handleDragEnd={handleDragEnd}
         handleRackDrop={handleRackDrop}
         handleRackDragStart={handleRackDragStart}
         handleRackDrag={handleRackDrag}

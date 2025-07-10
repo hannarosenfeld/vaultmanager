@@ -1,0 +1,14 @@
+User-agent: *
+Disallow: /admin
+Disallow: /api
+Disallow: /dashboard
+Disallow: /warehouse
+Disallow: /add-warehouse
+Disallow: /edit
+Disallow: /edit/vault
+Disallow: /stage
+Disallow: /statistics
+Disallow: /print-studio
+Allow: /
+
+Sitemap: https://warehousemanager.app/sitemap.xml
