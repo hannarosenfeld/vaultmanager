@@ -616,8 +616,6 @@ const warehouseReducer = (state = initialState, action) => {
         Object.values(rack.shelves).flatMap((shelf) => Object.values(shelf.pallets))
       );
 
-      console.log("❤️💕 Warehouse Pallets:", warehousePallets);
-
       const customers = Object.fromEntries(
         [
           ...warehouseVaults.map((vault) => [vault.customer_id, vault.customer_name]),

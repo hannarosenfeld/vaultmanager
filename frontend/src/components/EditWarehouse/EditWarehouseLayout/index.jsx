@@ -150,10 +150,13 @@ export default function EditWarehouseLayout({
 
   const handleRackDrop = async (event) => {
     event.preventDefault();
-       console.log('❤️',dragPreviewPosition)
-    console.log('❤️',rackDragPreview) 
+    const rackDataRaw = event.dataTransfer.getData("rack");
+    if (!rackDataRaw) {
+      // Not a rack drop, ignore or handle accordingly
+      return;
+    }
     try {
-      const rackData = JSON.parse(event.dataTransfer.getData("rack"));
+      const rackData = JSON.parse(rackDataRaw);
       if (!rackData.capacity) {
         console.error("❌ Rack capacity is undefined. Drop is not allowed.");
         return;
@@ -393,6 +396,34 @@ export default function EditWarehouseLayout({
 
   if (!warehouse.width || !warehouse.length) return null;
 
+  // Make sure this function is defined:
+  const handleDragEnd = async (e) => {
+    const warehouseEl = e.target.closest(".warehouse-grid");
+    const rect = warehouseEl.getBoundingClientRect();
+
+    const x = ((e.clientX - rect.left) / rect.width) * warehouse.width;
+    const y = ((e.clientY - rect.top) / rect.height) * warehouse.length;
+
+    const newPosition = clampPosition(
+      x,
+      y,
+      warehouse.cols * VAULT_SIZE_FT,
+      warehouse.rows * VAULT_SIZE_FT,
+      warehouse.width,
+      warehouse.length
+    );
+
+    setFieldGridPosition(newPosition);
+    setIsDragging(false);
+    setDragPreviewPosition(null);
+
+    try {
+      await dispatch(updateFieldGridThunk(warehouse.id, newPosition));
+    } catch (error) {
+      console.error("Error saving field grid position:", error);
+    }
+  };
+
   return (
     <>
       {/* Modal for rack info */}
@@ -417,6 +448,7 @@ export default function EditWarehouseLayout({
         racks={racks}
         handleDragStart={handleDragStart}
         handleDrag={handleDrag}
+        handleDragEnd={handleDragEnd} // <-- Make sure this is passed
         handleRackDrop={handleRackDrop}
         handleRackDragStart={handleRackDragStart}
         handleRackDrag={handleRackDrag}

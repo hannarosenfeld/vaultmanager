@@ -1,4 +1,3 @@
-
 export default function EditWarehouseView({
     warehouse,
     fieldGridPosition,
@@ -10,6 +9,7 @@ export default function EditWarehouseView({
     racks,
     handleDragStart,
     handleDrag,
+    handleDragEnd, // <-- Add this line
     handleRackDrop,
     handleRackDragStart,
     handleRackDrag,
@@ -73,6 +73,7 @@ export default function EditWarehouseView({
                     draggable
                     onDragStart={handleDragStart}
                     onDrag={handleDrag}
+                    onDragEnd={handleDragEnd}
                     className="absolute flex items-center justify-center cursor-grab bg-blue-100 bg-opacity-30"
                     style={{
                         top: `${(fieldGridPosition.y / warehouse.length) * 100}%`,
