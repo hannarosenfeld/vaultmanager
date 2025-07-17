@@ -388,6 +388,10 @@ def delete_vault(id):
 
     if field:
         field.full = False
+        # PATCH: After deleting the vault, check if field is still full
+        if field.vaults.count() == 0:
+            field.full = False
+        db.session.commit()
         
     customer = Customer.query.get(vault.customer_id)
     order = Order.query.get(vault.order_id)   

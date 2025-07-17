@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentField } from "../../store/warehouse";
 import { sortWarehouseFields } from "../../utils/sortWarehouseFields";
+import { current } from "@reduxjs/toolkit";
 
 export default function FieldGrid({ warehouse, handleFieldClick, currentField }) {
   const dispatch = useDispatch();
@@ -10,8 +11,8 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
   const [selectedField, setSelectedField] = useState(currentField);
 
   useEffect(() => {
-    console.log("❤️ selectedField", selectedField);
-  }, [selectedField]);
+    console.log("❤️ selectedField", currentField);
+  }, [currentField]);
 
   useEffect(() => {
     if (warehouse.fields) {
