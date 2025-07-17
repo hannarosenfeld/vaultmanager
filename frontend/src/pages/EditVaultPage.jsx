@@ -39,7 +39,7 @@ export default function EditVaultPage() {
       if (vault.customer_name?.toUpperCase().includes("EMPTY")) {
         setIsEmpty(true);
         const typeMatch = vault.customer_name.split(" ")[1]?.toLowerCase();
-        if (["vault", "liftvan", "t2"].includes(typeMatch)) {
+        if (["vault", "liftvan", "t2", "couchbox"].includes(typeMatch)) {
           setSelectedType(typeMatch);
         }
       }
@@ -206,7 +206,7 @@ export default function EditVaultPage() {
             <input
               type="text"
               name="customer_name"
-              value={editableVault.customer_name.includes("EMPTY") ? "EMPTY" : editableVault.customer_name || ""}
+              value={editableVault.customer_name && editableVault.customer_name.includes("EMPTY") ? "EMPTY" : editableVault.customer_name || ""}
               onChange={handleChange}
               disabled={isEmpty}
               className={`mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm ${
@@ -237,6 +237,7 @@ export default function EditVaultPage() {
                 <option value="vault">Vault</option>
                 <option value="liftvan">Liftvan</option>
                 <option value="t2">T2</option>
+                <option value="couchbox">Couchbox</option>
               </select>
             </div>
           )}
@@ -259,7 +260,7 @@ export default function EditVaultPage() {
               value={
                 selectedType === "t2" || selectedType === "liftvan"
                   ? ""
-                  : editableVault.name.includes("EMPTY")
+                  : editableVault.name && editableVault.name.includes("EMPTY")
                   ? "EMPTY"
                   : editableVault.name || ""
               }
