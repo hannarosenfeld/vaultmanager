@@ -111,7 +111,7 @@ export default function LandingPage() {
             It’s a game changer.”
           </blockquote>
           <div className="text-primary font-semibold">
-            — Ian, Warehouse Manager at Naglee Moving & Storage
+            — Ian, Operations Manager at Naglee Moving & Storage
           </div>
         </div>
       </section>
