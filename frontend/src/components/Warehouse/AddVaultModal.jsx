@@ -207,6 +207,7 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
                       id="vault_id"
                       value={formData.vault_id}
                       onChange={handleChange}
+                      // Only disable for liftvan and couchbox, NOT t2
                       disabled={
                         isEmpty &&
                         (
@@ -224,15 +225,6 @@ export default function AddVaultModal({ onClose, fieldId, type, position }) {
                           : "bg-white"
                       }`}
                       placeholder="Vault Number"
-                      required={
-                        !(
-                          isEmpty &&
-                          (
-                            selectedType === "couchbox" ||
-                            selectedType === "liftvan"
-                          )
-                        )
-                      }
                     />
                   </div>
                   <div className="mb-5 w-1/2">
