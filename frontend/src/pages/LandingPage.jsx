@@ -116,6 +116,8 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Commented out the whole "Tell Us About Your Warehouse Needs" part and container */}
+      {/*
       <section
         id="signup"
         className="w-full flex justify-center py-16 bg-gradient-to-t from-background via-white to-accent"
@@ -129,83 +131,11 @@ export default function LandingPage() {
               Thank you! Your request has been submitted. We'll be in touch soon.
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-charcoal font-medium mb-1"
-                >
-                  Name
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  className="w-full border border-slate rounded px-3 py-2 focus:ring-2 focus:ring-accent"
-                />
-                <ValidationError prefix="Name" field="name" errors={state.errors} />
-              </div>
-              <div>
-                <label
-                  htmlFor="company"
-                  className="block text-charcoal font-medium mb-1"
-                >
-                  Company
-                </label>
-                <input
-                  id="company"
-                  name="company"
-                  type="text"
-                  required
-                  className="w-full border border-slate rounded px-3 py-2 focus:ring-2 focus:ring-accent"
-                />
-                <ValidationError prefix="Company" field="company" errors={state.errors} />
-              </div>
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-charcoal font-medium mb-1"
-                >
-                  Email
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="w-full border border-slate rounded px-3 py-2 focus:ring-2 focus:ring-accent"
-                />
-                <ValidationError prefix="Email" field="email" errors={state.errors} />
-              </div>
-              <div>
-                <label
-                  htmlFor="needs"
-                  className="block text-charcoal font-medium mb-1"
-                >
-                  Tell us about your warehouse needs (e.g. type of storage, challenges, goals, questions)
-                </label>
-                <textarea
-                  id="needs"
-                  name="needs"
-                  required
-                  rows={4}
-                  className="w-full border border-slate rounded px-3 py-2 focus:ring-2 focus:ring-accent"
-                />
-                <ValidationError prefix="Needs" field="needs" errors={state.errors} />
-              </div>
-              <button
-                type="submit"
-                disabled={state.submitting}
-                className="w-full bg-primary text-white font-semibold py-2 rounded-lg shadow-md hover:bg-accent hover:text-white transition"
-              >
-                Submit Request
-              </button>
-            </form>
+            null
           )}
         </div>
       </section>
-
+      */}
       <footer className="w-full py-6 text-center text-slate text-sm">
         &copy; {new Date().getFullYear()} Warehouse Manager. All rights reserved.
       </footer>
