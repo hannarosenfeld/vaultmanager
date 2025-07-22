@@ -124,6 +124,22 @@ def add_vault():
 
             company_id = request.form.get('company_id')
 
+            # --- PATCH: Check field capacity before adding vault ---
+            field = Field.query.get(form.data['field_id'])
+            if not field:
+                return jsonify({'error': 'Field not found'}), 404
+
+            # Get field capacity (from model: field_capacity or capacity)
+            field_capacity = getattr(field, 'capacity', None) or getattr(field, 'field_capacity', None) or getattr(field, 'fieldcapacity', None) or getattr(field, 'field_capacity', None)
+            # Fallback to warehouse.field_capacity if not set on field
+            if not field_capacity and hasattr(field, 'warehouse') and hasattr(field.warehouse, 'field_capacity'):
+                field_capacity = field.warehouse.field_capacity
+
+            vault_count = field.vaults.count() if hasattr(field.vaults, 'count') else len(field.vaults)
+            # If field is full or vault count matches capacity, block addition
+            if field.full or (field_capacity and vault_count >= field_capacity):
+                return jsonify({'error': 'Field is full. Cannot add more vaults.'}), 400
+
             # Only allow a name for EMPTY T2, not for EMPTY LIFTVAN or EMPTY COUCHBOX
             if customer_name == "EMPTY T2":
                 vault_name = form.data['vault_id'] if form.data['vault_id'] else None
