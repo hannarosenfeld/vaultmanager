@@ -8,7 +8,6 @@ search_routes = Blueprint('search', __name__)
 @search_routes.route('/<string:type>/<int:id>')
 @login_required
 def search_warehouse(id, type):
-    print("💖 in route", id, type)
     if request.method == 'GET':
         if (type == "customer"):
             customer = Customer.query.get(id)
@@ -25,17 +24,12 @@ def search_warehouse(id, type):
 
         if (type == "order"):
             order = Order.query.get(id)
-            print("🌈 order: ", order.to_dict())
-            print("🌧️ order vaults: ", order.order_vaults)
-
             if order:
                 fields_containing_searched_order = []    
                 for vault in order.order_vaults:
                     # vault = Vault.query.get(vault_id)
-                    print("💧 vault: ", vault.to_dict())
 
                     field_id = vault.field_id
-                    print("💖 field id: ", field_id)
                     if field_id != None:
                         fields_containing_searched_order.append(field_id)
                     

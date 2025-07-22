@@ -11,6 +11,7 @@ function Searchbar() {
   const [customers, setCustomers] = useState([]);
   const [orders, setOrders] = useState([]);
   const [pallets, setPallets] = useState([]);
+  const [vaultNames, setVaultNames] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [dropdownVisible, setDropdownVisible] = useState(false);
 
@@ -23,6 +24,12 @@ function Searchbar() {
     }
     if (currentWarehouse.orders) {
       setOrders(Object.values(currentWarehouse.orders));
+    }
+    // Add vault names from all fields
+    if (currentWarehouse.fields) {
+      const fields = Object.values(currentWarehouse.fields);
+      const vaults = fields.flatMap(field => Object.values(field.vaults || {}));
+      setVaultNames(vaults.map(vault => vault.name).filter(Boolean));
     }
     if (currentWarehouse.racks) {
       const racks = Object.values(currentWarehouse.racks);
@@ -51,7 +58,10 @@ function Searchbar() {
       const orderSuggestions = orders.filter((order) =>
         order && order.toLowerCase().includes(value.toLowerCase())
       ).map((order) => ({ type: 'order', name: order }));
-      setSuggestions([...customerSuggestions, ...orderSuggestions]);
+      const vaultSuggestions = vaultNames.filter((vaultName) =>
+        vaultName && vaultName.toLowerCase().includes(value.toLowerCase())
+      ).map((vaultName) => ({ type: 'vault', name: vaultName }));
+      setSuggestions([...customerSuggestions, ...orderSuggestions, ...vaultSuggestions]);
       setDropdownVisible(true);
     } else {
       setSuggestions([]);
@@ -82,7 +92,7 @@ function Searchbar() {
             type="text"
             id="simple-search"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-3 p-2.5"
-            placeholder={currentView === "rack" ? "Search customer/pallet number..." : "Search customer/order number..."}
+            placeholder={currentView === "rack" ? "Search customer/pallet/vault number..." : "Search customer/order/vault number..."}
             value={search}
             onChange={handleChange}
             required
@@ -108,7 +118,11 @@ function Searchbar() {
                       onClick={() => handleSuggestionClick(suggestion)}
                     >
                       <span className="material-symbols-outlined me-2 text-xs">
-                        {suggestion.type === 'customer' ? 'person' : 'orders'}
+                        {suggestion.type === 'customer'
+                          ? 'person'
+                          : suggestion.type === 'order'
+                          ? 'orders'
+                          : 'inventory_2'} {/* vault icon */}
                       </span>
                       {suggestion.name}
                     </a>

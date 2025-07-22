@@ -22,7 +22,6 @@ export default function FieldGrid({ warehouse, handleFieldClick, currentField })
   }, [warehouse.id, dispatch]);
 
   const handleFieldSelect = (field) => {
-    console.log("💕 field", field)
     setSelectedField(field.id);
     dispatch(setCurrentField(field));
     handleFieldClick(field);

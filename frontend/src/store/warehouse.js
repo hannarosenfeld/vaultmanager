@@ -962,12 +962,14 @@ const warehouseReducer = (state = initialState, action) => {
         const fields = Object.values(state.currentWarehouse.fields);
         const vaults = fields.flatMap((field) => Object.values(field.vaults));
 
-        const vaultsContainingSearchTerm =
-          type == "order"
-            ? vaults.filter((vault) => vault.order_name === searchTerm)
-            : type == "customer"
-              ? vaults.filter((vault) => vault.customer_name === searchTerm)
-              : [];
+        let vaultsContainingSearchTerm = [];
+        if (type == "order") {
+          vaultsContainingSearchTerm = vaults.filter((vault) => vault.order_name === searchTerm);
+        } else if (type == "customer") {
+          vaultsContainingSearchTerm = vaults.filter((vault) => vault.customer_name === searchTerm);
+        } else if (type == "vault") {
+          vaultsContainingSearchTerm = vaults.filter((vault) => vault.name === searchTerm);
+        }
 
         const fieldIds = vaultsContainingSearchTerm.map(
           (vault) => vault.field_id
