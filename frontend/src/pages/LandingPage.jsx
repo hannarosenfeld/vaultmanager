@@ -27,12 +27,12 @@ export default function LandingPage() {
             layouts, and paperless efficiency. Trusted by industry leaders like
             Naglee Moving & Storage.
           </p>
-          <a
+          {/* <a
             href="#signup"
             className="inline-block bg-primary text-white font-semibold px-8 py-3 rounded-full shadow-lg hover:bg-accent hover:text-white transition"
           >
             Submit a Request
-          </a>
+          </a> */}
         </div>
       </header>
 
